@@ -37,3 +37,6 @@ next-env.d.ts
 # ignore generated rss feeds
 /public/feed/*
 !public/feed/.gitkeep 
+
+# ignore songs
+/data/songs/*

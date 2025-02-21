@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { BsFileMusicFill } from "react-icons/bs";
 import { Indie } from "../fonts/font";
 import RecentSongs from "@/components/RecentSongs";
-import { RecentSong, fetchSongs } from "@/GlobalState/ApiCalls/fetchSongs";
+import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 
 const page = () => {
   const [recentTracks, setRecentTracks] = useState<RecentSong[]>([]);
@@ -12,9 +12,10 @@ const page = () => {
 
   const fetchTracks = async () => {
     try {
-      const modifiedTracks = await fetchSongs();
+      const res = await fetch("/api/songs");
+      const recentTracks = await res.json();
 
-      setRecentTracks(modifiedTracks);
+      setRecentTracks(recentTracks);
       setLoading(false);
     } catch (error) {
       setError(true);
