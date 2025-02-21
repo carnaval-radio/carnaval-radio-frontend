@@ -3,6 +3,8 @@ import path from "path";
 import fs from "fs";
 import { NextResponse } from "next/server";
 
+export const revalidate = 20000;
+
 export async function GET() {
   const mostRecentSongs = await fetchSongs();
 
