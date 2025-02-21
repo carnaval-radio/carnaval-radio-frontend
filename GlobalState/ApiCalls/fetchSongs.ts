@@ -27,7 +27,17 @@ const SONGS_URL = "https://ams1.reliastream.com/recentfeed/scarna00/json";
 export async function fetchSongs(): Promise<RecentSong[]> {
   try {
     const response = await axios.get(SONGS_URL);
+    let previousSongNameContainsLive = false;
+
+    console.log(response);
     const modifiedTracks: RecentSong[] = response.data.items.map((item: RadioTrackItem) => {
+      if(previousSongNameContainsLive) {
+        previousSongNameContainsLive = false;
+        return null;
+      }
+      
+      previousSongNameContainsLive = item.title.toLowerCase().includes("live") && item.title.toLowerCase().includes("uitzending");
+
       const song = splitTitle(item.title);
       return {
         ...enrichTitle(song),
@@ -36,7 +46,7 @@ export async function fetchSongs(): Promise<RecentSong[]> {
       };
     });
 
-    return modifiedTracks;
+    return modifiedTracks.filter((song) => song !== null);
   } catch (error) {
     console.error("Failed to fetch songs:", error);
     return [];

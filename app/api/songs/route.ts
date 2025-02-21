@@ -3,7 +3,6 @@ import { FileSystemStorage } from "@/GlobalState/Storage";
 import { IStorage } from "@/GlobalState/Storage";
 import { NextResponse } from "next/server";
 
-// Use the file system for now
 const storage: IStorage = new FileSystemStorage();
 
 export const revalidate = 20000;
