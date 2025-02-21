@@ -12,6 +12,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.8",
     "@strapi/blocks-react-renderer": "^1.0.0",
+    "@supabase/supabase-js": "^2.48.1",
     "@types/node": "20.10.7",
     "@types/react": "18.2.47",
     "@types/react-dom": "18.2.18",

@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export interface Song {
+  ID?: string;
   artist: string;
   title: string;
 }
