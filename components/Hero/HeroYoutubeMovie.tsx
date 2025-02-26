@@ -15,15 +15,11 @@ const HeroYoutubeMovie = () => {
     };
 
     return (
-        <div className="h-full w-full flex justify-center items-center group
-            rounded-xl min-w-[35vw] shadow-lg md:ml-5 bg-black">
-
-            <div className="relative w-full h-full">
-                <YouTube
-                    videoId="81-IQsNImXU"
-                    opts={opts}
-                    className="absolute py-3 top-0 left-0 w-full h-full object-cover"
-                />
+        <div className="flex flex-col py-3 items-center justify-center
+            rounded-xl min-w-[35vw] shadow-lg md:ml-5 bg-black md:flex">
+            
+            <div className="relative w-full aspect-[16/9]">
+                <YouTube videoId="81-IQsNImXU" opts={opts} className="w-full h-full object-cover" />
             </div>
         </div>
     );
