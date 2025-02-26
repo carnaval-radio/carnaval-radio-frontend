@@ -36,11 +36,11 @@ const HeroToggleSwitch = ({ slides, showAfterMovie }: HeroToggleSwitchProps) => 
         className="absolute -bottom-5 left-1/2 flex items-center justify-center cursor-pointer"
         onClick={handleToggle}
       >
-        <div className="relative flex justify-center items-center bg-white rounded-full">
+        <div className="relative flex justify-center items-center bg-[#f9f9f9] rounded-full">
           {/* Arrow icon rotates */}
           <MdSwapHorizontalCircle          
             color="#0CAE12"       
-            className={`opacity-70  w-12 h-12 transition-transform duration-300 ${
+            className={`opacity-70 w-10 h-10 transition-transform duration-300 ${
               showMovie ? "rotate-180" : "rotate-0"
             }`}
             style={{ fontSize: "1.5rem"}}
