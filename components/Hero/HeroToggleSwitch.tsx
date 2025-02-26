@@ -4,7 +4,7 @@ import { useState } from "react";
 import HeroSlider from "./HeroSlider";
 import HeroYoutubeMovie from "./HeroYoutubeMovie";
 import { Slide } from "@/types/slideTypes";
-import { MdRotateLeft, MdSwapHorizontalCircle } from "react-icons/md";
+import { MdSwapHorizontalCircle } from "react-icons/md";
 
 interface HeroToggleSwitchProps {
   slides: Slide[];
@@ -33,7 +33,7 @@ const HeroToggleSwitch = ({ slides, showAfterMovie }: HeroToggleSwitchProps) => 
 
      {/* Round Button with Rotating Arrow */}
      <div
-        className="absolute -bottom-5 left-1/2 flex items-center justify-center cursor-pointer"
+        className="absolute -bottom-5 left-1/2 -mx-3 flex items-center justify-center cursor-pointer"
         onClick={handleToggle}
       >
         <div className="relative flex justify-center items-center bg-[#f9f9f9] rounded-full">
