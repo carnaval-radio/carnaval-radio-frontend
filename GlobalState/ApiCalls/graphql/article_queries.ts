@@ -14,7 +14,7 @@ query{
 
 export const GET_ALL_ARTICLES = gql`
 query{
-  articles(sort: "Date:desc"){
+  articles(sort: "Date:desc", pagination: { limit: 100 }){
     data{
       id
       attributes{
