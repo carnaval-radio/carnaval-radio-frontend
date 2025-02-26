@@ -34,6 +34,7 @@
     "react-markdown": "^9.0.1",
     "react-multi-carousel": "^2.8.4",
     "react-redux": "^9.0.4",
+    "react-youtube": "^10.1.0",
     "rss-parser": "^3.13.0",
     "sharp": "^0.33.1",
     "swiper": "^11.0.5",
