@@ -2,8 +2,8 @@
 
 const HeroYoutubeMovie = () => {
     return (
-        <div className="flex flex-col h-full w-full justify-center items-center group
-            rounded-xl min-w-[35vw] shadow-lg md:ml-5 bg-black">
+        <div className="h-full w-full justify-center items-center group
+            rounded-xl min-w-[35vw] shadow-lg bg-black">
 
             <div className="relative w-full h-full">
 
