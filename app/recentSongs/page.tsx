@@ -14,7 +14,9 @@ const page = () => {
 
   const fetchTracks = async () => {
     try {
-      const res = await fetch("/api/songs");
+      const res = await fetch("/api/songs", {
+        cache: 'reload'
+      });
       const recentTracks = await res.json();
 
       setRecentTracks(recentTracks);
