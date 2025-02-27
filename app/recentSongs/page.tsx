@@ -5,6 +5,8 @@ import { Indie } from "../fonts/font";
 import RecentSongs from "@/components/RecentSongs";
 import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 
+export const fetchCache = 'force-no-store';
+
 const page = () => {
   const [recentTracks, setRecentTracks] = useState<RecentSong[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

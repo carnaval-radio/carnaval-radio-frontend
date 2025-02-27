@@ -23,7 +23,6 @@ const HeroToggleSwitch = ({ slides, showAfterMovie }: HeroToggleSwitchProps) => 
   return (
     <>
       <div className=" flex flex-col h-full w-full transition-all duration-500">
-        {/* Animate the transition between Slider and Movie */}
         {showMovie && showAfterMovie ? (
           <HeroYoutubeMovie />
         ) : (
@@ -31,13 +30,11 @@ const HeroToggleSwitch = ({ slides, showAfterMovie }: HeroToggleSwitchProps) => 
         )}
       </div>
 
-     {/* Round Button with Rotating Arrow */}
      <div
         className="absolute -bottom-5 left-1/2 -mx-3 flex items-center justify-center cursor-pointer"
         onClick={handleToggle}
       >
         <div className="relative flex justify-center items-center bg-[#f9f9f9] rounded-full">
-          {/* Arrow icon rotates */}
           <MdSwapHorizontalCircle          
             color="#0CAE12"       
             className={`opacity-70 w-10 h-10 transition-transform duration-300 ${
