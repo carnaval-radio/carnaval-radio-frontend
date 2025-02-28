@@ -1,9 +1,9 @@
 import { fetchSongs, RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
-import { FileSystemStorage } from "@/GlobalState/Storage";
+import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
 import { IStorage } from "@/GlobalState/Storage";
 import { NextResponse } from "next/server";
 
-const storage: IStorage = new FileSystemStorage();
+const storage: IStorage = new DataStorage();
 
 export const revalidate = 20000;
 
@@ -14,7 +14,6 @@ export async function GET() {
 
   try {
     await storage.saveSongs(songsWithIDs);
-    console.log("Song list ensured");
   } catch (error) {
     console.error("Error ensuring song list:", error);
   }

@@ -29,7 +29,6 @@ export async function fetchSongs(): Promise<RecentSong[]> {
     const response = await axios.get(SONGS_URL);
     let previousSongNameContainsLive = false;
 
-    console.log(response);
     const modifiedTracks: RecentSong[] = response.data.items.map((item: RadioTrackItem) => {
       if(previousSongNameContainsLive) {
         previousSongNameContainsLive = false;
