@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 const storage: IStorage = new DataStorage();
 
-export const revalidate = 20000;
+export const revalidate = 2000;
 
 export async function GET() {
   const mostRecentSongs = await fetchSongs();
