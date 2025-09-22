@@ -14,7 +14,12 @@ export async function GET() {
       
       if (cachedSongs && cachedSongs.length > 0) {
         console.log(`✅ Served ${cachedSongs.length} songs from Supabase cache`);
-        return NextResponse.json(cachedSongs);
+        
+        return NextResponse.json(cachedSongs, {
+          headers: {
+            'Cache-Control': 'public, max-age=60, stale-while-revalidate=30',
+          }
+        });
       }
     } catch (error) {
       console.warn("⚠️ Supabase unavailable, falling back to direct fetch:", error);

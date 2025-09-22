@@ -15,13 +15,22 @@ const page = () => {
   const fetchTracks = async () => {
     try {
       const res = await fetch("/api/songs", {
-        cache: 'no-store'
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
       });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const recentTracks = await res.json();
-
       setRecentTracks(recentTracks);
       setLoading(false);
     } catch (error) {
+      console.error('Failed to fetch tracks:', error);
       setError(true);
     }
   };
