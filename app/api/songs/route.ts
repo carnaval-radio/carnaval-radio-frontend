@@ -1,34 +1,38 @@
 import { fetchSongs, RecentSong, RecentSongWithID } from "@/GlobalState/ApiCalls/fetchSongs";
 import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
-import { FileSystemStorage } from "@/GlobalState/Songs/FileSystemStorage";
-import { IStorage } from "@/GlobalState/Storage";
 import { isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
 import { NextResponse } from "next/server";
 
-// Use Supabase if configured, otherwise fall back to FileSystem storage
-const storage: IStorage = isSupabaseConfigured() 
-  ? new DataStorage() 
-  : new FileSystemStorage();
-
-export const revalidate = 10; // Revalidate every 10 seconds
+export const revalidate = 60; // Cache for 60 seconds
 
 export async function GET() {
-  const mostRecentSongs = await fetchSongs();
-  
-  const songsWithIDs = addSongIDs(mostRecentSongs);
-
-  try {
-    await storage.saveSongs(songsWithIDs);
-    console.log(`✅ Successfully saved ${songsWithIDs.length} songs using ${isSupabaseConfigured() ? 'Supabase' : 'FileSystem'} storage`);
-  } catch (error) {
-    console.error("Error saving songs:", error);
-    console.warn("⚠️ Song storage failed, but API will still return fetched songs");
+  // Try to load from Supabase first (fastest)
+  if (isSupabaseConfigured()) {
+    try {
+      const storage = new DataStorage();
+      const cachedSongs = await storage.loadSongs(10);
+      
+      if (cachedSongs && cachedSongs.length > 0) {
+        console.log(`✅ Served ${cachedSongs.length} songs from Supabase cache`);
+        return NextResponse.json(cachedSongs);
+      }
+    } catch (error) {
+      console.warn("⚠️ Supabase unavailable, falling back to direct fetch:", error);
+    }
   }
 
-  const songs = await storage.loadSongs(10);
-  console.log(`ℹ️ Loaded ${songs.length} songs from ${isSupabaseConfigured() ? 'Supabase' : 'FileSystem'} storage`);
-
-  return NextResponse.json(songs);
+  // Fallback: Direct fetch from radio API (slower, no caching)
+  try {
+    console.log("📡 No cached data available, fetching directly from radio API");
+    const freshSongs = await fetchSongs();
+    const songsWithIDs = addSongIDs(freshSongs);
+    
+    console.log(`✅ Served ${songsWithIDs.length} songs from direct API fetch`);
+    return NextResponse.json(songsWithIDs);
+  } catch (error) {
+    console.error("❌ All data sources failed:", error);
+    return NextResponse.json([], { status: 503 });
+  }
 }
 
 function addSongIDs(songs: RecentSong[]): RecentSongWithID[] {
