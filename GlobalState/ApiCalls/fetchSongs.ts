@@ -21,6 +21,9 @@ export async function fetchSongs(): Promise<RecentSong[]> {
     // Simple request - let the radio API handle its own caching
     const response = await axios.get(SONGS_URL);
     let previousSongNameContainsLive = false;
+    
+    // Calculate play times for all tracks at once
+    const playTimes = estimatePlayTimes(response.data.trackhistory);
 
     const modifiedTracks: RecentSong[] = response.data.trackhistory.map((item: string, index: number) => {
       if(previousSongNameContainsLive) {
@@ -33,7 +36,7 @@ export async function fetchSongs(): Promise<RecentSong[]> {
       const song = splitTitle(item);
       return {
         ...enrichTitle(song),
-        date: null, // the new endpoint does not provide a date, leave as null
+        date: playTimes[index], // Use pre-calculated timestamp
         url: enrichCover(response.data.covers?.[index] || "", song),
       };
     });
@@ -48,6 +51,41 @@ export async function fetchSongs(): Promise<RecentSong[]> {
 export function splitTitle(title: string) {
   const parts = title.split(" - ");
   return parts.length === 2 ? { artist: parts[0], title: parts[1] } : { artist: "Unknown", title };
+}
+
+export function getSongDuration(song: Song): number {
+  const AVERAGE_SONG_DURATION = 3 * 60 * 1000; // 3 minutes in milliseconds
+  const JINGLE_DURATION = 20 * 1000; // 20 seconds for jingles
+  
+  const songTitle = song.title?.toLowerCase() || "";
+  const artistName = song.artist?.toLowerCase() || "";
+  
+  // Check if this is a jingle
+  const isJingle = songTitle.includes("jingle") || artistName.includes("jingle");
+  
+  return isJingle ? JINGLE_DURATION : AVERAGE_SONG_DURATION;
+}
+
+export function estimatePlayTimes(trackHistory: string[]): number[] {
+  const now = Date.now();
+  const RECENT_SONG_OFFSET = 30 * 1000; // 30 seconds ago for most recent song
+  
+  const playTimes: number[] = [];
+  let cumulativeTime = RECENT_SONG_OFFSET;
+  
+  trackHistory.forEach((item) => {
+    const song = splitTitle(item);
+    const duration = getSongDuration(song);
+    
+    // Calculate estimated play time based on cumulative duration
+    const estimatedPlayTime = now - cumulativeTime;
+    playTimes.push(estimatedPlayTime);
+    
+    // Add this song's duration to cumulative time for next iteration
+    cumulativeTime += duration;
+  });
+  
+  return playTimes;
 }
 
 const DefaultCarnavalRadio = "Carnaval-Radio.nl";

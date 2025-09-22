@@ -1,11 +1,10 @@
 const DateAndTime = ({ timestamp, date }: { timestamp?: number, date?: Date }) => {
-  
-
   const currentDate = new Date();
   let formattedTimestamp = new Date();
+  
   if(timestamp) {
-    const CET_OFFSET = 6 * 3600; // 6 hours in seconds
-    formattedTimestamp = new Date((timestamp - CET_OFFSET) * 1000);
+    // Timestamp is already in milliseconds, just create Date object directly
+    formattedTimestamp = new Date(timestamp);
   } else if(date) {
     formattedTimestamp = date;
     formattedTimestamp.setHours(formattedTimestamp.getHours() + 1);
