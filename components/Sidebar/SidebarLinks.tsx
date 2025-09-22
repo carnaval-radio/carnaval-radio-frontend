@@ -6,7 +6,7 @@ interface props {
 }
 const SidebarLinks = ({ menu, toggleSidebar }: props) => {
   return (
-    <div className="flex flex-col gap-3 text-[#9F9F9F]">
+    <div className="flex flex-col gap-3 text-textMuted">
       {menu &&
         menu.map((item: any, index: any) => {
           return (

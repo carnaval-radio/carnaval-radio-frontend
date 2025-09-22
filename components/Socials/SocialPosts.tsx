@@ -13,10 +13,10 @@ const SocialPosts = ({ posts }: { posts: SocialPost[] }) => {
             i % 4 === 0
               ? "tertiaryShade_2"
               : i % 4 === 1
-              ? "secondayShade_2"
+              ? "secondaryShade_2"
               : i % 4 === 2
               ? "primaryShade_3"
-              : "secondayShade_2"
+              : "secondaryShade_2"
           }`} rounded-xl p-5 overflow-hidden space-y-5 w-full`}
         >
           <ImageWithFallback

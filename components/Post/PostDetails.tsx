@@ -28,7 +28,7 @@ const PostDetails = ({
           colorIndex === 0
             ? "tertiaryShade_2"
             : colorIndex === 1
-            ? "secondayShade_2"
+            ? "secondaryShade_2"
             : "primaryShade_3"
         }`}  rounded-xl p-5 overflow-hidden space-y-3`}
       >
@@ -63,7 +63,7 @@ const PostDetails = ({
           colorIndex === 0
             ? "tertiaryShade_2"
             : colorIndex === 1
-            ? "secondayShade_2"
+            ? "secondaryShade_2"
             : "primaryShade_3"
         }`}  rounded-xl p-5 overflow-hidden space-y-3`}
       >

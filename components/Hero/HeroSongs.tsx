@@ -29,7 +29,7 @@ const HeroSongs = () => {
   }, [error]);
 
   return (
-    <div className="flex flex-col py-8 px-2 sm:px-4 md:px-8 lg:px-8 xl:px-8 rounded-xl min-w-[30vw] shadow-lg md:ml-5">
+    <div className="flex flex-col py-8 px-2 sm:px-4 md:px-8 lg:px-8 xl:px-8 rounded-xl min-w-[30vw] shadow-lg md:ml-5 bg-gradient-to-br from-gradientStart to-gradientEnd">
       <div className="flex items-center justify-center gap-2 mb-4">
         <BsFileMusicFill className="text-2xl text-secondary" />
         <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>

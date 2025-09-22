@@ -7,7 +7,7 @@ import { fetchSponsors } from "@/GlobalState/ApiCalls/fetchSponsors";
 
 const Sponsors = () => {
   return (
-    <div className="text-black px-10 py-2 bg-gradient-to-r from-[#FFF8F9] to-[#F8FFF9]">
+    <div className="text-black px-10 py-2 bg-gradient-to-r from-gradientStart to-gradientEnd">
       <SectionTitle title="sponsoren" image={sponsors_icon} />
       <Suspense fallback={<SponsorsSkeleton />}>
         <SponsorsLoaded />

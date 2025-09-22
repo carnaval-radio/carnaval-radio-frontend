@@ -58,7 +58,7 @@ const RequestForm: React.FC = () => {
             </div>
             <div className="rounded-lg bg-slate-50 p-4 mb-4">
                 <div className="flex justify-left">
-                    <div className="bg-[#d9fdd3] rounded-tl-lg rounded-bl-lg text-[#111b21] shadow-sm rounded-br-lg user px-4 py-2">
+                    <div className="bg-tertiaryShade_2 rounded-tl-lg rounded-bl-lg text-black shadow-sm rounded-br-lg user px-4 py-2">
                         Liedje: {artist && <>{artist} -</>} {title}
                         {sender && <>
                             <br />

@@ -24,7 +24,7 @@ const EventsList: React.FC<EventsProps> = ({ events, loading = null }) => {
                   />
                   <div
                     className={`py-2 px-4 rounded-full ${
-                      i % 2 !== 0 ? "bg-tertiaryShade_1" : "bg-secondayShade_1"
+                      i % 2 !== 0 ? "bg-tertiaryShade_1" : "bg-secondaryShade_1"
                     }`}
                   >
                     <p

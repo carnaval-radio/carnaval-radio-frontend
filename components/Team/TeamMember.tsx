@@ -92,7 +92,7 @@ const TeamMember = ({
               className="text-gray-600 hover:text-gray-500"
             >
               <span className="sr-only">Telefoon</span>
-              <FaPhone color="#2C2E80" width="20" height="20" />
+                            <FaPhone className="text-contactIcon" width="20" height="20" />
             </a>
           </li>
         )}
@@ -103,7 +103,7 @@ const TeamMember = ({
             className="text-gray-600 hover:text-gray-500"
           >
             <span className="sr-only">E-mail</span>
-            <FaEnvelope color="#2C2E80" width="20" height="20" />
+            <FaEnvelope className="text-contactIcon" width="20" height="20" />
           </a>
         </li>)}
       </ul>

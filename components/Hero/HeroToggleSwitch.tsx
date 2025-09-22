@@ -34,10 +34,9 @@ const HeroToggleSwitch = ({ slides, showAfterMovie }: HeroToggleSwitchProps) => 
         className="absolute -bottom-5 left-1/2 -mx-3 flex items-center justify-center cursor-pointer"
         onClick={handleToggle}
       >
-        <div className="relative flex justify-center items-center bg-[#f9f9f9] rounded-full">
+        <div className="relative flex justify-center items-center bg-heroBackground rounded-full">
           <MdSwapHorizontalCircle          
-            color="#0CAE12"       
-            className={`opacity-70 w-10 h-10 transition-transform duration-300 ${
+            className={`opacity-70 w-10 h-10 transition-transform duration-300 text-tertiary ${
               showMovie ? "rotate-180" : "rotate-0"
             }`}
             style={{ fontSize: "1.5rem"}}

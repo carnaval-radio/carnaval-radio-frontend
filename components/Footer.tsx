@@ -61,7 +61,7 @@ const Footer = ({ data, themeData }: props) => {
       </div>
       <div className="flex flex-col-reverse md:flex-row pb-6 sm:pb-8 md:pb-6 lg:pb-6 xl:pb-6 items-center justify-between px-10 gap-2">
         <p className="text-sm sm:text-lg md:text-lg lg:text-lg xl:text-lg text-right">
-            Made by <a href="http://www.novana.nl" target="_blank" className="text-[#FF5733]">Novana</a>
+            Made by <a href="http://www.novana.nl" target="_blank" className="text-accentLink">Novana</a>
         </p>
       </div>
     </footer>

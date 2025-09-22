@@ -67,21 +67,21 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
             />
           )}
           <div
-            className={`flex items-center justify-start p-4 sm:px-4 md:p-2 lg:p-2 xl:p-2 2xl:p-[10px] ml-7 mr-2 rounded-xl hover:bg-primaryShade_2 ${
+            className={`flex items-center justify-start p-4 sm:px-4 md:p-2 lg:p-2 xl:p-2 2xl:p-[10px] ml-7 mr-2 rounded-xl hover:bg-menuHover ${
               path == item.path && "bg-primaryShade_2"
             }`}
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
                 <span
-                  className={`text-2xl ${
-                    path == item.path && "text-secondary"
+                  className={`text-2xl text-secondary ${
+                    path == item.path && "!text-primary"
                   } `}
                 >
                   {item.Icon && IconMapping[item.Icon]}
                 </span>
                 <p
-                  className={`text-[16px] hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary hover:to-secondary ${
+                  className={`text-[16px] text-menuText hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary hover:to-secondary ${
                     path == item.path &&
                     "font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary"
                   }`}
@@ -113,19 +113,19 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
           />
         )}
         <div
-          className={`flex items-center justify-start p-4 sm:px-4 md:p-2 lg:p-2 xl:p-2 2xl:p-[10px] ml-7 mr-2 rounded-xl hover:bg-primaryShade_2 ${
+          className={`flex items-center justify-start p-4 sm:px-4 md:p-2 lg:p-2 xl:p-2 2xl:p-[10px] ml-7 mr-2 rounded-xl hover:bg-menuHover ${
             path == item.path && "bg-primaryShade_2"
           }`}
         >
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2">
               <span
-                className={`text-2xl ${path == item.path && "text-secondary"} `}
+                className={`text-2xl text-secondary ${path == item.path && "!text-primary"} `}
               >
                 {item.Icon && IconMapping[item.Icon]}
               </span>
               <p
-                className={`text-[16px] hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary hover:to-secondary ${
+                className={`text-[16px] text-menuText hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary hover:to-secondary ${
                   path == item.path &&
                   "font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary"
                 }`}
@@ -134,7 +134,7 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
               </p>
             </div>
             <span
-              className={`text-2xl ${
+              className={`text-2xl text-[#FF9D00] ${
                 open ? "rotate-180 duration-150" : "rotate-0 duration-150"
               }`}
             >
@@ -157,7 +157,7 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
                 toggleSidebar && toggleSidebar();
               }}
               key={"sideBarLink-Sub" + index}
-              className="p-2 hover:bg-primaryShade_2"
+              className="p-2 hover:bg-menuHover text-menuText"
               replace
             >
               {item.title}

@@ -52,7 +52,7 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                       className={`py-2 px-4 rounded-full ${
                         i % 2 !== 0
                           ? "bg-tertiaryShade_1"
-                          : "bg-secondayShade_1"
+                          : "bg-secondaryShade_1"
                       }`}
                     >
                       <p

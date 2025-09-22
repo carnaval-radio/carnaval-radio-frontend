@@ -115,7 +115,7 @@ const Player = () => {
   currentTrack && updateTrackInfo();
 
   return (
-    <div className="z-[1000] bg-gradient-to-r from-activeTab to-secondayShade_1 w-full h-fit fixed bottom-0 px-4 sm:px-4 md:px-20 lg-px-24 xl:px-24 py-2 sm:py-2 md:py-3 lg:py-3 xl:py-3">
+    <div className="z-[1000] bg-gradient-to-r from-activeTab to-secondaryShade_1 w-full h-fit fixed bottom-0 px-4 sm:px-4 md:px-20 lg-px-24 xl:px-24 py-2 sm:py-2 md:py-3 lg:py-3 xl:py-3">
       {trackUrl && (
         <>
           <audio src={trackUrl} ref={audioElem} muted={muted} />

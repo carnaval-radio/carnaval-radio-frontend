@@ -109,13 +109,13 @@ const PlayerControls = ({
               <GiSpeakerOff
                 onClick={() => dispatch(setMuted())}
                 onMouseMove={() => setShowVolume(!showVolume)}
-                className="text-2xl text-[#64748b] cursor-pointer"
+                className="text-2xl text-playerControls cursor-pointer"
               />
             ) : (
               <GiSpeaker
                 onClick={() => dispatch(setMuted())}
                 onMouseMove={() => setShowVolume(!showVolume)}
-                className="text-2xl text-[#64748b] cursor-pointer"
+                className="text-2xl text-playerControls cursor-pointer"
               />
             )}
             <input
@@ -140,13 +140,13 @@ const PlayerControls = ({
           <GiSpeakerOff
             onClick={() => dispatch(setMuted())}
             onMouseMove={() => setShowVolume(!showVolume)}
-            className="text-4xl text-[#64748b] cursor-pointer"
+            className="text-4xl text-playerControls cursor-pointer"
           />
         ) : (
           <GiSpeaker
             onClick={() => dispatch(setMuted())}
             onMouseMove={() => setShowVolume(!showVolume)}
-            className="text-4xl text-[#64748b] cursor-pointer"
+            className="text-4xl text-playerControls cursor-pointer"
           />
         )}
         {!loading ? (

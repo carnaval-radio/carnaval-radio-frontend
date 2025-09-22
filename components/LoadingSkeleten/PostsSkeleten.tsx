@@ -10,17 +10,17 @@ const PostsSkeleten = () => {
             i == 0
               ? "bg-tertiaryShade_2"
               : i == 1
-              ? "bg-secondayShade_2"
+              ? "bg-secondaryShade_2"
               : "bg-primaryShade_3"
           } rounded-xl p-5 overflow-hidden space-y-5 w-[370px]`}
         >
           <div
             className={`${
               i == 0
-                ? "bg-tertiaryShade_1"
+                ? "bg-tertiaryShade_2"
                 : i == 1
-                ? "bg-secondayShade_1"
-                : "bg-primaryShade_1"
+                ? "bg-secondaryShade_2"
+                : "bg-primaryShade_2"
             } h-60 w-[98%] rounded-xl bg-gray-100 animate-pulse`}
           ></div>
           <p className="h-10 w-1/2 bg-gray-200 rounded-md animate-pulse"></p>
@@ -29,7 +29,7 @@ const PostsSkeleten = () => {
               i == 0
                 ? "bg-tertiaryShade_2"
                 : i == 1
-                ? "bg-secondayShade_2"
+                ? "bg-secondaryShade_2"
                 : "bg-primaryShade_3"
             } mt-2`}
           >
