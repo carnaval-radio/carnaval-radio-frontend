@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { RecentSong } from "./ApiCalls/fetchSongs";
-import { IStorage } from "./Storage";
+import { RecentSong, RecentSongWithID } from "../ApiCalls/fetchSongs";
+import { IStorage } from "../Storage";
 
 export class FileSystemStorage implements IStorage {
     private readonly songsDir: string;
@@ -10,12 +10,12 @@ export class FileSystemStorage implements IStorage {
       this.songsDir = path.join(process.cwd(), "data", "songs");
     }
   
-    async saveSongs(songs: RecentSong[]): Promise<void> {
+    async saveSongs(songs: RecentSongWithID[]): Promise<void> {
       await this.ensureSongFiles(songs);
       await this.ensureSongList(songs);
     }
   
-    async loadSongs(limit: number = 10): Promise<RecentSong[]> {
+    async loadSongs(limit: number = 10): Promise<RecentSongWithID[]> {
       const DATA_PATH = path.join(this.songsDir, "latest-songs.json");
       if (fs.existsSync(DATA_PATH)) {
         const fileContent = fs.readFileSync(DATA_PATH, "utf-8");
@@ -25,7 +25,7 @@ export class FileSystemStorage implements IStorage {
       return [];
     }
   
-    private async ensureSongFiles(songs: RecentSong[]): Promise<void> {
+    private async ensureSongFiles(songs: RecentSongWithID[]): Promise<void> {
       if (!fs.existsSync(this.songsDir)) {
         fs.mkdirSync(this.songsDir, { recursive: true });
       }
@@ -46,16 +46,16 @@ export class FileSystemStorage implements IStorage {
       });
     }
 
-    async loadCurrentSong(): Promise<RecentSong | null> {
+    async loadCurrentSong(): Promise<RecentSongWithID | null> {
         const songs = await this.loadSongs(1);
         return songs.length > 0 ? songs[0] : null
     }
-  
-    private async ensureSongList(songs: RecentSong[]): Promise<void> {
+
+    private async ensureSongList(songs: RecentSongWithID[]): Promise<void> {
       const DATA_PATH = path.join(this.songsDir, "latest-songs.json");
       let existingSongs = await this.loadSongs(10);
-  
-      const existingSongIDs = new Set(existingSongs.map((song: RecentSong) => song.ID));
+
+      const existingSongIDs = new Set(existingSongs.map((song: RecentSongWithID) => song.ID));
       const newSongs = songs.filter((song) => !existingSongIDs.has(song.ID));
       const updatedTracks = [...existingSongs, ...newSongs];
   

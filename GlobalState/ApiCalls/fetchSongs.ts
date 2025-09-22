@@ -1,26 +1,18 @@
 import axios from "axios";
 
 export interface Song {
-  ID?: string;
   artist: string;
   title: string;
 }
 
 export interface RecentSong extends Song {
-  date: number;
+  date: number | null; // Unix timestamp in milliseconds or null if not available
   url: string;
 }
 
-interface RadioTrackItem {
-  title: string;
-  link: string;
-  description: string;
-  date: number;
-  enclosure: {
-    url: string;
-    type: string;
-  };
-};
+export interface RecentSongWithID extends RecentSong {
+  ID: string;
+}
 
 const SONGS_URL = "https://s20.reliastream.com:2020/json/stream/8010";
 
