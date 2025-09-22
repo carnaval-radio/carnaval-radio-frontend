@@ -10,7 +10,7 @@ const storage: IStorage = isSupabaseConfigured()
   ? new DataStorage() 
   : new FileSystemStorage();
 
-export const revalidate = 2000;
+export const revalidate = 10; // Revalidate every 10 seconds
 
 export async function GET() {
   const mostRecentSongs = await fetchSongs();

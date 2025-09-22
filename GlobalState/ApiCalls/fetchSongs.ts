@@ -18,6 +18,7 @@ const SONGS_URL = "https://s20.reliastream.com:2020/json/stream/8010";
 
 export async function fetchSongs(): Promise<RecentSong[]> {
   try {
+    // Simple request - let the radio API handle its own caching
     const response = await axios.get(SONGS_URL);
     let previousSongNameContainsLive = false;
 
