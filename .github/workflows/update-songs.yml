@@ -1,0 +1,32 @@
+name: Update Songs Database
+
+on:
+  schedule:
+    # Run every 10 minutes (free tier friendly)
+    - cron: '*/10 * * * *'
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  update-songs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Update Songs via API
+        run: |
+          echo "🎵 Updating songs database..."
+          
+          # Call your production API (update this URL when deployed)
+          API_URL="https://carnaval-radio.vercel.app/api/songs"
+          
+          response=$(curl -s -w "%{http_code}" "$API_URL" -o response.json)
+          http_code="${response: -3}"
+          
+          if [ "$http_code" = "200" ]; then
+            song_count=$(jq '. | length' response.json 2>/dev/null || echo "unknown")
+            echo "✅ Successfully updated $song_count songs"
+          else
+            echo "❌ API call failed with HTTP $http_code"
+            cat response.json 2>/dev/null || echo "No response body"
+            exit 1
+          fi

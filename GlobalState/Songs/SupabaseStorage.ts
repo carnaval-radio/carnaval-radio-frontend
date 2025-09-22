@@ -1,7 +1,7 @@
-// storageService.ts
-import { RecentSong } from "../ApiCalls/fetchSongs";
+// Modern Supabase Storage Service
+import { RecentSong, RecentSongWithID } from "../ApiCalls/fetchSongs";
 import { IInteractionsStorage, IStorage } from "../Storage";
-import { supabase } from "./supabase_client";
+import { supabase, Database } from "./supabase_client";
 import { Song, Artist, Interaction } from "./types";
 
 export class DataStorage implements IStorage, IInteractionsStorage {
@@ -55,7 +55,7 @@ export class DataStorage implements IStorage, IInteractionsStorage {
   }
 
   // Function to save or update songs in bulk
-  async saveSongs(songs: RecentSong[]): Promise<void> {
+  async saveSongs(songs: RecentSongWithID[]): Promise<void> {
     try {
       // Step 1: Collect artist names from songs and ensure they exist
       const artistNames = Array.from(new Set(songs.map((song) => song.artist)));
@@ -88,7 +88,7 @@ export class DataStorage implements IStorage, IInteractionsStorage {
   }
 
   // Function to load the latest X songs (ordered by last played)
-  async loadSongs(limit: number): Promise<RecentSong[]> {
+  async loadSongs(limit: number): Promise<RecentSongWithID[]> {
     try {
       const { data, error } = await supabase
         .from("songs")
@@ -108,7 +108,7 @@ export class DataStorage implements IStorage, IInteractionsStorage {
             title: song.title,
             date: 1, // Placeholder date
             url: song.cover_url,
-          } as RecentSong)
+          } as RecentSongWithID)
       );
     } catch (error) {
       console.error("Error loading latest songs:", error);
@@ -117,7 +117,7 @@ export class DataStorage implements IStorage, IInteractionsStorage {
   }
 
   // Function to load the current playing song (most recently played)
-  async loadCurrentSong(): Promise<RecentSong | null> {
+  async loadCurrentSong(): Promise<RecentSongWithID | null> {
     return this.loadSongs(1).then((songs) => songs[0] || null);
   }
 

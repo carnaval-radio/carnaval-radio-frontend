@@ -1,4 +1,4 @@
-import { fetchSongs, RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
+import { fetchSongs, RecentSong, RecentSongWithID } from "@/GlobalState/ApiCalls/fetchSongs";
 import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
 import { IStorage } from "@/GlobalState/Storage";
 import { NextResponse } from "next/server";
@@ -21,7 +21,7 @@ export async function GET() {
   return NextResponse.json(songsWithIDs);
 }
 
-function addSongIDs(songs: RecentSong[]): RecentSong[] {
+function addSongIDs(songs: RecentSong[]): RecentSongWithID[] {
   return songs.map((song) => ({
     ...song,
     ID: getSongID(song),
