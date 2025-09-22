@@ -47,6 +47,7 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                         </div>
                       </div>
                     </div>
+                    {recentSong.date && (
                     <div
                       className={`py-2 px-4 rounded-full ${
                         i % 2 !== 0
@@ -62,6 +63,7 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                         <DateAndTime timestamp={recentSong.date} />
                       </p>
                     </div>
+                    )}
                   </div>
                   <div className="w-full h-[1px] bg-gray-200"></div>
                 </div>

@@ -52,18 +52,37 @@ const Player = () => {
   const fetchTrackData = async () => {
     try {
       const response = await axios.get(
-        "https://ams1.reliastream.com/rpc/scarna00/streaminfo.get"
+        "https://s20.reliastream.com:2020/json/stream/8010"
       );
-      setCurrentTrack(response.data.data[0].track);
-      dispatch(setsSongTitle(response.data.data[0].track.title));
+      const data = response.data;
+
+      // Split artist/title if needed
+      let artist = unknownArtist;
+      let title = data.nowplaying || unknownSong;
+
+      if (data.nowplaying.includes(" - ")) {
+        [artist, title] = data.nowplaying
+          .split(" - ")
+          .map((s: string) => s.trim());
+      }
+
+      setCurrentTrack({
+        title,
+        artist,
+        imageurl: data.coverart || "",
+      });
+
+      dispatch(setsSongTitle(title));
       setLoading(false);
     } catch (error) {
+      const problemSongname = "Veer hubbe un issue";
       setCurrentTrack({
-        title: 'Veer hubbe un issue',
+        title: problemSongname,
         artist: unknownArtist,
-        imageurl: "https://res.cloudinary.com/dwzn0q9wj/image/upload/c_thumb,w_200,g_face/v1672311200/logo_square_512_1_78657ec246.png"
+        imageurl:
+          "https://res.cloudinary.com/dwzn0q9wj/image/upload/c_thumb,w_200,g_face/v1672311200/logo_square_512_1_78657ec246.png",
       });
-      dispatch(setsSongTitle("Veer hubbe un issue"));
+      dispatch(setsSongTitle(problemSongname));
       console.error("Failed to fetch track data:", error);
       setLoading(false);
     }
