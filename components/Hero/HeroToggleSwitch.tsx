@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import HeroSlider from "./HeroSlider";
@@ -11,9 +11,12 @@ interface HeroToggleSwitchProps {
   showAfterMovie: boolean;
 }
 
-const HeroToggleSwitch = ({ slides, showAfterMovie }: HeroToggleSwitchProps) => {
-  const [showSlider, setShowSlider] = useState<boolean>(false);
-  const [showMovie, setShowMovie] = useState<boolean>(true);
+const HeroToggleSwitch = ({
+  slides,
+  showAfterMovie,
+}: HeroToggleSwitchProps) => {
+  const [showSlider, setShowSlider] = useState<boolean>(true);
+  const [showMovie, setShowMovie] = useState<boolean>(false);
 
   const handleToggle = () => {
     setShowSlider((prev) => !prev);
@@ -30,19 +33,21 @@ const HeroToggleSwitch = ({ slides, showAfterMovie }: HeroToggleSwitchProps) => 
         )}
       </div>
 
-     <div
-        className="absolute -bottom-5 left-1/2 -mx-3 flex items-center justify-center cursor-pointer"
-        onClick={handleToggle}
-      >
-        <div className="relative flex justify-center items-center bg-heroBackground rounded-full">
-          <MdSwapHorizontalCircle          
-            className={`opacity-70 w-10 h-10 transition-transform duration-300 text-tertiary ${
-              showMovie ? "rotate-180" : "rotate-0"
-            }`}
-            style={{ fontSize: "1.5rem"}}
-          />
+      {showAfterMovie && (
+        <div
+          className="absolute -bottom-5 left-1/2 -mx-3 flex items-center justify-center cursor-pointer"
+          onClick={handleToggle}
+        >
+          <div className="relative flex justify-center items-center bg-heroBackground rounded-full">
+            <MdSwapHorizontalCircle
+              className={`opacity-70 w-10 h-10 transition-transform duration-300 text-tertiary ${
+                showMovie ? "rotate-180" : "rotate-0"
+              }`}
+              style={{ fontSize: "1.5rem" }}
+            />
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 };
