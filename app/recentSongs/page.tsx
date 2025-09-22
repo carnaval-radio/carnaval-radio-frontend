@@ -7,6 +7,8 @@ import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 
 export const fetchCache = 'force-no-store';
 
+const limit = 50;
+
 const page = () => {
   const [recentTracks, setRecentTracks] = useState<RecentSong[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -14,7 +16,7 @@ const page = () => {
 
   const fetchTracks = async () => {
     try {
-      const res = await fetch("/api/songs", {
+      const res = await fetch(`/api/songs?limit=${limit}`, {
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -48,7 +50,7 @@ const page = () => {
           Gedraaide nummers
         </h2>
       </div>
-      <RecentSongs loading={loading} recentTracks={recentTracks} />
+      <RecentSongs loading={loading} recentTracks={recentTracks} maxTracks={limit} />
     </div>
   );
 };
