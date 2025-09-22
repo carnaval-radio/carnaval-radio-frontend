@@ -12,19 +12,37 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Update Songs via API
         run: |
           echo "🎵 Updating songs database..."
           
-          # Call your production API (update this URL when deployed)
-          API_URL="https://carnaval-radio.vercel.app/api/songs"
+          # Get current branch name and commit SHA
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          COMMIT_SHA="${GITHUB_SHA::9}"  # First 9 characters of commit hash (Vercel format)
+          echo "Current branch: $BRANCH_NAME"
+          echo "Commit SHA: $COMMIT_SHA"
           
-          response=$(curl -s -w "%{http_code}" "$API_URL" -o response.json)
+          if [ "$BRANCH_NAME" = "main" ]; then
+            # Production URL for main branch
+            API_URL="https://carnaval-radio.nl/api/songs/update"
+          else
+            # Preview deployment URL using commit hash
+            # Vercel format: https://PROJECT-COMMITHASH-TEAM.vercel.app
+            API_URL="https://carnaval-radio-frontend-${COMMIT_SHA}-carnavalradio.vercel.app/api/songs/update"
+          fi
+          
+          echo "Using API URL: $API_URL"
+          
+          response=$(curl -s -w "%{http_code}" -X POST "$API_URL" -o response.json)
           http_code="${response: -3}"
           
           if [ "$http_code" = "200" ]; then
-            song_count=$(jq '. | length' response.json 2>/dev/null || echo "unknown")
+            song_count=$(jq '.songsUpdated // "unknown"' response.json 2>/dev/null || echo "unknown")
             echo "✅ Successfully updated $song_count songs"
+            jq '.timestamp // "No timestamp"' response.json 2>/dev/null || echo ""
           else
             echo "❌ API call failed with HTTP $http_code"
             cat response.json 2>/dev/null || echo "No response body"
