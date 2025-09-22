@@ -25,7 +25,10 @@ export async function GET() {
     console.warn("⚠️ Song storage failed, but API will still return fetched songs");
   }
 
-  return NextResponse.json(songsWithIDs);
+  const songs = await storage.loadSongs(10);
+  console.log(`ℹ️ Loaded ${songs.length} songs from ${isSupabaseConfigured() ? 'Supabase' : 'FileSystem'} storage`);
+
+  return NextResponse.json(songs);
 }
 
 function addSongIDs(songs: RecentSong[]): RecentSongWithID[] {
