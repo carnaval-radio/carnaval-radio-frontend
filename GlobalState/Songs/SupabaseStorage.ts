@@ -1,15 +1,23 @@
 // Modern Supabase Storage Service
 import { RecentSong, RecentSongWithID } from "../ApiCalls/fetchSongs";
 import { IInteractionsStorage, IStorage } from "../Storage";
-import { supabase, Database } from "./supabase_client";
+import { supabase, isSupabaseConfigured } from "./supabase_client";
 import { Song, Artist, Interaction } from "./types";
 
 export class DataStorage implements IStorage, IInteractionsStorage {
+  private checkSupabaseConfig(): void {
+    if (!isSupabaseConfigured() || !supabase) {
+      throw new Error("Supabase is not configured. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.");
+    }
+  }
+
   // Function to ensure that all artists exist, return their ids in bulk
   async ensureArtists(artistNames: string[]): Promise<string[]> {
+    this.checkSupabaseConfig();
+    
     try {
       // Step 1: Check for existing artists in bulk
-      const { data: existingArtists, error: selectError } = await supabase
+      const { data: existingArtists, error: selectError } = await supabase!
         .from("artists")
         .select("id, name")
         .in("name", artistNames);
@@ -31,7 +39,7 @@ export class DataStorage implements IStorage, IInteractionsStorage {
 
       // Step 3: Bulk insert missing artists
       if (newArtistNames.length > 0) {
-        const { data: newArtists, error: insertError } = await supabase
+        const { data: newArtists, error: insertError } = await supabase!
           .from("artists")
           .insert(newArtistNames.map((name) => ({ name })))
           .select("id, name");
@@ -56,6 +64,8 @@ export class DataStorage implements IStorage, IInteractionsStorage {
 
   // Function to save or update songs in bulk
   async saveSongs(songs: RecentSongWithID[]): Promise<void> {
+    this.checkSupabaseConfig();
+    
     try {
       // Step 1: Collect artist names from songs and ensure they exist
       const artistNames = Array.from(new Set(songs.map((song) => song.artist)));
@@ -74,7 +84,7 @@ export class DataStorage implements IStorage, IInteractionsStorage {
       }));
 
       // Step 3: Bulk insert or update songs
-      const { error: upsertError } = await supabase
+      const { error: upsertError } = await supabase!
         .from("songs")
         .upsert(songsWithArtistIds, { onConflict: "custom_song_id" });
 
@@ -89,8 +99,10 @@ export class DataStorage implements IStorage, IInteractionsStorage {
 
   // Function to load the latest X songs (ordered by last played)
   async loadSongs(limit: number): Promise<RecentSongWithID[]> {
+    this.checkSupabaseConfig();
+    
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from("songs")
         .select("*")
         .order("last_played", { ascending: false })
@@ -123,8 +135,10 @@ export class DataStorage implements IStorage, IInteractionsStorage {
 
   // Function to add interactions in bulk (comments, likes, etc.)
   async addInteractions(interactions: Interaction[]): Promise<void> {
+    this.checkSupabaseConfig();
+    
     try {
-      const { error } = await supabase
+      const { error } = await supabase!
         .from("interactions")
         .insert(interactions);
 
@@ -142,8 +156,10 @@ export class DataStorage implements IStorage, IInteractionsStorage {
     entityId: string,
     entityType: "song" | "artist"
   ): Promise<Interaction[]> {
+    this.checkSupabaseConfig();
+    
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase!
         .from("interactions")
         .select("*")
         .eq("entity_id", entityId)

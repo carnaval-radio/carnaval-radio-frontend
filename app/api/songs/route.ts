@@ -1,9 +1,14 @@
 import { fetchSongs, RecentSong, RecentSongWithID } from "@/GlobalState/ApiCalls/fetchSongs";
 import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
+import { FileSystemStorage } from "@/GlobalState/Songs/FileSystemStorage";
 import { IStorage } from "@/GlobalState/Storage";
+import { isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
 import { NextResponse } from "next/server";
 
-const storage: IStorage = new DataStorage();
+// Use Supabase if configured, otherwise fall back to FileSystem storage
+const storage: IStorage = isSupabaseConfigured() 
+  ? new DataStorage() 
+  : new FileSystemStorage();
 
 export const revalidate = 2000;
 
@@ -14,8 +19,10 @@ export async function GET() {
 
   try {
     await storage.saveSongs(songsWithIDs);
+    console.log(`✅ Successfully saved ${songsWithIDs.length} songs using ${isSupabaseConfigured() ? 'Supabase' : 'FileSystem'} storage`);
   } catch (error) {
-    console.error("Error ensuring song list:", error);
+    console.error("Error saving songs:", error);
+    console.warn("⚠️ Song storage failed, but API will still return fetched songs");
   }
 
   return NextResponse.json(songsWithIDs);
