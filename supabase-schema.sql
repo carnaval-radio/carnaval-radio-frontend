@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS songs (
   artist_id UUID REFERENCES artists(id) ON DELETE CASCADE,
   description TEXT,
   cover_url TEXT,
-  last_played TEXT[] DEFAULT '{}', -- Array of timestamp strings
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -37,9 +36,19 @@ CREATE TABLE IF NOT EXISTS interactions (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Play times table (every play event)
+CREATE TABLE IF NOT EXISTS play_times (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  song_id UUID REFERENCES songs(id) ON DELETE CASCADE,
+  played_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
 -- ============================================
 -- 2. CREATE INDEXES FOR PERFORMANCE
 -- ============================================
+
+-- Play times indexes
+CREATE INDEX idx_play_times_played_at ON play_times(played_at DESC);
 
 -- Artists indexes
 CREATE INDEX IF NOT EXISTS idx_artists_name ON artists(name);
@@ -47,7 +56,7 @@ CREATE INDEX IF NOT EXISTS idx_artists_name ON artists(name);
 -- Songs indexes
 CREATE INDEX IF NOT EXISTS idx_songs_custom_id ON songs(custom_song_id);
 CREATE INDEX IF NOT EXISTS idx_songs_artist_id ON songs(artist_id);
-CREATE INDEX IF NOT EXISTS idx_songs_last_played ON songs USING GIN(last_played);
+
 
 -- Interactions indexes
 CREATE INDEX IF NOT EXISTS idx_interactions_entity ON interactions(entity_id, entity_type);
@@ -89,6 +98,7 @@ CREATE TRIGGER update_artists_updated_at
 ALTER TABLE artists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE songs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE interactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE play_times ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
 -- 5. CREATE RLS POLICIES
@@ -117,6 +127,18 @@ CREATE POLICY "Allow public update songs" ON songs FOR UPDATE USING (true);
 CREATE POLICY "Interactions are publicly readable" ON interactions FOR SELECT USING (true);
 CREATE POLICY "Allow public insert interactions" ON interactions FOR INSERT WITH CHECK (true);
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Play times are publicly readable" ON play_times;
+DROP POLICY IF EXISTS "Allow public insert play_times" ON play_times;
+
+-- Publicly readable
+CREATE POLICY "Play times are publicly readable" ON play_times
+  FOR SELECT USING (true);
+
+-- Allow public insert
+CREATE POLICY "Allow public insert play_times" ON play_times
+  FOR INSERT WITH CHECK (true);
+
 -- ============================================
 -- 6. VERIFICATION QUERIES
 -- ============================================
@@ -126,7 +148,7 @@ SELECT
   schemaname,
   tablename 
 FROM pg_tables 
-WHERE tablename IN ('artists', 'songs', 'interactions')
+WHERE tablename IN ('artists', 'songs', 'interactions', 'play_times')
 ORDER BY tablename;
 
 -- Check table structures
@@ -157,13 +179,22 @@ FROM information_schema.columns
 WHERE table_name = 'interactions'
 ORDER BY ordinal_position;
 
+SELECT 
+  column_name,
+  data_type,
+  is_nullable,
+  column_default
+FROM information_schema.columns 
+WHERE table_name = 'play_times'
+ORDER BY ordinal_position;
+
 -- Show indexes
 SELECT 
   indexname,
   tablename,
   indexdef 
 FROM pg_indexes 
-WHERE tablename IN ('artists', 'songs', 'interactions')
+WHERE tablename IN ('artists', 'songs', 'interactions', 'play_times')
 ORDER BY tablename, indexname;
 
 -- ============================================

@@ -39,7 +39,6 @@ export interface Database {
           artist_id: string
           description: string | null
           cover_url: string | null
-          last_played: string[]
           created_at: string
           updated_at: string
         }
@@ -50,7 +49,6 @@ export interface Database {
           artist_id: string
           description?: string | null
           cover_url?: string | null
-          last_played?: string[]
           created_at?: string
           updated_at?: string
         }
@@ -61,7 +59,6 @@ export interface Database {
           artist_id?: string
           description?: string | null
           cover_url?: string | null
-          last_played?: string[]
           created_at?: string
           updated_at?: string
         }

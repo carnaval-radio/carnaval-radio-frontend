@@ -1,10 +1,10 @@
-import { RecentSong, RecentSongWithID } from "@/GlobalState/ApiCalls/fetchSongs";
+import { RecentSongWithID } from "@/GlobalState/ApiCalls/fetchSongs";
 
-import { Song, Interaction } from "./Songs/types";
+import { Interaction } from "./Songs/types";
 
 export interface IStorage {
   // Save songs in bulk
-  saveSongs(songs: RecentSongWithID[]): Promise<void>;
+  saveSongs(songs: RecentSongWithID[]): Promise<number>;
 
   // Load the latest songs
   loadSongs(limit: number): Promise<RecentSongWithID[]>;
