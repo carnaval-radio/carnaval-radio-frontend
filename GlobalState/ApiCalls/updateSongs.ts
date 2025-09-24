@@ -26,6 +26,8 @@ export async function updateSongs() {
   // Fetch fresh songs from radio API
   console.log("📡 Fetching songs from radio API...");
   const freshSongs = await fetchSongs();
+  console.log(`🔍 Fetched ${freshSongs.length} songs from radio API`);
+  console.log(freshSongs);
   
   if (!freshSongs || freshSongs.length === 0) {
     throw new Error("No songs fetched from radio API");
