@@ -2,7 +2,7 @@ name: Update Songs Database
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '*/1 * * * *'
   # Allow manual trigger from GitHub Actions tab
   workflow_dispatch:
     inputs:
