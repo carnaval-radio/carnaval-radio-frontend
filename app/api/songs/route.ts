@@ -1,4 +1,5 @@
 import { fetchSongs, RecentSong, RecentSongWithID } from "@/GlobalState/ApiCalls/fetchSongs";
+import { updateSongs } from "@/GlobalState/ApiCalls/updateSongs";
 import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
 import { isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
 import { NextRequest, NextResponse } from "next/server";
@@ -26,6 +27,9 @@ export async function GET(request: NextRequest) {
 
   // Try to load from Supabase first (fastest)
   if (isSupabaseConfigured()) {
+    // Trigger background update (do not await)
+    updateSongs().catch((e) => console.warn("updateSongs background error", e));
+
     try {
       const storage = new DataStorage();
       const cachedSongs = await storage.loadSongs(limit);
