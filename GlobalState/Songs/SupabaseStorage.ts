@@ -62,33 +62,24 @@ export class DataStorage implements IStorage, IInteractionsStorage {
     }
   }
 
-  // Function to save or update songs in bulk
-  async saveSongs(songs: RecentSongWithID[]): Promise<void> {
+  // Function to save or update songs in bulk, returns number of songs updated
+  async saveSongs(songs: RecentSongWithID[]): Promise<number> {
     this.checkSupabaseConfig();
     
     try {
+      let updatedCount = 0;
       // Step 1: Get existing songs to check what's already in database
       const existingSongIds = songs.map(song => song.ID);
       const { data: existingSongs, error: selectError } = await supabase!
         .from("songs")
-        .select("custom_song_id, last_played")
+        .select("id, custom_song_id")
         .in("custom_song_id", existingSongIds);
 
       if (selectError) {
         throw new Error(selectError.message);
       }
 
-      // Create a map of existing songs and their most recent play time
-      const existingSongsMap = new Map<string, string>();
-      existingSongs.forEach((song: any) => {
-        // Get the most recent play time (first element in array)
-        const mostRecentPlay = song.last_played && song.last_played.length > 0 
-          ? song.last_played[0] 
-          : null;
-        if (mostRecentPlay) {
-          existingSongsMap.set(song.custom_song_id, mostRecentPlay);
-        }
-      });
+      // No need to track last_played array anymore
 
       // Step 2: Collect artist names from songs and ensure they exist
       const artistNames = Array.from(new Set(songs.map((song) => song.artist)));
@@ -127,43 +118,17 @@ export class DataStorage implements IStorage, IInteractionsStorage {
         });
       }
 
-      // Step 3: Prepare songs data - only update last_played for new songs or more recent plays
+      // Step 3: Prepare songs data (no last_played)
       const songsWithArtistIds = songs.map((song) => {
         const artistId = artistMap.get(song.artist);
         if (!artistId) {
           throw new Error(`Artist ID not found for: ${song.artist}`);
         }
-
-        const existingLastPlayed = existingSongsMap.get(song.ID);
-        const newPlayTime = new Date(song.date || Date.now()).toISOString();
-        
-        // For array-based last_played, we need to handle it differently
-        let lastPlayedArray: string[];
-        
-        if (!existingLastPlayed) {
-          // New song - create new array with just this play time
-          lastPlayedArray = [newPlayTime];
-        } else {
-          // Existing song - only add new time if it's significantly different (more than 10 minutes)
-          const existingTime = new Date(existingLastPlayed);
-          const newTime = new Date(newPlayTime);
-          const timeDiffMinutes = Math.abs(newTime.getTime() - existingTime.getTime()) / (1000 * 60);
-          
-          if (timeDiffMinutes > 10) {
-            // Add new play time to beginning of array (most recent first)
-            lastPlayedArray = [newPlayTime, existingLastPlayed];
-          } else {
-            // Keep existing time, don't add duplicate
-            lastPlayedArray = [existingLastPlayed];
-          }
-        }
-
         return {
           custom_song_id: song.ID,
           title: song.title,
           artist_id: artistId,
           cover_url: song.url,
-          last_played: lastPlayedArray,
           updated_at: new Date().toISOString(),
         };
       });
@@ -176,46 +141,83 @@ export class DataStorage implements IStorage, IInteractionsStorage {
       if (upsertError) {
         throw new Error(upsertError.message);
       }
+
+      // Step 4.5: Re-query songs table to ensure all IDs are present
+      const { data: refreshedSongs, error: refreshedSongsError } = await supabase!
+        .from("songs")
+        .select("id, custom_song_id")
+        .in("custom_song_id", songs.map(song => song.ID));
+      if (refreshedSongsError) {
+        throw new Error(refreshedSongsError.message);
+      }
+
+      // Step 5: Insert play times for each song, only if last play is >10 minutes ago
+      const minTimeDifferenceInMinutes = 5; // Minimum difference to log a new play time
+
+      for (const song of songs) {
+        const songRow = refreshedSongs.find(s => s.custom_song_id === song.ID);
+        if (!songRow || !songRow.id) {
+          console.log(`[DEBUG] Skipping play_times insert: song not found in DB for ID`, song.ID, song.title, song.artist);
+          continue;
+        }
+
+        const newPlayTime = new Date(song.date || Date.now());
+        const windowStart = new Date(newPlayTime.getTime() - minTimeDifferenceInMinutes * 60 * 1000).toISOString();
+        const windowEnd = new Date(newPlayTime.getTime() + minTimeDifferenceInMinutes * 60 * 1000).toISOString();
+        // Look for plays within ±5 minutes of the new play time
+        const { data: recentPlays, error: playError } = await (supabase! as any)
+          .from("play_times")
+          .select("played_at")
+          .eq("song_id", songRow.id)
+          .gte("played_at", windowStart)
+          .lte("played_at", windowEnd);
+        if (!recentPlays || recentPlays.length === 0) {
+          const insertResult = await (supabase! as any)
+            .from("play_times")
+            .insert([
+              {
+                song_id: songRow.id,
+                played_at: newPlayTime.toISOString(),
+              },
+            ]);
+          updatedCount++;
+        }
+      }
+      return updatedCount;
     } catch (error) {
       console.error("Error saving songs:", error);
       throw new Error("Failed to save songs");
     }
   }
 
-  // Function to load the latest X songs (ordered by last played)
+  // Function to load the latest X plays (ordered by played_at desc)
   async loadSongs(limit: number): Promise<RecentSongWithID[]> {
     this.checkSupabaseConfig();
-    
     try {
-      // Since last_played is an array, we need to order by updated_at instead
-      // or create a computed column for most recent play time
-      const { data, error } = await supabase!
-        .from("songs")
+      // Use 'as any' to bypass type error for play_times
+      const { data, error } = await (supabase! as any)
+        .from("play_times")
         .select(`
-          *,
-          artists!inner(name)
+          played_at,
+          song:song_id(*, artist:artist_id(name))
         `)
-        .order("updated_at", { ascending: false })
+        .order("played_at", { ascending: false })
         .limit(limit);
 
       if (error) {
         throw new Error(error.message);
       }
 
-      return data
-        .map((song: any) => ({
-          ID: song.custom_song_id,
-          artist: song.artists.name,
-          title: song.title,
-          date: song.last_played?.length > 0 
-            ? new Date(song.last_played[0]).getTime() // First element is most recent
-            : new Date(song.updated_at).getTime(), // Fallback to updated_at
-          url: song.cover_url,
-        } as RecentSongWithID))
-        .sort((a, b) => (b.date || 0) - (a.date || 0)); // Sort by date in memory for accuracy
+      return (data || []).map((row: any) => ({
+        ID: row.song.custom_song_id,
+        artist: row.song.artist?.name || "",
+        title: row.song.title,
+        date: new Date(row.played_at).getTime(),
+        url: row.song.cover_url,
+      }));
     } catch (error) {
-      console.error("Error loading latest songs:", error);
-      throw new Error("Failed to load songs");
+      console.error("Error loading latest plays:", error);
+      throw new Error("Failed to load plays");
     }
   }
 

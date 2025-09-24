@@ -10,9 +10,10 @@ export class FileSystemStorage implements IStorage {
       this.songsDir = path.join(process.cwd(), "data", "songs");
     }
   
-    async saveSongs(songs: RecentSongWithID[]): Promise<void> {
+    async saveSongs(songs: RecentSongWithID[]): Promise<number> {
       await this.ensureSongFiles(songs);
       await this.ensureSongList(songs);
+      return songs.length;
     }
   
     async loadSongs(limit: number = 10): Promise<RecentSongWithID[]> {

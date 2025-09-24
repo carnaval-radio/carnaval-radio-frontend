@@ -27,7 +27,6 @@ export async function updateSongs() {
   console.log("📡 Fetching songs from radio API...");
   const freshSongs = await fetchSongs();
   console.log(`🔍 Fetched ${freshSongs.length} songs from radio API`);
-  console.log(freshSongs);
   
   if (!freshSongs || freshSongs.length === 0) {
     throw new Error("No songs fetched from radio API");
@@ -67,21 +66,21 @@ export async function updateSongs() {
   // Save to Supabase
   console.log("💾 Saving songs to Supabase...");
   const storage = new DataStorage();
-  await storage.saveSongs(uniqueSongs);
+  const updatedCount = await storage.saveSongs(uniqueSongs);
 
-  console.log(`✅ Successfully updated ${uniqueSongs.length} songs in Supabase`);
+  console.log(`✅ Successfully updated ${updatedCount} songs in Supabase`);
   console.log("📊 Song details:");
-  uniqueSongs.slice(0, 3).forEach((song, index) => {
+  uniqueSongs.slice(0, 5).forEach((song, index) => {
     console.log(`  ${index + 1}. ${song.artist} - ${song.title} (${song.date ? new Date(song.date).toLocaleTimeString() : 'No time'})`);
   });
-  
-  if (songsWithIDs.length > 3) {
-    console.log(`  ... and ${songsWithIDs.length - 3} more songs`);
+
+  if (songsWithIDs.length > 5) {
+    console.log(`  ... and ${songsWithIDs.length - 5} more songs`);
   }
 
   return {
     success: true,
-    songsUpdated: songsWithIDs.length,
+    songsUpdated: updatedCount,
     timestamp: new Date().toISOString()
   };
 }

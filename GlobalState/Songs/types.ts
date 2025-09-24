@@ -11,7 +11,6 @@ export interface Artist {
     artist_id: string;  // UUID reference to artist
     description: string | null;
     cover_url: string | null;
-    last_played: string[];  // Array of timestamps
     created_at: string;
     updated_at: string;
   }
