@@ -1,7 +1,7 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_STRAPI_URL;
 export const client = new ApolloClient({
-  uri: GRAPHQL_ENDPOINT,
+  link: new HttpLink({ uri: GRAPHQL_ENDPOINT }),
   cache: new InMemoryCache(),
 });
