@@ -54,6 +54,14 @@ const nextConfig = {
           source: '/nieuwsberichten/:path*',
           destination: '/articles/:path*',
         },
+        {
+          source: '/nieuws/:path*',
+          destination: '/articles/:path*',
+        },
+        {
+          source: '/timer',
+          destination: '/wanneer-begint-de-carnaval',
+        },
       ]
     }
   },
