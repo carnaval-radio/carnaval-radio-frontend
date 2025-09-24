@@ -144,14 +144,14 @@ export class DataStorage implements IStorage, IInteractionsStorage {
           // New song - create new array with just this play time
           lastPlayedArray = [newPlayTime];
         } else {
-          // Existing song - only add new time if it's significantly different (more than 30 minutes)
+          // Existing song - only add new time if it's significantly different (more than 10 minutes)
           const existingTime = new Date(existingLastPlayed);
           const newTime = new Date(newPlayTime);
           const timeDiffMinutes = Math.abs(newTime.getTime() - existingTime.getTime()) / (1000 * 60);
           
-          if (timeDiffMinutes > 30) {
-            // Add new play time to beginning of array (most recent first), limit to 10 entries
-            lastPlayedArray = [newPlayTime, existingLastPlayed].slice(0, 10);
+          if (timeDiffMinutes > 10) {
+            // Add new play time to beginning of array (most recent first)
+            lastPlayedArray = [newPlayTime, existingLastPlayed];
           } else {
             // Keep existing time, don't add duplicate
             lastPlayedArray = [existingLastPlayed];
