@@ -50,7 +50,8 @@ export async function fetchSongs(): Promise<RecentSong[]> {
 
 export function splitTitle(title: string) {
   const parts = title.split(" - ");
-  return parts.length === 2 ? { artist: parts[0], title: parts[1] } : { artist: "Unknown", title };
+  // The radio API returns "title - artist"
+  return parts.length === 2 ? { title: parts[0], artist: parts[1] } : { artist: "Unknown", title };
 }
 
 export function getSongDuration(song: Song): number {
