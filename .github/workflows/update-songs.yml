@@ -45,7 +45,7 @@ jobs:
           
           echo "Using API URL: $API_URL"
           
-          response=$(curl -s -w "%{http_code}" -X POST "$API_URL" -o response.json)
+          response=$(curl -s -L -w "%{http_code}" -X POST "$API_URL" -o response.json)
           http_code="${response: -3}"
           
           if [ "$http_code" = "200" ]; then
