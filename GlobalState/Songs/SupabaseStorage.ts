@@ -163,24 +163,28 @@ export class DataStorage implements IStorage, IInteractionsStorage {
 
       const playedSongIDs = (latestPlays || []).map((row: any) => row.song_id );
 
+      // Prepare all new play_times to insert in one batch, deduping only by song_id
+      const playTimesToInsert = [];
       for (const song of songs) {
         const songRow = refreshedSongs.find(s => s.custom_song_id === song.ID);
         if (!songRow || !songRow.id) {
           console.log(`[DEBUG] Skipping play_times insert: song not found in DB for ID`, song.ID, song.title, song.artist);
           continue;
         }
-        const playTime = new Date(song.date || Date.now()).toISOString();
         if (!playedSongIDs.includes(songRow.id)) {
-          await (supabase! as any)
-            .from("play_times")
-            .insert([
-              {
-                song_id: songRow.id,
-                played_at: playTime,
-              },
-            ]);
-          updatedCount++;
+          const playTime = new Date(song.date || Date.now()).toISOString();
+          playTimesToInsert.push({
+            song_id: songRow.id,
+            played_at: playTime,
+          });
+          playedSongIDs.push(songRow.id); // Prevent double-inserts in this batch
         }
+      }
+      if (playTimesToInsert.length > 0) {
+        await (supabase! as any)
+          .from("play_times")
+          .insert(playTimesToInsert);
+        updatedCount += playTimesToInsert.length;
       }
       return updatedCount;
     } catch (error) {
