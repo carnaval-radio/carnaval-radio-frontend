@@ -69,14 +69,16 @@ export function getSongDuration(song: Song): number {
 
 export function estimatePlayTimes(trackHistory: string[]): number[] {
   const now = Date.now();
+  const RECENT_SONG_OFFSET = 140 * 1000; // 140 seconds ago for most recent song
   const playTimes: number[] = [];
   let cumulativeTime = 0;
   for (let i = 0; i < trackHistory.length; i++) {
     const song = splitTitle(trackHistory[i]);
     const duration = getSongDuration(song);
     if (i === 0) {
-      // Most recent song: use current time
-      playTimes.push(now);
+      // Most recent song: use now - 140 seconds
+      playTimes.push(now - RECENT_SONG_OFFSET);
+      cumulativeTime = RECENT_SONG_OFFSET;
     } else {
       // Older songs: subtract cumulative duration from now
       cumulativeTime += duration;
