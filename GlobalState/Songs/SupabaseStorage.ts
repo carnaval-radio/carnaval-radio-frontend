@@ -151,8 +151,17 @@ export class DataStorage implements IStorage, IInteractionsStorage {
         throw new Error(refreshedSongsError.message);
       }
 
-      // Step 5: Insert play times for each song, only if last play is >10 minutes ago
-      const minTimeDifferenceInMinutes = 5; // Minimum difference to log a new play time
+      // Step 5: Retrieve latest plays for deduplication
+      const { data: latestPlays, error: latestPlaysError } = await (supabase! as any)
+        .from("play_times")
+        .select("song_id")
+        .order("played_at", { ascending: false })
+        .limit(songs?.length + 5 || 10);
+      if (latestPlaysError) {
+        throw new Error(latestPlaysError.message);
+      }
+
+      const playedSongIDs = (latestPlays || []).map((row: any) => row.song_id );
 
       for (const song of songs) {
         const songRow = refreshedSongs.find(s => s.custom_song_id === song.ID);
@@ -160,24 +169,14 @@ export class DataStorage implements IStorage, IInteractionsStorage {
           console.log(`[DEBUG] Skipping play_times insert: song not found in DB for ID`, song.ID, song.title, song.artist);
           continue;
         }
-
-        const newPlayTime = new Date(song.date || Date.now());
-        const windowStart = new Date(newPlayTime.getTime() - minTimeDifferenceInMinutes * 60 * 1000).toISOString();
-        const windowEnd = new Date(newPlayTime.getTime() + minTimeDifferenceInMinutes * 60 * 1000).toISOString();
-        // Look for plays within ±5 minutes of the new play time
-        const { data: recentPlays, error: playError } = await (supabase! as any)
-          .from("play_times")
-          .select("played_at")
-          .eq("song_id", songRow.id)
-          .gte("played_at", windowStart)
-          .lte("played_at", windowEnd);
-        if (!recentPlays || recentPlays.length === 0) {
-          const insertResult = await (supabase! as any)
+        const playTime = new Date(song.date || Date.now()).toISOString();
+        if (!playedSongIDs.includes(songRow.id)) {
+          await (supabase! as any)
             .from("play_times")
             .insert([
               {
                 song_id: songRow.id,
-                played_at: newPlayTime.toISOString(),
+                played_at: playTime,
               },
             ]);
           updatedCount++;
