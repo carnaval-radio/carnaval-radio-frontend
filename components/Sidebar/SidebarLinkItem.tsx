@@ -13,6 +13,7 @@ import {
   MdOutlineArticle,
   MdInsertComment,
   MdEvent,
+  MdFavorite,
 } from "react-icons/md";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -30,6 +31,7 @@ const IconMapping: any = {
   "<MdOutlineArticle />": <MdOutlineArticle />,
   "<MdInsertComment />": <MdInsertComment />,
   "<MdEvent />": <MdEvent />,
+  "<MdFavorite />": <MdFavorite />,
 };
 
 interface props {
@@ -48,16 +50,18 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
     return segments.length > 0 ? segments[segments.length - 1] : "";
   };
 
+  const href = item.path;
+
   if (!item?.items || item?.items?.length === 0) {
     return (
-      <Link href={item.path} key={"sideBarLink" + index} legacyBehavior>
-        <a target={item.path?.includes('https://') ? "_blank" : undefined}
+      <Link href={href} key={"sideBarLink" + index} legacyBehavior>
+        <a target={href?.includes('https://') ? "_blank" : undefined}
           onClick={() => {
             toggleSidebar && toggleSidebar();
           }}
           className="relative"
         >
-          {path == item.path && (
+          {path == href && (
             <Image
               className="h-10 w-2 absolute left-0 top-0 bottom-0 "
               src="/sideCone.png"
@@ -68,21 +72,21 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
           )}
           <div
             className={`flex items-center justify-start p-4 sm:px-4 md:p-2 lg:p-2 xl:p-2 2xl:p-[10px] ml-7 mr-2 rounded-xl hover:bg-menuHover ${
-              path == item.path && "bg-primaryShade_2"
+              path == href && "bg-primaryShade_2"
             }`}
           >
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
                 <span
                   className={`text-2xl text-secondary ${
-                    path == item.path && "!text-primary"
+                    path == href && "!text-primary"
                   } `}
                 >
                   {item.Icon && IconMapping[item.Icon]}
                 </span>
                 <p
                   className={`text-[16px] text-menuText hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary hover:to-secondary ${
-                    path == item.path &&
+                    path == href &&
                     "font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary"
                   }`}
                 >
@@ -150,19 +154,22 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
               : "hidden"
           }`}
         >
-          {item.items.map((item: any, index: any) => (
-            <Link
-              href={`/${formatPath(item.path)}`}
-              onClick={() => {
-                toggleSidebar && toggleSidebar();
-              }}
-              key={"sideBarLink-Sub" + index}
-              className="p-2 hover:bg-menuHover text-menuText"
-              replace
-            >
-              {item.title}
-            </Link>
-          ))}
+          {item.items.map((subItem: any, subIndex: any) => {
+            const subHref = `/${formatPath(subItem.path)}`;
+            return (
+              <Link
+                href={subHref}
+                onClick={() => {
+                  toggleSidebar && toggleSidebar();
+                }}
+                key={"sideBarLink-Sub" + subIndex}
+                className="p-2 hover:bg-menuHover text-menuText"
+                replace
+              >
+                {subItem.title}
+              </Link>
+            );
+          })}
         </div>
       </div>
     );
