@@ -6,12 +6,9 @@ export interface Song {
 }
 
 export interface RecentSong extends Song {
+  ID: string; // custom_song_id
   date: number | null; // Unix timestamp in milliseconds or null if not available
   url: string;
-}
-
-export interface RecentSongWithID extends RecentSong {
-  ID: string;
 }
 
 const SONGS_URL = "https://s20.reliastream.com:2020/json/stream/8010";
@@ -25,7 +22,7 @@ export async function fetchSongs(): Promise<RecentSong[]> {
     // Calculate play times for all tracks at once
     const playTimes = estimatePlayTimes(response.data.trackhistory);
 
-    const modifiedTracks: RecentSong[] = response.data.trackhistory.map((item: string, index: number) => {
+    const modifiedTracks: (RecentSong | null)[] = response.data.trackhistory.map((item: string, index: number) => {
       if(previousSongNameContainsLive) {
         previousSongNameContainsLive = false;
         return null;
@@ -34,14 +31,16 @@ export async function fetchSongs(): Promise<RecentSong[]> {
       previousSongNameContainsLive = item.toLowerCase().includes("live") && item.toLowerCase().includes("uitzending");
 
       const song = splitTitle(item);
+      const enriched = enrichTitle(song);
       return {
-        ...enrichTitle(song),
+        ...enriched,
+        ID: generateCustomSongId(enriched.artist, enriched.title),
         date: playTimes[index], // Use pre-calculated timestamp
-        url: enrichCover(response.data.covers?.[index] || "", song),
+        url: enrichCover(response.data.covers?.[index] || "", enriched),
       };
     });
 
-    return modifiedTracks.filter((song) => song !== null);
+    return modifiedTracks.filter((song): song is RecentSong => song !== null);
   } catch (error) {
     console.error("Failed to fetch songs:", error);
     return [];
@@ -120,4 +119,19 @@ function enrichCover(coverUrl: string, song: Song) {
   }
 
   return coverUrl;
+}
+
+// Shared ID generator to ensure custom_song_id is always present client-side
+export function generateCustomSongId(artist: string, title: string): string {
+  return normalizeString(`${artist}-${title}`);
+}
+
+export function normalizeString(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[^a-z0-9\s,-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/,+/g, "-")
+    .replace(/-+/g, "-");
 }

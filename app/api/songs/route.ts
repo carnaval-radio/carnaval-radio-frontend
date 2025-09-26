@@ -1,4 +1,4 @@
-import { fetchSongs, RecentSong, RecentSongWithID } from "@/GlobalState/ApiCalls/fetchSongs";
+import { fetchSongs, RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 import { updateSongs } from "@/GlobalState/ApiCalls/updateSongs";
 import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
 import { isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const revalidate = 60; // Cache for 60 seconds
 
-function isFresh(songs: RecentSongWithID[], thresholdMs: number): boolean {
+function isFresh(songs: RecentSong[], thresholdMs: number): boolean {
   if (!songs.length) return false;
   const mostRecent = Math.max(...songs.map(song => song.date || 0));
   return Date.now() - mostRecent < thresholdMs;
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       const storage = new DataStorage();
       const cachedSongs = await storage.loadSongs(limit);
       
-      if (isFresh(cachedSongs, FRESHNESS_MS)) {
+      if (isFresh(cachedSongs as any, FRESHNESS_MS)) {
         console.log(`✅ Served ${cachedSongs.length} fresh songs from Supabase cache (limit: ${limit})`);
         return NextResponse.json(cachedSongs);
       } else {
@@ -49,33 +49,10 @@ export async function GET(request: NextRequest) {
   try {
     console.log(`📡 No cached data available, fetching directly from radio API (limit: ${limit})`);
     const freshSongs = await fetchSongs();
-    const songsWithIDs = addSongIDs(freshSongs).slice(0, limit);
-    
-    console.log(`✅ Served ${songsWithIDs.length} songs from direct API fetch`);
-    return NextResponse.json(songsWithIDs);
+    console.log(`✅ Served ${freshSongs.length} songs from direct API fetch`);
+    return NextResponse.json(freshSongs.slice(0, limit));
   } catch (error) {
     console.error("❌ All data sources failed:", error);
     return NextResponse.json([], { status: 503 });
   }
-}
-
-function addSongIDs(songs: RecentSong[]): RecentSongWithID[] {
-  return songs.map((song) => ({
-    ...song,
-    ID: getSongID(song),
-  }));
-}
-
-function getSongID(song: RecentSong): string {
-  return normalizeString(`${song.artist}-${song.title}`);
-}
-
-function normalizeString(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize("NFD") // Decompose characters like é to e + accent
-    .replace(/[^a-z0-9\s,-]/g, "") // Remove non-alphanumeric characters except spaces, commas, and dashes
-    .replace(/\s+/g, "-") // Replace spaces with dashes
-    .replace(/,+/g, "-") // Replace commas with dashes
-    .replace(/-+/g, "-"); // Collapse multiple dashes into one
 }
