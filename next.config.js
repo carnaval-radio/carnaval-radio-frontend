@@ -31,6 +31,10 @@ const nextConfig = {
           destination: "/recentSongs",
         },
         {
+          source: "/favorieten",
+          destination: "/favorites",
+        },
+        {
           source: "/evenementen",
           destination: "/events",
         },

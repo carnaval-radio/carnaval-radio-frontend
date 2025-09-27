@@ -1,10 +1,12 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { MdMusicNote } from "react-icons/md";
 import DateAndTime from "./DateAndTime";
 import RecentSongsLoading from "./LoadingSkeleten/RecentSongsLoading";
 import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 import SongCover from "./SongCover";
 import FormateTitle from "./FormatTitle";
+import { getFavoritesLocal, toggleFavoriteLocal, syncFavoriteToSupabase } from "@/helpers/favorites";
+
 
 type RecentSongsProps = {
   recentTracks: RecentSong[];
@@ -17,11 +19,25 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
   loading = null,
   maxTracks = 10,
 }) => {
+  const [favorites, setFavorites] = useState<Record<string, true>>({});
+
+  useEffect(() => {
+    setFavorites(getFavoritesLocal());
+  }, []);
+
+  const handleToggleFavorite = async (customSongId: string) => {
+    const next = toggleFavoriteLocal(customSongId);
+    setFavorites(next); // optimistic UI
+    const makeFavorite = !!next[customSongId];
+    // best-effort background sync
+    syncFavoriteToSupabase(customSongId, makeFavorite).catch(() => {});
+  };
+
   return (
     <div>
       {!loading ? (
         <>
-          {recentTracks?.map((recentSong: RecentSong, i: any) => (
+          {recentTracks?.map((recentSong: RecentSong, i: number) => (
             <Fragment key={"frag" + i}>
               {i < maxTracks && (
                 <div key={"div" + i} className="flex flex-col">
@@ -47,23 +63,37 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                         </div>
                       </div>
                     </div>
-                    {recentSong.date && (
-                    <div
-                      className={`py-2 px-4 rounded-full ${
-                        i % 2 !== 0
-                          ? "bg-tertiaryShade_1"
-                          : "bg-secondaryShade_1"
-                      }`}
-                    >
-                      <p
-                        className={`text-sm ${
-                          i % 2 !== 0 ? "text-tertiary" : "text-secondary"
+                    <div className="flex items-center gap-2">
+                      {recentSong.date && (
+                        <div
+                          className={`py-2 px-4 rounded-full ${
+                            i % 2 !== 0
+                              ? "bg-tertiaryShade_1"
+                              : "bg-secondaryShade_1"
+                          }`}
+                        >
+                          <p
+                            className={`text-sm ${
+                              i % 2 !== 0 ? "text-tertiary" : "text-secondary"
+                            }`}
+                          >
+                            <DateAndTime timestamp={recentSong.date} />
+                          </p>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        aria-label="Toggle favorite"
+                        onClick={() => handleToggleFavorite(recentSong.ID)}
+                        className={`ml-2 text-xl ${
+                          favorites[recentSong.ID]
+                            ? "text-red-500"
+                            : "text-gray-400"
                         }`}
                       >
-                        <DateAndTime timestamp={recentSong.date} />
-                      </p>
+                        {favorites[recentSong.ID] ? "❤" : "♡"}
+                      </button>
                     </div>
-                    )}
                   </div>
                   <div className="w-full h-[1px] bg-gray-200"></div>
                 </div>

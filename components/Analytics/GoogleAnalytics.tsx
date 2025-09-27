@@ -22,6 +22,7 @@ const GoogleAnalytics = ({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_ID?: string }) 
         }}
       ></Script>
     </>
-)};
+  );
+};
 
 export default GoogleAnalytics;

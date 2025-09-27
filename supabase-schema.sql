@@ -63,6 +63,10 @@ CREATE INDEX IF NOT EXISTS idx_interactions_entity ON interactions(entity_id, en
 CREATE INDEX IF NOT EXISTS idx_interactions_type ON interactions(type);
 CREATE INDEX IF NOT EXISTS idx_interactions_user ON interactions(user_id);
 
+-- Ensure one like per device per song
+CREATE UNIQUE INDEX IF NOT EXISTS ux_interactions_user_entity_type
+ON interactions(user_id, entity_id, type);
+
 -- ============================================
 -- 3. CREATE UPDATED_AT TRIGGER FUNCTION
 -- ============================================
@@ -196,6 +200,54 @@ SELECT
 FROM pg_indexes 
 WHERE tablename IN ('artists', 'songs', 'interactions', 'play_times')
 ORDER BY tablename, indexname;
+
+-- 1) Optional analytics columns on interactions
+ALTER TABLE public.interactions
+  ADD COLUMN IF NOT EXISTS ip_hash TEXT,
+  ADD COLUMN IF NOT EXISTS user_agent TEXT;
+
+-- 2) Helpful composite indexes for common queries
+
+-- Lookup a user's likes or enforce unique like per user+song+type
+-- First, remove any duplicates to allow the unique index to be created safely
+WITH ranked AS (
+  SELECT
+    id,
+    ROW_NUMBER() OVER (
+      PARTITION BY user_id, entity_id, type
+      ORDER BY created_at ASC, id ASC
+    ) AS rn
+  FROM public.interactions
+  WHERE entity_type = 'song' AND type = 'like'
+)
+DELETE FROM public.interactions i
+USING ranked r
+WHERE i.id = r.id AND r.rn > 1;
+
+-- Unique: one like per device/user per entity and type
+CREATE UNIQUE INDEX IF NOT EXISTS ux_interactions_user_entity_type
+  ON public.interactions (user_id, entity_id, type);
+
+-- Fast filters by entity type and interaction type (e.g., count likes per song)
+CREATE INDEX IF NOT EXISTS idx_interactions_entityType_type
+  ON public.interactions (entity_type, type);
+
+-- Fast lookup for a user's favorites of a given type (optional but useful)
+CREATE INDEX IF NOT EXISTS idx_interactions_entityType_type_user
+  ON public.interactions (entity_type, type, user_id);
+
+-- If you routinely fetch counts per song, this can help aggregations
+CREATE INDEX IF NOT EXISTS idx_interactions_type_entity
+  ON public.interactions (type, entity_id);
+
+-- 3) Existing indexes (keep if already present)
+-- These are safe and will be skipped if they exist
+CREATE INDEX IF NOT EXISTS idx_interactions_entity ON public.interactions (entity_id, entity_type);
+CREATE INDEX IF NOT EXISTS idx_interactions_type ON public.interactions (type);
+CREATE INDEX IF NOT EXISTS idx_interactions_user ON public.interactions (user_id);
+
+-- 4) Optional: keep your tables up to date for planner stats
+ANALYZE public.interactions;
 
 -- ============================================
 -- SETUP COMPLETE!
