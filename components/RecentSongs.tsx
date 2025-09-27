@@ -12,12 +12,14 @@ type RecentSongsProps = {
   recentTracks: RecentSong[];
   loading: boolean;
   maxTracks?: number; // 10 is the default and the maximum
+  canAddToFavorites?: boolean;
 };
 
 const RecentSongs: React.FC<RecentSongsProps> = ({
   recentTracks,
   loading = null,
   maxTracks = 10,
+  canAddToFavorites = false,
 }) => {
   const [favorites, setFavorites] = useState<Record<string, true>>({});
 
@@ -29,7 +31,6 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
     const next = toggleFavoriteLocal(customSongId);
     setFavorites(next); // optimistic UI
     const makeFavorite = !!next[customSongId];
-    // best-effort background sync
     syncFavoriteToSupabase(customSongId, makeFavorite).catch(() => {});
   };
 
@@ -81,18 +82,20 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                           </p>
                         </div>
                       )}
-                      <button
-                        type="button"
-                        aria-label="Toggle favorite"
-                        onClick={() => handleToggleFavorite(recentSong.ID)}
-                        className={`ml-2 text-xl ${
-                          favorites[recentSong.ID]
-                            ? "text-red-500"
-                            : "text-gray-400"
-                        }`}
-                      >
-                        {favorites[recentSong.ID] ? "❤" : "♡"}
-                      </button>
+                      {canAddToFavorites && (
+                        <button
+                          type="button"
+                          aria-label="Toggle favorite"
+                          onClick={() => handleToggleFavorite(recentSong.ID)}
+                          className={`ml-2 text-xl ${
+                            favorites[recentSong.ID]
+                              ? "text-red-500"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {favorites[recentSong.ID] ? "❤" : "♡"}
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div className="w-full h-[1px] bg-gray-200"></div>

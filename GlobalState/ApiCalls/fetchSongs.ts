@@ -1,4 +1,5 @@
 import axios from "axios";
+import { isSupabaseConfigured } from "../Songs/supabase_client";
 
 export interface Song {
   artist: string;

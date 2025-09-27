@@ -6,12 +6,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const revalidate = 60; // Cache for 60 seconds
 
-function isFresh(songs: RecentSong[], thresholdMs: number): boolean {
-  if (!songs.length) return false;
-  const mostRecent = Math.max(...songs.map(song => song.date || 0));
-  return Date.now() - mostRecent < thresholdMs;
-}
-
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const limitParam = searchParams.get('limit');
@@ -32,9 +26,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json([], { status: 503 });
   }
 
+  const shouldFetchFromSupabase = limit > 5;
+
   // Try to fetch from Supabase, but don't crash if it fails
   let supabaseSongs: RecentSong[] = [];
-  if (isSupabaseConfigured()) {
+  const hasSupabase = isSupabaseConfigured();
+
+  if (hasSupabase && shouldFetchFromSupabase) {
     updateSongs().catch((e) => console.warn("updateSongs background error", e));
     try {
       const storage = new DataStorage();
@@ -76,5 +74,9 @@ export async function GET(request: NextRequest) {
     .sort((a, b) => (b.date ?? 0) - (a.date ?? 0))
     .slice(0, limit);
 
-  return NextResponse.json(mergedSongs);
+  // Add canAddToFavorites to the response
+  return NextResponse.json({
+    songs: mergedSongs,
+    canAddToFavorites: hasSupabase,
+  });
 }
