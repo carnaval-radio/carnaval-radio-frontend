@@ -13,13 +13,40 @@ import FeedbackForm from "./FeedbackForm";
 import GoogleAnalytics from "@/components/Analytics/GoogleAnalytics";
 import CookieBanner from "@/components/cookieBanner";
 import GoogleAnalyticsPageView from "@/components/Analytics/GoogleAnalyticsPageView";
+import StructuredData from "@/components/StructuredData";
 import { Suspense } from "react";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
-  title: "Carnaval Radio | 24/7 Vasteloavend Muzieek",
-  description: "De vastelaoves Radio | 24/7 Vastelaovend Muzieek",
+  title: "Carnaval Radio | 24/7 Limburgse Vastelaovend Muziek",
+  description: "De vastelaoves Radio. Carnaval Radio uit Brunssum houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. Luister naar de beste Limburgse en Duitse carnavalsleedsjes, polonaise en LVK hits. Live stream en verzoekjes mogelijk.",
+  keywords: "Carnaval Radio, Brunssum, Limburg, Vastelaovend, carnavalsmuziek, Limburgse muziek, polonaise, LVK, Parkstad, Zuid-Limburg, carnaval traditie, 24/7 radio, Broenssem, Heerlen, Landgraag, Kerkrade, Echt, Sittard, Roermond, Venlo, Maastricht, Duitse carnavalsmuziek, Vastelaovend hits, carnavalsleedsjes, live stream, verzoekjes",
+  authors: [{ name: "Carnaval Radio" }],
+  creator: "Carnaval Radio",
+  publisher: "Carnaval Radio",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://www.carnaval-radio.nl'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "Carnaval Radio | 24/7 Limburgse Vastelaovend Muziek",
+    description: "Carnaval Radio uit Brunssum houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. Luister naar de beste Limburgse en Duitse carnavalsleedsjes.",
+    url: 'https://www.carnaval-radio.nl',
+    siteName: 'Carnaval Radio',
+    locale: 'nl_NL',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Carnaval Radio | 24/7 Limburgse Vastelaovend Muziek",
+    description: "Carnaval Radio uit Brunssum houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek.",
+  },
   robots: process.env.NEXT_PUBLIC_INDEX_IN_SEARCH_ENGINES
     ? "index, follow"
     : "noindex, nofollow",
@@ -50,7 +77,7 @@ export default async function RootLayout({
   const themeData = await fetchThemeData();
   const GA_MEASUREMENT_ID = process.env.GOOGLE_ANALYTICS_ID;
   return (
-    <html lang="en">
+    <html lang="nl">
       <body className={dosis.className}>
         <Suspense fallback={<GoogleAnalyticsFallback />}>
           {GA_MEASUREMENT_ID && (
@@ -61,6 +88,7 @@ export default async function RootLayout({
           )
         }
           <CookieBanner />
+          <StructuredData />
         </Suspense>
         <Providers>
           <MobileHeader themeData={themeData} menu={menu.renderNavigation} />
