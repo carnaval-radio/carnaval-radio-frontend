@@ -161,10 +161,7 @@ export default function FavoritesClient() {
                 >
                   <FiX size={22} />
                 </button>
-                {/* Mobile time tooltip, absolutely positioned, only on hover */}
-                {addedAt && (
-                  <span className="absolute left-0 top-full mt-1 w-max px-2 py-1 rounded bg-white shadow text-xs text-black hidden group-hover:block md:hidden z-10"> <DateAndTime timestamp={addedAt} /></span>
-                )}
+                {/* Time is hidden on mobile, only visible on md+ screens */}
               </div>
             </div>
             <div className="w-full h-[1px] bg-gray-200"></div>
