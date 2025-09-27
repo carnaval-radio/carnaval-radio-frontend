@@ -98,8 +98,6 @@ const Player = () => {
   useEffect(() => {
     if (isPlaying) {
       if (audioElem.current) {
-        audioElem.current.preload = "none";
-        audioElem.current.load(); // force reload to get latest stream
         audioElem.current.play().catch((error) => {
           console.error("Failed to play audio:", error);
         });
