@@ -1,3 +1,4 @@
+import { checkSupabaseHealth } from "@/helpers/supabaseHealthCheck";
 import { fetchSongs, RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 import { updateSongs } from "@/GlobalState/ApiCalls/updateSongs";
 import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
@@ -30,14 +31,15 @@ export async function GET(request: NextRequest) {
 
   // Try to fetch from Supabase, but don't crash if it fails
   let supabaseSongs: RecentSong[] = [];
-  const hasSupabase = isSupabaseConfigured();
+  let canAddToFavorites = true;
 
-  if (hasSupabase && shouldFetchFromSupabase) {
+  if (isSupabaseConfigured() && shouldFetchFromSupabase) {
     updateSongs().catch((e) => console.warn("updateSongs background error", e));
     try {
       const storage = new DataStorage();
       supabaseSongs = await storage.loadSongs(limit);
     } catch (error) {
+      canAddToFavorites = false;
       console.warn("⚠️ Supabase unavailable, merging only radio API songs:", error);
     }
   }
@@ -74,9 +76,12 @@ export async function GET(request: NextRequest) {
     .sort((a, b) => (b.date ?? 0) - (a.date ?? 0))
     .slice(0, limit);
 
-  // Add canAddToFavorites to the response
+  if (canAddToFavorites) {
+    canAddToFavorites = await checkSupabaseHealth();
+  }
+
   return NextResponse.json({
     songs: mergedSongs,
-    canAddToFavorites: hasSupabase,
+    canAddToFavorites,
   });
 }
