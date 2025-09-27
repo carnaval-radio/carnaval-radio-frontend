@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { FiX } from "react-icons/fi";
 import {
   getFavoritesLocal,
   getFavoriteTimestamps,
@@ -11,8 +12,6 @@ import SongCover from "@/components/SongCover";
 import FormateTitle from "@/components/FormatTitle";
 import DateAndTime from "@/components/DateAndTime";
 import { getOrCreateDeviceId } from "@/helpers/deviceId";
-import { BsFileMusicFill } from "react-icons/bs";
-import { Indie } from "../fonts/font";
 
 interface SongRow {
   id: string;
@@ -112,7 +111,7 @@ export default function FavoritesClient() {
         const addedAt = getAddedAt(song) || undefined;
         return (
           <div key={song.id} className="flex flex-col">
-            <div className="flex items-center justify-between p-2">
+            <div className="flex items-center justify-between p-2 group relative">
               <div className="flex space-x-3">
                 <SongCover
                   url={
@@ -137,11 +136,12 @@ export default function FavoritesClient() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                {/* Only show time in flex row for md+ screens */}
                 {addedAt && (
                   <div
                     className={`py-2 px-4 rounded-full ${
                       i % 2 !== 0 ? "bg-tertiaryShade_1" : "bg-secondaryShade_1"
-                    }`}
+                    } hidden md:block`}
                   >
                     <p
                       className={`text-sm ${
@@ -157,10 +157,14 @@ export default function FavoritesClient() {
                   type="button"
                   aria-label="Verwijder favoriet"
                   onClick={() => handleDelete(song.custom_song_id)}
-                  className="ml-2 text-sm text-gray-500 hover:text-red-600 border px-3 py-1 rounded"
+                  className="ml-2 p-2 rounded-full text-gray-500 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
                 >
-                  Verwijder
+                  <FiX size={22} />
                 </button>
+                {/* Mobile time tooltip, absolutely positioned, only on hover */}
+                {addedAt && (
+                  <span className="absolute left-0 top-full mt-1 w-max px-2 py-1 rounded bg-white shadow text-xs text-black hidden group-hover:block md:hidden z-10"> <DateAndTime timestamp={addedAt} /></span>
+                )}
               </div>
             </div>
             <div className="w-full h-[1px] bg-gray-200"></div>
