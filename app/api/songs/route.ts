@@ -1,5 +1,5 @@
 import { checkSupabaseHealth } from "@/helpers/supabaseHealthCheck";
-import { fetchSongs, RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
+import { EXTERNAL_MAXIMUM_SONG_HISTORY_AMOUNT, fetchSongs, RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 import { updateSongs } from "@/GlobalState/ApiCalls/updateSongs";
 import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
 import { isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
@@ -27,13 +27,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json([], { status: 503 });
   }
 
-  const shouldFetchFromSupabase = limit > 5;
+  const shouldFetchFromSupabase = limit > EXTERNAL_MAXIMUM_SONG_HISTORY_AMOUNT;
 
-  // Try to fetch from Supabase, but don't crash if it fails
   let supabaseSongs: RecentSong[] = [];
   let canAddToFavorites = true;
 
-  if (isSupabaseConfigured() && shouldFetchFromSupabase) {
+  // Try to fetch from Supabase, but don't crash if it fails
+  if (shouldFetchFromSupabase && isSupabaseConfigured()) {
     updateSongs().catch((e) => console.warn("updateSongs background error", e));
     try {
       const storage = new DataStorage();

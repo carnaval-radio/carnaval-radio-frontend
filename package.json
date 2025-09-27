@@ -8,7 +8,8 @@
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint",
-    "update-songs": "tsx scripts/run-update-songs.ts"
+    "update-songs": "tsx scripts/run-update-songs.ts",
+    "fetch-songs": "tsx scripts/run-fetch-songs.ts"
   },
   "dependencies": {
     "@apollo/client": "^3.8.8",
