@@ -11,6 +11,7 @@ const limit = 50;
 
 const page = () => {
   const [recentTracks, setRecentTracks] = useState<RecentSong[]>([]);
+  const [canAddToFavorites, setCanAddToFavorites] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Boolean>(false);
 
@@ -23,13 +24,12 @@ const page = () => {
           'Pragma': 'no-cache'
         }
       });
-      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
-      const recentTracks = await res.json();
-      setRecentTracks(recentTracks);
+      const data = await res.json();
+      setRecentTracks(data.songs || []);
+      setCanAddToFavorites(!!data.canAddToFavorites);
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch tracks:', error);
@@ -50,7 +50,12 @@ const page = () => {
           Gedraaide nummers
         </h2>
       </div>
-      <RecentSongs loading={loading} recentTracks={recentTracks} maxTracks={limit} />
+      <RecentSongs
+        loading={loading}
+        recentTracks={recentTracks}
+        maxTracks={limit}
+        canAddToFavorites={canAddToFavorites}
+      />
     </div>
   );
 };
