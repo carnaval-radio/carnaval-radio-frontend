@@ -4,13 +4,6 @@ import { BsFileMusicFill } from "react-icons/bs";
 import { Indie } from "../fonts/font";
 import RecentSongs from "@/components/RecentSongs";
 import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Recente Nummers | Carnaval Radio Brunssum - Laatste Vastelaovend Hits",
-  description: "Bekijk de meest recent gedraaide carnavalsmuziek en Limburgse Vastelaovend hits op Carnaval Radio. Luister naar de nieuwste polonaise en LVK nummers.",
-  keywords: "recente nummers, carnavalsmuziek, Limburgse hits, Vastelaovend, polonaise, LVK, gedraaide muziek",
-};
 
 export const fetchCache = 'force-no-store';
 
