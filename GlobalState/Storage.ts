@@ -1,16 +1,16 @@
-import { RecentSongWithID } from "@/GlobalState/ApiCalls/fetchSongs";
+import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 
 import { Interaction } from "./Songs/types";
 
 export interface IStorage {
   // Save songs in bulk
-  saveSongs(songs: RecentSongWithID[]): Promise<number>;
+  saveSongs(songs: RecentSong[]): Promise<number>;
 
   // Load the latest songs
-  loadSongs(limit: number): Promise<RecentSongWithID[]>;
+  loadSongs(limit: number): Promise<RecentSong[]>;
 
   // Load the current song (the one that's most recently played)
-  loadCurrentSong(): Promise<RecentSongWithID | null>;
+  loadCurrentSong(): Promise<RecentSong | null>;
 }
 
 export interface IInteractionsStorage {
