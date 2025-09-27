@@ -9,7 +9,9 @@ import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
 
 export async function generateMetadata() {
   return {
-    title: `Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+    title: "Carnaval Radio Brunssum | 24/7 Limburgse Vastelaovend Muziek",
+    description: "Carnaval Radio uit Brunssum houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. Luister naar de beste Limburgse en Duitse carnavalsleedsjes, polonaise en LVK hits. Live stream en verzoekjes mogelijk.",
+    keywords: "Carnaval Radio, Brunssum, Limburg, Vastelaovend, carnavalsmuziek, Limburgse muziek, polonaise, LVK, Parkstad, Zuid-Limburg, carnaval traditie, 24/7 radio",
   };
 }
 
@@ -66,6 +68,35 @@ const page = async () => {
           </div>
         </Section>
       )}
+      
+      {/* SEO Content Section */}
+      <section className="bg-gray-50 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Over Carnaval Radio Brunssum
+          </h2>
+          <div className="prose prose-lg max-w-none text-gray-700">
+            <p className="text-lg leading-relaxed mb-4">
+              <strong>Carnaval Radio uit Brunssum</strong> houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. 
+              Sinds 2005 draaien we de beste Limburgse en Duitse carnavalsleedsjes, van klassieke polonaise tot moderne LVK hits.
+            </p>
+            <p className="text-lg leading-relaxed mb-4">
+              Onze missie is om de Vastelaovend levend te houden onder jong en oud in Parkstad en Zuid-Limburg. 
+              We organiseren jaarlijks feestavonden in Brunssum en bieden een gratis 24/7 stream met live DJ's en verzoekjes.
+            </p>
+            <p className="text-lg leading-relaxed mb-4">
+              Van het 'sjoenkele' tot de polonaise en het LVK: alles wat bij de Limburgse carnavalstraditie hoort, 
+              vind je bij Carnaval Radio. Luister mee en beleef de gezelligheid van de Vastelaovend het hele jaar door!
+            </p>
+            <div className="mt-8 text-center">
+              <p className="text-sm text-gray-600">
+                <strong>Keywords:</strong> Carnaval Radio Brunssum, Limburgse Vastelaovend, carnavalsmuziek Limburg, 
+                polonaise muziek, LVK hits, Parkstad carnaval, Zuid-Limburg traditie, 24/7 carnaval radio
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
   );
 };

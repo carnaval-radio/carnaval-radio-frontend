@@ -4,6 +4,13 @@ import { BsFileMusicFill } from "react-icons/bs";
 import { Indie } from "../fonts/font";
 import RecentSongs from "@/components/RecentSongs";
 import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Recente Nummers | Carnaval Radio Brunssum - Laatste Vastelaovend Hits",
+  description: "Bekijk de meest recent gedraaide carnavalsmuziek en Limburgse Vastelaovend hits op Carnaval Radio. Luister naar de nieuwste polonaise en LVK nummers.",
+  keywords: "recente nummers, carnavalsmuziek, Limburgse hits, Vastelaovend, polonaise, LVK, gedraaide muziek",
+};
 
 export const fetchCache = 'force-no-store';
 
@@ -37,7 +44,7 @@ const page = () => {
     }
   };
   useEffect(() => {
-    document.title = "Recente nummers | Carnaval Radio | 24/7 Vasteloavend Muzieek";
+    document.title = "Recente Nummers | Carnaval Radio Brunssum - Laatste Vastelaovend Hits";
     fetchTracks();
     const interval = setInterval(fetchTracks, 60000);
     return () => clearInterval(interval);
@@ -46,9 +53,9 @@ const page = () => {
     <div className="p-10">
       <div className="flex items-center gap-2 mb-4">
         <BsFileMusicFill className="text-2xl text-secondary" />
-        <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>
+        <h1 className={`text-center text-2xl font-semibold ${Indie.className}`}>
           Gedraaide nummers
-        </h2>
+        </h1>
       </div>
       <RecentSongs
         loading={loading}

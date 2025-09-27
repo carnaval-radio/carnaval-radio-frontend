@@ -65,6 +65,7 @@ async function getSitemapUrls() {
     "/team",
     "/verzoekjes",
     "/tickets",
+    "/privacy-beleid",
   ].map((route) => ({
     url: `${URL}${route}`,
     lastModified: new Date().toISOString(),
