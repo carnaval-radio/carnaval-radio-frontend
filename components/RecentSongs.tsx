@@ -1,5 +1,5 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { MdMusicNote } from "react-icons/md";
+import React, { Fragment, useEffect, useState } from "react";
+import { MdMusicNote, MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import DateAndTime from "./DateAndTime";
 import RecentSongsLoading from "./LoadingSkeleten/RecentSongsLoading";
 import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
@@ -93,7 +93,7 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                               : "text-gray-400"
                           }`}
                         >
-                          {favorites[recentSong.ID] ? "❤" : "♡"}
+                          {favorites[recentSong.ID] ? <MdFavorite /> : <MdFavoriteBorder />}
                         </button>
                       )}
                     </div>
