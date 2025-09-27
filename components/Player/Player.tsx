@@ -34,7 +34,7 @@ const Player = () => {
 
       const streamLink = data?.streams?.data?.[0]?.attributes?.Link;
 
-      setTrackUrl(streamLink || process.env.NEXT_PUBLIC_STREAM_FALLBACK);
+  setTrackUrl(streamLink || process.env.NEXT_PUBLIC_STREAM_FALLBACK);
     } catch (error) {
       console.error("Failed to fetch stream:", error);
     }
@@ -97,9 +97,13 @@ const Player = () => {
 
   useEffect(() => {
     if (isPlaying) {
-      audioElem.current?.play().catch((error) => {
-        console.error("Failed to play audio:", error);
-      });
+      if (audioElem.current) {
+        audioElem.current.preload = "none";
+        audioElem.current.load(); // force reload to get latest stream
+        audioElem.current.play().catch((error) => {
+          console.error("Failed to play audio:", error);
+        });
+      }
     } else {
       audioElem.current?.pause();
     }
@@ -118,7 +122,7 @@ const Player = () => {
     <div className="z-[1000] bg-gradient-to-r from-activeTab to-secondaryShade_1 w-full h-fit fixed bottom-0 px-4 sm:px-4 md:px-20 lg-px-24 xl:px-24 py-2 sm:py-2 md:py-3 lg:py-3 xl:py-3">
       {trackUrl && (
         <>
-          <audio src={trackUrl} ref={audioElem} muted={muted} />
+          <audio src={trackUrl} ref={audioElem} muted={muted} preload="none" />
         </>
       )}
       <PlayerControls
