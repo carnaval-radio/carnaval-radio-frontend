@@ -9,7 +9,6 @@ import { dosis } from "./fonts/font";
 import { client } from "@/GlobalState/ApiCalls/api.config";
 import { GET_UI_NAVIGATION } from "@/GlobalState/ApiCalls/graphql/navigation_queries";
 import { fetchThemeData } from "@/GlobalState/ApiCalls/fetchTheme";
-import FeedbackForm from "./FeedbackForm";
 import GoogleAnalytics from "@/components/Analytics/GoogleAnalytics";
 import CookieBanner from "@/components/cookieBanner";
 import GoogleAnalyticsPageView from "@/components/Analytics/GoogleAnalyticsPageView";
@@ -17,6 +16,7 @@ import StructuredData from "@/components/StructuredData";
 import { Suspense } from "react";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import LimburgConsoleMessage from "@/components/LimburgConsoleMessage";
 
 export const metadata: Metadata = {
   title: "Carnaval Radio | 24/7 Limburgse Vastelaovend Muziek",
@@ -79,6 +79,7 @@ export default async function RootLayout({
   return (
     <html lang="nl">
       <body className={dosis.className}>
+        <LimburgConsoleMessage />
         <Suspense fallback={<GoogleAnalyticsFallback />}>
           {GA_MEASUREMENT_ID && (
           <>
