@@ -1,19 +1,6 @@
-import { fetchSongs, RecentSongWithID, RecentSong } from "./fetchSongs";
+import { fetchSongs, RecentSong } from "./fetchSongs";
 import { DataStorage } from "../Songs/SupabaseStorage";
 import { isSupabaseConfigured } from "../Songs/supabase_client";
-
-function getSongID(song: { artist: string; title: string }): string {
-  return normalizeString(`${song.artist}-${song.title}`);
-}
-
-function normalizeString(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize("NFD") // Decompose characters like é to e + accent
-    .replace(/[^a-z0-9\s,-]/g, "") // Remove non-alphanumeric characters except spaces, commas, and dashes
-    .replace(/\s+/g, "-") // Replace spaces with dashes
-    .replace(/,+/g, "-"); // Replace commas with dashes
-}
 
 export async function updateSongs() {
   console.log("🎵 Starting song update process...");
@@ -34,15 +21,9 @@ export async function updateSongs() {
 
   console.log(`✅ Fetched ${freshSongs.length} songs from radio API`);
 
-  // Add IDs to songs
-  const songsWithIDs: RecentSongWithID[] = freshSongs.map((song: RecentSong) => ({
-    ...song,
-    ID: getSongID(song),
-  }));
-
   // Deduplicate songs by ID - keep the most recent one for each unique ID
-  const deduplicatedSongs = new Map<string, RecentSongWithID>();
-  songsWithIDs.forEach((song) => {
+  const deduplicatedSongs = new Map<string, RecentSong>();
+  freshSongs.forEach((song) => {
     const existingSong = deduplicatedSongs.get(song.ID);
     if (!existingSong) {
       // First time seeing this song ID
@@ -58,9 +39,9 @@ export async function updateSongs() {
   });
 
   const uniqueSongs = Array.from(deduplicatedSongs.values());
-  
-  if (uniqueSongs.length !== songsWithIDs.length) {
-    console.log(`🔄 Deduplicated ${songsWithIDs.length} songs to ${uniqueSongs.length} unique songs`);
+
+  if (uniqueSongs.length !== freshSongs.length) {
+    console.log(`🔄 Deduplicated ${freshSongs.length} songs to ${uniqueSongs.length} unique songs`);
   }
 
   // Save to Supabase
@@ -74,8 +55,8 @@ export async function updateSongs() {
     console.log(`  ${index + 1}. ${song.artist} - ${song.title} (${song.date ? new Date(song.date).toLocaleTimeString() : 'No time'})`);
   });
 
-  if (songsWithIDs.length > 5) {
-    console.log(`  ... and ${songsWithIDs.length - 5} more songs`);
+  if (freshSongs.length > 5) {
+    console.log(`  ... and ${freshSongs.length - 5} more songs`);
   }
 
   return {

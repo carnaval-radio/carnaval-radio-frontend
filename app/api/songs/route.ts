@@ -23,36 +23,58 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const FRESHNESS_MS = 5 * 60 * 1000;
+  // Always fetch from Radio API
+  let radioSongs: RecentSong[] = [];
+  try {
+    radioSongs = await fetchSongs();
+  } catch (error) {
+    console.error("❌ Radio API fetch failed:", error);
+    return NextResponse.json([], { status: 503 });
+  }
 
-  // Try to load from Supabase first (fastest)
+  // Try to fetch from Supabase, but don't crash if it fails
+  let supabaseSongs: RecentSong[] = [];
   if (isSupabaseConfigured()) {
-    // Trigger background update (do not await)
     updateSongs().catch((e) => console.warn("updateSongs background error", e));
-
     try {
       const storage = new DataStorage();
-      const cachedSongs = await storage.loadSongs(limit);
-      
-      if (isFresh(cachedSongs as any, FRESHNESS_MS)) {
-        console.log(`✅ Served ${cachedSongs.length} fresh songs from Supabase cache (limit: ${limit})`);
-        return NextResponse.json(cachedSongs);
-      } else {
-        console.warn('⚠️ Supabase cache is stale, falling back to direct fetch.');
-      }
+      supabaseSongs = await storage.loadSongs(limit);
     } catch (error) {
-      console.warn("⚠️ Supabase unavailable, falling back to direct fetch:", error);
+      console.warn("⚠️ Supabase unavailable, merging only radio API songs:", error);
     }
   }
 
-  // Fallback: Direct fetch from radio API (slower, no caching)
-  try {
-    console.log(`📡 No cached data available, fetching directly from radio API (limit: ${limit})`);
-    const freshSongs = await fetchSongs();
-    console.log(`✅ Served ${freshSongs.length} songs from direct API fetch`);
-    return NextResponse.json(freshSongs.slice(0, limit));
-  } catch (error) {
-    console.error("❌ All data sources failed:", error);
-    return NextResponse.json([], { status: 503 });
+  // Merge and dedupe by song ID, prefer Supabase if times are close
+  const TEN_MINUTES_MS = 10 * 60 * 1000;
+  const mergedMap = new Map<string, RecentSong>();
+
+  // Add Supabase songs first
+  for (const song of supabaseSongs) {
+    if (song.ID) mergedMap.set(song.ID, song);
   }
+
+  // Add Radio songs, dedupe and prefer Supabase if times are close
+  for (const song of radioSongs) {
+    if (!song.ID) continue;
+    const supa = mergedMap.get(song.ID);
+    if (supa) {
+      // If times are close, keep Supabase
+      if (Math.abs((supa.date ?? 0) - (song.date ?? 0)) <= TEN_MINUTES_MS) {
+        continue;
+      }
+      // Otherwise, keep the more recent
+      if ((song.date ?? 0) > (supa.date ?? 0)) {
+        mergedMap.set(song.ID, song);
+      }
+    } else {
+      mergedMap.set(song.ID, song);
+    }
+  }
+
+  // Sort by date descending and apply limit
+  const mergedSongs = Array.from(mergedMap.values())
+    .sort((a, b) => (b.date ?? 0) - (a.date ?? 0))
+    .slice(0, limit);
+
+  return NextResponse.json(mergedSongs);
 }
