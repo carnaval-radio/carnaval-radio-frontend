@@ -93,7 +93,7 @@ const page = async () => {
             <p className="text-lg leading-relaxed mb-4">
               Tijdens de carnavalsperiode maken we live-uitzendingen vanuit
               meerdere cafés in Brunssum. Hoogtepunt is onze jaarlijkse
-              feestavond, waar bekende Limburgse artiesten optreden — vaak zelfs
+              feestavond, waar bekende Limburgse artiesten optreden, vaak zelfs
               de LVK-winnaar van dat jaar. Zo brengen we de Vastelaovend van het
               podium direct naar onze luisteraars.
             </p>
