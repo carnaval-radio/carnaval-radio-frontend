@@ -11,6 +11,7 @@ interface Props {
     showFacebook?: boolean;
     showInstagram?: boolean;
     maxPosts?: number;
+    charactersToShow?: number;
   }
 
 const SocialMediaFeed = async ({
@@ -18,7 +19,8 @@ const SocialMediaFeed = async ({
     instagramId,
     facebookAccessToken,
     instagramAccessToken,
-    maxPosts
+    maxPosts,
+    charactersToShow,
   }: Props) => {
     const fetchPosts = async (
       facebookPageId?: string,
@@ -45,8 +47,8 @@ const SocialMediaFeed = async ({
       facebookAccessToken,
       instagramAccessToken
     );
-  
-    return <SocialPosts posts={posts} />;
+
+    return <SocialPosts posts={posts} charactersToShow={charactersToShow} />;
   };
 
   export default SocialMediaFeed;

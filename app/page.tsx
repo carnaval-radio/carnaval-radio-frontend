@@ -39,6 +39,7 @@ const page = async () => {
             facebookPageId={facebookPageId}
             facebookAccessToken={facebookAccessToken}
             maxPosts={3}
+            charactersToShow={400}
           />
           <div className="flex items-center justify-center pt-8">
             <Link
@@ -59,6 +60,7 @@ const page = async () => {
             instagramId={instagramId}
             instagramAccessToken={instagramAccessToken}
             maxPosts={3}
+            charactersToShow={400}
           />
           <div className="flex items-center justify-center pt-8">
             <Link
