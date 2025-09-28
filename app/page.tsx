@@ -75,11 +75,11 @@ const page = async () => {
       <section className="bg-gray-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            Over Carnaval Radio Brunssum
+            Over Carnaval Radio
           </h2>
           <div className="prose prose-lg max-w-none text-gray-700">
             <p className="text-lg leading-relaxed mb-4">
-              <strong>Carnaval Radio Brunssum</strong> brengt sinds 2005 de
+              <strong>Carnaval Radio</strong> brengt sinds 2005 de
               Limburgse Vastelaovend bij je thuis. Het hele jaar door hoor je
               bij ons de beste Limburgse en Duitse carnavalsmuziek.
             </p>
