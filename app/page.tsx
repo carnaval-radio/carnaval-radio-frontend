@@ -10,9 +10,11 @@ import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
 export async function generateMetadata() {
   return {
     title: "Carnaval Radio | 24/7 Limburgse Vastelaovend Muziek",
-    description: "De vastelaoves Radio. Carnaval Radio uit Brunssum houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. Luister naar de beste Limburgse en Duitse carnavalsleedsjes, polonaise en LVK hits. Live stream en verzoekjes mogelijk.",
-    keywords: "Carnaval Radio, Brunssum, Limburg, Vastelaovend, carnavalsmuziek, Limburgse muziek, polonaise, LVK, Parkstad, Zuid-Limburg, carnaval traditie, 24/7 radio, Broenssem, Heerlen, Landgraag, Kerkrade, Echt, Sittard, Roermond, Venlo, Maastricht, Duitse carnavalsmuziek, Vastelaovend hits, carnavalsleedsjes, live stream, verzoekjes",
- };
+    description:
+      "De vastelaoves Radio. Carnaval Radio uit Brunssum houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. Luister naar de beste Limburgse en Duitse carnavalsleedsjes, polonaise en LVK hits. Live stream en verzoekjes mogelijk.",
+    keywords:
+      "Carnaval Radio, Brunssum, Limburg, Vastelaovend, carnavalsmuziek, Limburgse muziek, polonaise, LVK, Parkstad, Zuid-Limburg, carnaval traditie, 24/7 radio, Broenssem, Heerlen, Landgraag, Kerkrade, Echt, Sittard, Roermond, Venlo, Maastricht, Duitse carnavalsmuziek, Vastelaovend hits, carnavalsleedsjes, live stream, verzoekjes",
+  };
 }
 
 const page = async () => {
@@ -22,7 +24,7 @@ const page = async () => {
   const instagramId = process.env.NEXT_PUBLIC_INSTAGRAM_ID;
 
   const posts = await fetchPosts();
- 
+
   return (
     <section className="flex-grow">
       <Hero />
@@ -68,7 +70,7 @@ const page = async () => {
           </div>
         </Section>
       )}
-      
+
       {/* SEO Content Section */}
       <section className="bg-gray-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
@@ -77,23 +79,30 @@ const page = async () => {
           </h2>
           <div className="prose prose-lg max-w-none text-gray-700">
             <p className="text-lg leading-relaxed mb-4">
-              <strong>Carnaval Radio uit Brunssum</strong> houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. 
-              Sinds 2005 draaien we de beste Limburgse en Duitse carnavalsleedsjes, van klassieke polonaise tot moderne LVK hits.
+              <strong>Carnaval Radio Brunssum</strong> brengt sinds 2005 de
+              Limburgse Vastelaovend bij je thuis. Het hele jaar door hoor je
+              bij ons de beste Limburgse en Duitse carnavalsmuziek.
             </p>
+
             <p className="text-lg leading-relaxed mb-4">
-              Onze missie is om de Vastelaovend levend te houden onder jong en oud in Parkstad en Zuid-Limburg. 
-              We organiseren jaarlijks feestavonden in Brunssum en bieden een gratis 24/7 stream met live DJ's en verzoekjes.
+              We willen de Vastelaovend levend houden in Brunssum, Parkstad en
+              heel Limburg. Daarom draaien we 24/7 muziek, nemen we
+              verzoekjes aan en streamen we gratis.
             </p>
+
             <p className="text-lg leading-relaxed mb-4">
-              Van het 'sjoenkele' tot de polonaise en het LVK: alles wat bij de Limburgse carnavalstraditie hoort, 
-              vind je bij Carnaval Radio. Luister mee en beleef de gezelligheid van de Vastelaovend het hele jaar door!
+              Tijdens de carnavalsperiode maken we live-uitzendingen vanuit
+              meerdere cafés in Brunssum. Hoogtepunt is onze jaarlijkse
+              feestavond, waar bekende Limburgse artiesten optreden — vaak zelfs
+              de LVK-winnaar van dat jaar. Zo brengen we de Vastelaovend van het
+              podium direct naar onze luisteraars.
             </p>
-            <div className="mt-8 text-center">
-              <p className="text-sm text-gray-600">
-                <strong>Keywords:</strong> Carnaval Radio Brunssum, Limburgse Vastelaovend, carnavalsmuziek Limburg, 
-                polonaise muziek, LVK hits, Parkstad carnaval, Zuid-Limburg traditie, 24/7 carnaval radio
-              </p>
-            </div>
+
+            <p className="text-lg leading-relaxed mb-4">
+              Carnaval Radio is er voor iedereen die de sfeer van de
+              Vastelaovend alvast wil ervaren, thuis, onderweg of samen met vrienden.
+              Luister en vier mee met wat ons in Parkstad en Limburg verbindt.
+            </p>
           </div>
         </div>
       </section>
