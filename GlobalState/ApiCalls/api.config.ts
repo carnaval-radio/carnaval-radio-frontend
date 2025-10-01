@@ -4,5 +4,5 @@ const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_STRAPI_URL;
 export const client = new ApolloClient({
   link: new HttpLink({ uri: GRAPHQL_ENDPOINT }),
   cache: new InMemoryCache(),
-  connectToDevTools: process.env.NODE_ENV !== 'production'
+  devtools: { enabled: process.env.NODE_ENV !== 'production' }
 });
