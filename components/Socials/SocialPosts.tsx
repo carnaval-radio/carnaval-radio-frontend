@@ -4,6 +4,8 @@ import { FaFacebook, FaInstagram } from "react-icons/fa";
 import ImageWithFallback from "../constants/ImageWithFallback";
 
 const SocialPosts = ({ posts, charactersToShow }: { posts: SocialPost[]; charactersToShow?: number }) => {
+  const fallbackURL = "https://res.cloudinary.com/dwzn0q9wj/image/upload/c_fill,w_500,q_auto,f_auto/v1706569127/030_Momenttom_com_2024_TOM_18995_b4adb75114.jpg";
+  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-4 md:gap-6 2xl:gap-10 mt-auto pt-2 sm:pt-2 md:pt-3 lg:pt-4 xl:pt-4 w-full">
       {posts.map((post, i) => {
@@ -25,9 +27,9 @@ const SocialPosts = ({ posts, charactersToShow }: { posts: SocialPost[]; charact
             }`} rounded-xl p-5 overflow-hidden space-y-5 w-full`}
           >
             <ImageWithFallback
-              fallbackSrc="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+              fallbackSrc={fallbackURL}
               className="h-60 w-[98%] object-cover rounded-xl"
-              src={post.image}
+              src={post.image || fallbackURL}
               alt={`Foto van ${
                 post.type
               } genomen op ${post.date.toLocaleDateString("nl-NL")}`}
