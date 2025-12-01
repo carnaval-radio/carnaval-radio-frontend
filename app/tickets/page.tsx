@@ -20,7 +20,7 @@ const page = () => {
         >
           {<MdCreditCard />} <span>Tickets</span>
         </h2>
-        <p className="my-2">De kaartverkoop start 3 december 2024 om 20:11 uur.</p>
+        <p className="my-2">De kaartverkoop start 3 december 2025 om 20:00 uur.</p>
         <IframeComponent src="https://www.ticketcrew.nl/tickets/carnaval-radio" />
         <p className="my-2">
           Zie je hier geen tickets? Check de link: <Link
