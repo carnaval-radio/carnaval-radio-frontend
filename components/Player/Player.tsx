@@ -33,8 +33,10 @@ const Player = () => {
     isCastAvailable,
     isCasting,
     isConnecting,
+    castPlayerState,
     startCasting,
     stopCasting,
+    togglePlayPause,
   } = useChromecast({
     trackUrl,
     currentTrack,
@@ -44,17 +46,28 @@ const Player = () => {
       if (casting && audioElem.current) {
         audioElem.current.pause();
       }
-      // Resume local audio when casting stops (if was playing)
-      else if (!casting && isPlaying && audioElem.current) {
-        audioElem.current.play().catch(console.error);
+      // When casting stops, pause local playback and update UI state
+      else if (!casting) {
+        if (audioElem.current) {
+          audioElem.current.pause();
+        }
+        // Only toggle if currently showing as playing
+        if (isPlaying) {
+          dispatch(setPlay());
+        }
       }
     },
   });
 
   // Update cast state in Redux for MobileHeader
   useEffect(() => {
-    dispatch(setCastState({ isCastAvailable, isCasting, isConnecting }));
-  }, [isCastAvailable, isCasting, isConnecting, dispatch]);
+    dispatch(setCastState({ 
+      isCastAvailable, 
+      isCasting, 
+      isConnecting,
+      castPlayerState 
+    }));
+  }, [isCastAvailable, isCasting, isConnecting, castPlayerState, dispatch]);
 
   // Set cast click handler for mobile header
   useEffect(() => {
@@ -137,18 +150,23 @@ const Player = () => {
   }, []);
 
   useEffect(() => {
+    // When casting, control the cast device instead of local audio
+    if (isCasting) {
+      // Don't control local audio when casting
+      return;
+    }
+    
+    // Normal local playback control
     if (isPlaying) {
-      if (audioElem.current && !isCasting) {
+      if (audioElem.current) {
         audioElem.current.play().catch((error) => {
           console.error("Failed to play audio:", error);
         });
       }
     } else {
-      if (!isCasting) {
-        audioElem.current?.pause();
-      }
+      audioElem.current?.pause();
     }
-  });
+  }, [isPlaying, isCasting]);
 
   if (audioElem.current) {
     audioElem.current.onplay = () => {
@@ -179,6 +197,15 @@ const Player = () => {
             stopCasting();
           } else {
             startCasting();
+          }
+        }}
+        onPlayPauseClick={() => {
+          if (isCasting) {
+            // When casting, directly control Chromecast
+            togglePlayPause();
+          } else {
+            // When not casting, toggle local playback
+            dispatch(setPlay());
           }
         }}
       />

@@ -22,11 +22,21 @@ export const useChromecast = ({
   const [isCastAvailable, setIsCastAvailable] = useState(false);
   const [isCasting, setIsCasting] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [castPlayerState, setCastPlayerState] = useState<string>("IDLE");
   const castSessionRef = useRef<chrome.cast.Session | null>(null);
   const currentMediaRef = useRef<chrome.cast.media.Media | null>(null);
 
   // Initialize Cast API
   useEffect(() => {
+    // Don't initialize on iOS - all iOS browsers use WebKit and don't support Chromecast
+    if (typeof window !== "undefined") {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        console.log("Chromecast not supported on iOS devices");
+        return;
+      }
+    }
+
     const initializeCast = () => {
       if (typeof window !== "undefined" && window.chrome?.cast) {
         const sessionRequest = new chrome.cast.SessionRequest(
@@ -86,11 +96,18 @@ export const useChromecast = ({
         console.log("Rejoined existing cast session with active media");
         currentMediaRef.current = session.media[0];
         
+        // Update cast player state
+        setCastPlayerState(session.media[0].playerState);
+        
         // Add update listener to existing media
         session.media[0].addUpdateListener((isAlive) => {
           if (!isAlive) {
             console.log("Media session ended");
             currentMediaRef.current = null;
+            setCastPlayerState("IDLE");
+          } else {
+            // Update player state
+            setCastPlayerState(session.media[0].playerState);
           }
         });
       }
@@ -112,6 +129,7 @@ export const useChromecast = ({
     currentMediaRef.current = null;
     setIsCasting(false);
     setIsConnecting(false);
+    setCastPlayerState("IDLE");
     onCastStateChange?.(false);
   }, [onCastStateChange]);
 
@@ -152,12 +170,17 @@ export const useChromecast = ({
         (media) => {
           console.log("Media loaded successfully, playerState:", media.playerState);
           currentMediaRef.current = media;
+          setCastPlayerState(media.playerState);
 
           // Listen for media status updates
           media.addUpdateListener((isAlive) => {
             if (!isAlive) {
               console.log("Media session ended");
               currentMediaRef.current = null;
+              setCastPlayerState("IDLE");
+            } else {
+              // Update player state
+              setCastPlayerState(media.playerState);
             }
           });
         },
@@ -240,6 +263,7 @@ export const useChromecast = ({
         null,
         () => {
           console.log("Media paused");
+          setCastPlayerState("PAUSED");
         },
         (error) => {
           console.error("Error pausing media:", error);
@@ -250,6 +274,7 @@ export const useChromecast = ({
         null,
         () => {
           console.log("Media playing");
+          setCastPlayerState("PLAYING");
         },
         (error) => {
           console.error("Error playing media:", error);
@@ -269,13 +294,21 @@ export const useChromecast = ({
 
       // Only sync if we've explicitly enabled syncing (not on initial rejoin)
       if (syncEnabledRef.current) {
-        // Sync state
+        // Sync state - when user clicks play/pause locally, control the cast
         if (isPlaying && !isMediaPlaying) {
           console.log("Syncing: resuming cast playback");
-          media.play(null, () => {}, console.error);
+          media.play(
+            null, 
+            () => setCastPlayerState("PLAYING"), 
+            console.error
+          );
         } else if (!isPlaying && isMediaPlaying) {
           console.log("Syncing: pausing cast playback");
-          media.pause(null, () => {}, console.error);
+          media.pause(
+            null, 
+            () => setCastPlayerState("PAUSED"), 
+            console.error
+          );
         }
       } else {
         // Enable syncing after first render (to avoid interfering with rejoined sessions)
@@ -295,6 +328,7 @@ export const useChromecast = ({
     isCastAvailable,
     isCasting,
     isConnecting,
+    castPlayerState,
     startCasting,
     stopCasting,
     togglePlayPause,

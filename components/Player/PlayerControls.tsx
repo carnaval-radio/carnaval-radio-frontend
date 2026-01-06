@@ -20,6 +20,7 @@ interface Props {
   isCasting: boolean;
   isConnecting: boolean;
   onCastClick: () => void;
+  onPlayPauseClick?: () => void;
 }
 
 const PlayerControls = ({
@@ -31,14 +32,29 @@ const PlayerControls = ({
   isCasting,
   isConnecting,
   onCastClick,
+  onPlayPauseClick,
 }: Props) => {
   const dispatch = useDispatch();
-  const { isPlaying, muted } = useSelector(
+  const { isPlaying, muted, castPlayerState } = useSelector(
     (state: GlobalState) => state.Player
   );
 
   const [showVolume, setShowVolume] = useState(false);
   const [volume, setVolume] = useState(30);
+
+  // Determine if we should show playing state based on cast or local
+  const isCurrentlyPlaying = isCasting 
+    ? castPlayerState === "PLAYING" 
+    : isPlaying;
+
+  // Handle play/pause click
+  const handlePlayPause = () => {
+    if (onPlayPauseClick) {
+      onPlayPauseClick();
+    } else {
+      dispatch(setPlay());
+    }
+  };
 
   useEffect(() => {
     if (trackUrl) {
@@ -61,9 +77,9 @@ const PlayerControls = ({
         )}
         <div
           className="flex sm:hidden md:hidden lg:hidden xl:hidden items-center justify-center p-3 rounded-lg bg-gradient-to-r from-primary to-secondary text-white cursor-pointer"
-          onClick={() => dispatch(setPlay())}
+          onClick={handlePlayPause}
         >
-          {isPlaying ? (
+          {isCurrentlyPlaying ? (
             <BsFillPauseFill size={35} className="h-7 w-7" />
           ) : (
             <BsFillPlayFill size={35} className="h-7 w-7" />
@@ -90,9 +106,9 @@ const PlayerControls = ({
         </>
         <div
           className={`hidden sm:flex md::flex lg:flex xl:flex items-center justify-center p-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white cursor-pointer`}
-          onClick={() => dispatch(setPlay())}
+          onClick={handlePlayPause}
         >
-          {isPlaying ? (
+          {isCurrentlyPlaying ? (
             <BsFillPauseFill size={35} />
           ) : (
             <BsFillPlayFill size={35} />
