@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { client } from "@/GlobalState/ApiCalls/api.config";
 import { GET_STREAM_DATA } from "@/GlobalState/ApiCalls/graphql/stream_queries";
-import { setsSongTitle, setPlay, setCastState } from "@/GlobalState/features/PlayerSlice";
+import { setsSongTitle, setPlay } from "@/GlobalState/features/PlayerSlice";
 import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
-import { useChromecast } from "./useChromecast";
+import { useRemotePlayback } from "./useRemotePlayback";
 import { setCastClickHandler } from "../MobileChromecast";
 
 const Player = () => {
@@ -28,26 +28,28 @@ const Player = () => {
   const audioElem = useRef<HTMLAudioElement>(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize Chromecast
+  // Initialize Remote Playback (Chromecast or AirPlay depending on platform)
   const {
-    isCastAvailable,
-    isCasting,
+    playbackType,
+    isRemoteAvailable,
+    isRemoteCasting,
     isConnecting,
-    castPlayerState,
-    startCasting,
-    stopCasting,
+    remotePlayerState,
+    startRemotePlayback,
+    stopRemotePlayback,
     togglePlayPause,
-  } = useChromecast({
+  } = useRemotePlayback({
     trackUrl,
     currentTrack,
     isPlaying,
-    onCastStateChange: (casting) => {
-      // Pause local audio when casting starts
-      if (casting && audioElem.current) {
+    audioRef: audioElem,
+    onRemoteStateChange: (remoteCasting) => {
+      // Pause local audio when remote casting starts
+      if (remoteCasting && audioElem.current) {
         audioElem.current.pause();
       }
-      // When casting stops, pause local playback and update UI state
-      else if (!casting) {
+      // When remote casting stops, pause local playback and update UI state
+      else if (!remoteCasting) {
         if (audioElem.current) {
           audioElem.current.pause();
         }
@@ -59,26 +61,16 @@ const Player = () => {
     },
   });
 
-  // Update cast state in Redux for MobileHeader
-  useEffect(() => {
-    dispatch(setCastState({ 
-      isCastAvailable, 
-      isCasting, 
-      isConnecting,
-      castPlayerState 
-    }));
-  }, [isCastAvailable, isCasting, isConnecting, castPlayerState, dispatch]);
-
-  // Set cast click handler for mobile header
+  // Set remote playback click handler for mobile header
   useEffect(() => {
     setCastClickHandler(() => {
-      if (isCasting) {
-        stopCasting();
+      if (isRemoteCasting) {
+        stopRemotePlayback();
       } else {
-        startCasting();
+        startRemotePlayback();
       }
     });
-  }, [isCasting, startCasting, stopCasting]);
+  }, [isRemoteCasting, startRemotePlayback, stopRemotePlayback]);
 
   const fetchStream = async () => {
     try {
@@ -150,9 +142,9 @@ const Player = () => {
   }, []);
 
   useEffect(() => {
-    // When casting, control the cast device instead of local audio
-    if (isCasting) {
-      // Don't control local audio when casting
+    // When remote casting, control the remote device instead of local audio
+    if (isRemoteCasting) {
+      // Don't control local audio when remote casting
       return;
     }
     
@@ -166,7 +158,7 @@ const Player = () => {
     } else {
       audioElem.current?.pause();
     }
-  }, [isPlaying, isCasting]);
+  }, [isPlaying, isRemoteCasting]);
 
   if (audioElem.current) {
     audioElem.current.onplay = () => {
@@ -189,22 +181,23 @@ const Player = () => {
         audioElem={audioElem}
         currentTrack={currentTrack}
         loading={loading}
-        isCastAvailable={isCastAvailable}
-        isCasting={isCasting}
+        playbackType={playbackType}
+        isRemoteAvailable={isRemoteAvailable}
+        isRemoteCasting={isRemoteCasting}
         isConnecting={isConnecting}
-        onCastClick={() => {
-          if (isCasting) {
-            stopCasting();
+        onRemoteClick={() => {
+          if (isRemoteCasting) {
+            stopRemotePlayback();
           } else {
-            startCasting();
+            startRemotePlayback();
           }
         }}
         onPlayPauseClick={() => {
-          if (isCasting) {
-            // When casting, directly control Chromecast
+          if (isRemoteCasting) {
+            // When remote casting, directly control remote device
             togglePlayPause();
           } else {
-            // When not casting, toggle local playback
+            // When not remote casting, toggle local playback
             dispatch(setPlay());
           }
         }}
