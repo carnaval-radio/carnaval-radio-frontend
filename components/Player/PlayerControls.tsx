@@ -9,17 +9,19 @@ import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
 import SongCover from "../SongCover";
 import FormateTitle from "../FormatTitle";
-import ChromecastButton from "./ChromecastButton";
+import RemotePlaybackButton from "./RemotePlaybackButton";
+import { RemotePlaybackType } from "./useRemotePlayback";
 
 interface Props {
   currentTrack: Track;
   audioElem: any;
   loading: boolean;
   trackUrl: string;
-  isCastAvailable: boolean;
-  isCasting: boolean;
+  playbackType: RemotePlaybackType;
+  isRemoteAvailable: boolean;
+  isRemoteCasting: boolean;
   isConnecting: boolean;
-  onCastClick: () => void;
+  onRemoteClick: () => void;
   onPlayPauseClick?: () => void;
 }
 
@@ -28,23 +30,24 @@ const PlayerControls = ({
   audioElem,
   loading,
   trackUrl,
-  isCastAvailable,
-  isCasting,
+  playbackType,
+  isRemoteAvailable,
+  isRemoteCasting,
   isConnecting,
-  onCastClick,
+  onRemoteClick,
   onPlayPauseClick,
 }: Props) => {
   const dispatch = useDispatch();
-  const { isPlaying, muted, castPlayerState } = useSelector(
+  const { isPlaying, muted, remotePlayerState } = useSelector(
     (state: GlobalState) => state.Player
   );
 
   const [showVolume, setShowVolume] = useState(false);
   const [volume, setVolume] = useState(30);
 
-  // Determine if we should show playing state based on cast or local
-  const isCurrentlyPlaying = isCasting 
-    ? castPlayerState === "PLAYING" 
+  // Determine if we should show playing state based on remote or local
+  const isCurrentlyPlaying = isRemoteCasting 
+    ? remotePlayerState === "PLAYING" 
     : isPlaying;
 
   // Handle play/pause click
@@ -156,11 +159,12 @@ const PlayerControls = ({
               }}
             />
           </div>
-          <ChromecastButton
-            isCastAvailable={isCastAvailable}
-            isCasting={isCasting}
+          <RemotePlaybackButton
+            playbackType={playbackType}
+            isRemoteAvailable={isRemoteAvailable}
+            isRemoteCasting={isRemoteCasting}
             isConnecting={isConnecting}
-            onCastClick={onCastClick}
+            onRemoteClick={onRemoteClick}
             className="text-playerControls"
           />
         </div>

@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Track } from "@/types/trackTypes";
+import { useDispatch } from "react-redux";
+import { setRemoteState } from "@/GlobalState/features/PlayerSlice";
 
 // Default Cast Application ID for audio streaming
 const DEFAULT_CAST_APP_ID = "CC1AD845";
@@ -19,12 +21,25 @@ export const useChromecast = ({
   isPlaying,
   onCastStateChange,
 }: UseChromecastProps) => {
+  const dispatch = useDispatch();
   const [isCastAvailable, setIsCastAvailable] = useState(false);
   const [isCasting, setIsCasting] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [castPlayerState, setCastPlayerState] = useState<string>("IDLE");
   const castSessionRef = useRef<chrome.cast.Session | null>(null);
   const currentMediaRef = useRef<chrome.cast.media.Media | null>(null);
+
+  // Update Redux when cast state changes
+  useEffect(() => {
+    dispatch(
+      setRemoteState({
+        isRemoteAvailable: isCastAvailable,
+        isRemoteCasting: isCasting,
+        isConnecting,
+        remotePlayerState: castPlayerState,
+      })
+    );
+  }, [isCastAvailable, isCasting, isConnecting, castPlayerState, dispatch]);
 
   // Initialize Cast API
   useEffect(() => {
