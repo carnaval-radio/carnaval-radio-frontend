@@ -5,9 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { client } from "@/GlobalState/ApiCalls/api.config";
 import { GET_STREAM_DATA } from "@/GlobalState/ApiCalls/graphql/stream_queries";
-import { setsSongTitle } from "@/GlobalState/features/PlayerSlice";
+import { setsSongTitle, setPlay, setCastState } from "@/GlobalState/features/PlayerSlice";
 import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
+import { useChromecast } from "./useChromecast";
+import { setCastClickHandler } from "../MobileChromecast";
 
 const Player = () => {
   const dispatch = useDispatch();
@@ -25,6 +27,45 @@ const Player = () => {
   });
   const audioElem = useRef<HTMLAudioElement>(null);
   const [loading, setLoading] = useState(true);
+
+  // Initialize Chromecast
+  const {
+    isCastAvailable,
+    isCasting,
+    isConnecting,
+    startCasting,
+    stopCasting,
+  } = useChromecast({
+    trackUrl,
+    currentTrack,
+    isPlaying,
+    onCastStateChange: (casting) => {
+      // Pause local audio when casting starts
+      if (casting && audioElem.current) {
+        audioElem.current.pause();
+      }
+      // Resume local audio when casting stops (if was playing)
+      else if (!casting && isPlaying && audioElem.current) {
+        audioElem.current.play().catch(console.error);
+      }
+    },
+  });
+
+  // Update cast state in Redux for MobileHeader
+  useEffect(() => {
+    dispatch(setCastState({ isCastAvailable, isCasting, isConnecting }));
+  }, [isCastAvailable, isCasting, isConnecting, dispatch]);
+
+  // Set cast click handler for mobile header
+  useEffect(() => {
+    setCastClickHandler(() => {
+      if (isCasting) {
+        stopCasting();
+      } else {
+        startCasting();
+      }
+    });
+  }, [isCasting, startCasting, stopCasting]);
 
   const fetchStream = async () => {
     try {
@@ -97,13 +138,15 @@ const Player = () => {
 
   useEffect(() => {
     if (isPlaying) {
-      if (audioElem.current) {
+      if (audioElem.current && !isCasting) {
         audioElem.current.play().catch((error) => {
           console.error("Failed to play audio:", error);
         });
       }
     } else {
-      audioElem.current?.pause();
+      if (!isCasting) {
+        audioElem.current?.pause();
+      }
     }
   });
 
@@ -128,6 +171,16 @@ const Player = () => {
         audioElem={audioElem}
         currentTrack={currentTrack}
         loading={loading}
+        isCastAvailable={isCastAvailable}
+        isCasting={isCasting}
+        isConnecting={isConnecting}
+        onCastClick={() => {
+          if (isCasting) {
+            stopCasting();
+          } else {
+            startCasting();
+          }
+        }}
       />
     </div>
   );

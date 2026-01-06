@@ -78,6 +78,13 @@ export default async function RootLayout({
   const GA_MEASUREMENT_ID = process.env.GOOGLE_ANALYTICS_ID;
   return (
     <html lang="nl">
+      <head>
+        <script
+          type="text/javascript"
+          src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"
+          defer
+        />
+      </head>
       <body className={dosis.className}>
         <LimburgConsoleMessage />
         <Suspense fallback={<GoogleAnalyticsFallback />}>

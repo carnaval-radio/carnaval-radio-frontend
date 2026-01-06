@@ -7,6 +7,7 @@ import Socials from "./Socials";
 import SidebarPlayer from "./Sidebar/SidebarPlayer";
 import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa";
+import MobileChromecast from "./MobileChromecast";
 
 interface props {
   themeData: any;
@@ -39,7 +40,8 @@ const MobileHeader = ({ themeData, menu }: props) => {
             alt="Logo"
           />
         </Link>
-        <div className="flex gap-4">
+        <div className="flex gap-4 items-center">
+        <MobileChromecast />
         <Link className="rounded m-auto" href="verzoekjes">
           <FaWhatsapp className="text-emerald-500" size={40} />
         </Link>

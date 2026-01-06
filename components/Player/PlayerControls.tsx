@@ -9,11 +9,17 @@ import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
 import SongCover from "../SongCover";
 import FormateTitle from "../FormatTitle";
+import ChromecastButton from "./ChromecastButton";
+
 interface Props {
   currentTrack: Track;
   audioElem: any;
   loading: boolean;
   trackUrl: string;
+  isCastAvailable: boolean;
+  isCasting: boolean;
+  isConnecting: boolean;
+  onCastClick: () => void;
 }
 
 const PlayerControls = ({
@@ -21,6 +27,10 @@ const PlayerControls = ({
   audioElem,
   loading,
   trackUrl,
+  isCastAvailable,
+  isCasting,
+  isConnecting,
+  onCastClick,
 }: Props) => {
   const dispatch = useDispatch();
   const { isPlaying, muted } = useSelector(
@@ -130,6 +140,13 @@ const PlayerControls = ({
               }}
             />
           </div>
+          <ChromecastButton
+            isCastAvailable={isCastAvailable}
+            isCasting={isCasting}
+            isConnecting={isConnecting}
+            onCastClick={onCastClick}
+            className="text-playerControls"
+          />
         </div>
       </div>
 

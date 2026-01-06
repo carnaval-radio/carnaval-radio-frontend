@@ -8,6 +8,9 @@ const PlayerSlice = createSlice({
     songUrl: "",
     isPlaying: false,
     muted: false,
+    isCastAvailable: false,
+    isCasting: false,
+    isConnecting: false,
   },
   reducers: {
     setMuted: (state) => {
@@ -19,10 +22,15 @@ const PlayerSlice = createSlice({
     setPlay: (state) => {
       state.isPlaying = !state.isPlaying;
     },
+    setCastState: (state, action) => {
+      state.isCastAvailable = action.payload.isCastAvailable;
+      state.isCasting = action.payload.isCasting;
+      state.isConnecting = action.payload.isConnecting;
+    },
   },
 });
 
-export const { setMuted, setsSongTitle, setPlay } = PlayerSlice.actions;
+export const { setMuted, setsSongTitle, setPlay, setCastState } = PlayerSlice.actions;
 export type PlayerState = ReturnType<typeof PlayerSlice.reducer>;
 
 export default PlayerSlice.reducer;
