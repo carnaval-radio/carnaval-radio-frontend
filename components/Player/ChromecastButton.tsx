@@ -8,6 +8,7 @@ interface ChromecastButtonProps {
   isConnecting: boolean;
   onCastClick: () => void;
   className?: string;
+  size?: "small" | "medium" | "large";
 }
 
 const ChromecastButton: React.FC<ChromecastButtonProps> = ({
@@ -16,10 +17,14 @@ const ChromecastButton: React.FC<ChromecastButtonProps> = ({
   isConnecting,
   onCastClick,
   className = "",
+  size = "medium",
 }) => {
   const uniqueId = useId();
   const gradientConnectingId = `castGradientConnecting-${uniqueId}`;
   const gradientActiveId = `castGradientActive-${uniqueId}`;
+
+  // Size classes
+  const sizeClass = size === "large" ? "w-10 h-10" : size === "small" ? "w-6 h-6" : "w-7 h-7";
 
   if (!isCastAvailable && !isCasting) {
     return null; // Don't show button if no Cast devices available and not already casting
@@ -35,7 +40,7 @@ const ChromecastButton: React.FC<ChromecastButtonProps> = ({
       {isConnecting ? (
         // Connecting state - animated icon with gradient
         <svg
-          className="w-7 h-7 animate-pulse"
+          className={`${sizeClass} animate-pulse`}
           viewBox="0 0 24 24"
           fill="none"
         >
@@ -53,7 +58,7 @@ const ChromecastButton: React.FC<ChromecastButtonProps> = ({
       ) : isCasting ? (
         // Connected state - filled icon with gradient
         <svg
-          className="w-7 h-7"
+          className={sizeClass}
           viewBox="0 0 24 24"
           fill="none"
         >
@@ -71,7 +76,7 @@ const ChromecastButton: React.FC<ChromecastButtonProps> = ({
       ) : (
         // Idle state - outline icon
         <svg
-          className="w-7 h-7 hover:scale-110 transition-transform"
+          className={`${sizeClass} hover:scale-110 transition-transform`}
           viewBox="0 0 24 24"
           fill="currentColor"
         >

@@ -30,7 +30,8 @@ const MobileChromecast: React.FC = () => {
         isCasting={isCasting}
         isConnecting={isConnecting}
         onCastClick={handleCastClick}
-        className="text-white"
+        className="text-gray-800"
+        size="large"
       />
     </div>
   );
