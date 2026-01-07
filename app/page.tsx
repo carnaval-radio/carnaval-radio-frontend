@@ -7,6 +7,7 @@ import LatestComments from "@/components/LatestComments";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import Link from "next/link";
 import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
+import { fetchFacebookPosts, fetchInstagramPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 
 export async function generateMetadata() {
   return {
@@ -26,6 +27,14 @@ const page = async () => {
 
   const posts = await fetchPosts();
 
+  // Fetch social media posts once (not twice!)
+  const facebookPosts = facebookPageId && facebookAccessToken
+    ? await fetchFacebookPosts(facebookPageId, facebookAccessToken, 3)
+    : [];
+  const instagramPosts = instagramId && instagramAccessToken
+    ? await fetchInstagramPosts(instagramId, instagramAccessToken, 3)
+    : [];
+
   return (
     <section className="flex-grow">
       <Hero />
@@ -34,15 +43,13 @@ const page = async () => {
         <LatestComments />
       </div>
       {posts && <PostCard posts={posts} />}
-      {facebookPageId && (
+      {facebookPosts.length > 0 && (
         <Section
           title="Facebook"
           iconElement={<FaFacebook className="h-8 w-8 text-primary" />}
         >
           <SocialMediaFeed
-            facebookPageId={facebookPageId}
-            facebookAccessToken={facebookAccessToken}
-            maxPosts={3}
+            posts={facebookPosts}
             charactersToShow={400}
           />
           <div className="flex items-center justify-center pt-8">
@@ -55,15 +62,13 @@ const page = async () => {
           </div>
         </Section>
       )}
-      {instagramId && (
+      {instagramPosts.length > 0 && (
         <Section
           title="Instagram"
           iconElement={<FaInstagram className="h-8 w-8 text-secondary" />}
         >
           <SocialMediaFeed
-            instagramId={instagramId}
-            instagramAccessToken={instagramAccessToken}
-            maxPosts={3}
+            posts={instagramPosts}
             charactersToShow={400}
           />
           <div className="flex items-center justify-center pt-8">
