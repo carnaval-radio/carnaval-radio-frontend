@@ -1,7 +1,7 @@
 import Hero from "@/components/Hero/Hero";
 import Sponsors from "@/components/Sponsors/Sponsors";
 import PostCard from "@/components/Post/PostCard";
-import SocialMediaFeed from "@/components/Socials/SocialFeed";
+import SocialPosts from "@/components/Socials/SocialPosts";
 import Section from "@/components/Section";
 import LatestComments from "@/components/LatestComments";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
@@ -48,7 +48,7 @@ const page = async () => {
           title="Facebook"
           iconElement={<FaFacebook className="h-8 w-8 text-primary" />}
         >
-          <SocialMediaFeed
+          <SocialPosts
             posts={facebookPosts}
             charactersToShow={400}
           />
@@ -67,7 +67,7 @@ const page = async () => {
           title="Instagram"
           iconElement={<FaInstagram className="h-8 w-8 text-secondary" />}
         >
-          <SocialMediaFeed
+          <SocialPosts
             posts={instagramPosts}
             charactersToShow={400}
           />

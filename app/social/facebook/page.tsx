@@ -1,5 +1,6 @@
 import { Indie } from "@/app/fonts/font";
-import SocialMediaFeed from "@/components/Socials/SocialFeed";
+import SocialPosts from "@/components/Socials/SocialPosts";
+import { fetchFacebookPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 import { FaFacebook } from "react-icons/fa";
 
 export async function generateMetadata() {
@@ -8,9 +9,14 @@ export async function generateMetadata() {
   };
 }
 
-const FacebookOnlyPage = () => {
+const FacebookOnlyPage = async () => {
   const facebookPageId = process.env.NEXT_PUBLIC_FACEBOOK_PAGE_ID;
   const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN;
+
+  // Fetch Facebook posts
+  const facebookPosts = facebookPageId && facebookAccessToken
+    ? await fetchFacebookPosts(facebookPageId, facebookAccessToken)
+    : [];
 
   return (
     <div className="p-10">
@@ -20,10 +26,7 @@ const FacebookOnlyPage = () => {
           Facebook posts
         </h2>
       </div>
-      <SocialMediaFeed
-        facebookPageId={facebookPageId}
-        facebookAccessToken={facebookAccessToken}
-      />
+      <SocialPosts posts={facebookPosts} />
     </div>
   );
 };

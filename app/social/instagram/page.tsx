@@ -1,5 +1,6 @@
 import { Indie } from "@/app/fonts/font";
-import SocialMediaFeed from "@/components/Socials/SocialFeed";
+import SocialPosts from "@/components/Socials/SocialPosts";
+import { fetchInstagramPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 import { FaInstagram } from "react-icons/fa";
 
 export async function generateMetadata() {
@@ -8,9 +9,14 @@ export async function generateMetadata() {
   };
 }
 
-const InstagramOnlyPage = () => {
+const InstagramOnlyPage = async () => {
   const instagramAccessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
   const instagramId = process.env.NEXT_PUBLIC_INSTAGRAM_ID;
+
+  // Fetch Instagram posts
+  const instagramPosts = instagramId && instagramAccessToken
+    ? await fetchInstagramPosts(instagramId, instagramAccessToken)
+    : [];
 
   return (
     <div className="p-10">
@@ -20,10 +26,7 @@ const InstagramOnlyPage = () => {
           Instagram feed
         </h2>
       </div>
-      <SocialMediaFeed
-        instagramAccessToken={instagramAccessToken}
-        instagramId={instagramId}
-      />
+      <SocialPosts posts={instagramPosts} />
     </div>
   );
 };

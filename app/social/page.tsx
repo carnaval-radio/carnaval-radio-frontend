@@ -1,4 +1,5 @@
-import SocialMediaFeed from "@/components/Socials/SocialFeed";
+import SocialPosts from "@/components/Socials/SocialPosts";
+import { fetchFacebookPosts, fetchInstagramPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 
 export async function generateMetadata() {
   return {
@@ -6,20 +7,27 @@ export async function generateMetadata() {
   };
 }
 
-const SocialPage = () => {
+const SocialPage = async () => {
   const facebookPageId = process.env.NEXT_PUBLIC_FACEBOOK_PAGE_ID;
   const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN;
   const instagramAccessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
   const instagramId = process.env.NEXT_PUBLIC_INSTAGRAM_ID;
 
+  // Fetch posts from both platforms
+  const facebookPosts = facebookPageId && facebookAccessToken
+    ? await fetchFacebookPosts(facebookPageId, facebookAccessToken)
+    : [];
+  const instagramPosts = instagramId && instagramAccessToken
+    ? await fetchInstagramPosts(instagramId, instagramAccessToken)
+    : [];
+  
+  // Combine and sort posts by date
+  const allPosts = [...facebookPosts, ...instagramPosts];
+  allPosts.sort((a, b) => b.date.getTime() - a.date.getTime());
+
   return (
     <div>
-      <SocialMediaFeed
-        facebookPageId={facebookPageId}
-        facebookAccessToken={facebookAccessToken}
-        instagramAccessToken={instagramAccessToken}
-        instagramId={instagramId}
-      />
+      <SocialPosts posts={allPosts} />
     </div>
   );
 };
