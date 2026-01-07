@@ -3,6 +3,7 @@ import Sponsors from "@/components/Sponsors/Sponsors";
 import PostCard from "@/components/Post/PostCard";
 import SocialMediaFeed from "@/components/Socials/SocialFeed";
 import Section from "@/components/Section";
+import LatestComments from "@/components/LatestComments";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import Link from "next/link";
 import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
@@ -29,6 +30,9 @@ const page = async () => {
     <section className="flex-grow">
       <Hero />
       <Sponsors />
+      <div className="px-4 sm:px-8 md:px-20 lg:px-24 xl:px-24 py-8">
+        <LatestComments />
+      </div>
       {posts && <PostCard posts={posts} />}
       {facebookPageId && (
         <Section

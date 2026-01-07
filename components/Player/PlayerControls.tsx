@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs";
 import { GiSpeaker, GiSpeakerOff } from "react-icons//gi";
+import { MdComment } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { setPlay, setMuted } from "../../GlobalState/features/PlayerSlice";
 import { GlobalState } from "@/GlobalState/GlobalState";
@@ -11,6 +12,7 @@ import SongCover from "../SongCover";
 import FormateTitle from "../FormatTitle";
 import RemotePlaybackButton from "./RemotePlaybackButton";
 import { RemotePlaybackType } from "./useRemotePlayback";
+import SongCommentsModal from "../Comments/SongCommentsModal";
 
 interface Props {
   currentTrack: Track;
@@ -23,6 +25,7 @@ interface Props {
   isConnecting: boolean;
   onRemoteClick: () => void;
   onPlayPauseClick?: () => void;
+  customSongId?: string;
 }
 
 const PlayerControls = ({
@@ -36,6 +39,7 @@ const PlayerControls = ({
   isConnecting,
   onRemoteClick,
   onPlayPauseClick,
+  customSongId,
 }: Props) => {
   const dispatch = useDispatch();
   const { isPlaying, muted, remotePlayerState } = useSelector(
@@ -44,6 +48,7 @@ const PlayerControls = ({
 
   const [showVolume, setShowVolume] = useState(false);
   const [volume, setVolume] = useState(30);
+  const [commentsModalOpen, setCommentsModalOpen] = useState(false);
 
   // Determine if we should show playing state based on remote or local
   const isCurrentlyPlaying = isRemoteCasting 
@@ -167,6 +172,15 @@ const PlayerControls = ({
             onRemoteClick={onRemoteClick}
             className="text-playerControls"
           />
+          {customSongId && (
+            <button
+              onClick={() => setCommentsModalOpen(true)}
+              className="text-playerControls hover:text-primary transition-colors"
+              aria-label="Comments"
+            >
+              <MdComment size={24} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -186,6 +200,15 @@ const PlayerControls = ({
             className="text-4xl text-playerControls cursor-pointer"
           />
         )}
+        {customSongId && (
+          <button
+            onClick={() => setCommentsModalOpen(true)}
+            className="text-playerControls hover:text-primary transition-colors"
+            aria-label="Comments"
+          >
+            <MdComment size={28} />
+          </button>
+        )}
         {!loading ? (
           <SongCover
             url={currentTrack.imageurl}
@@ -196,6 +219,17 @@ const PlayerControls = ({
           <div className="inline-block sm:hidden md:hidden lg:hidden xl:hidden h-14 w-14 rounded-md animate-pulse bg-white"></div>
         )}
       </div>
+
+      {/* Comments Modal */}
+      {customSongId && commentsModalOpen && (
+        <SongCommentsModal
+          customSongId={customSongId}
+          songTitle={currentTrack.title}
+          songArtist={currentTrack.artist}
+          isOpen={commentsModalOpen}
+          onClose={() => setCommentsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

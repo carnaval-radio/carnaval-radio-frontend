@@ -10,6 +10,7 @@ import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
 import { useRemotePlayback } from "./useRemotePlayback";
 import { setCastClickHandler } from "../MobileChromecast";
+import { generateCustomSongId } from "@/GlobalState/ApiCalls/fetchSongs";
 
 const Player = () => {
   const dispatch = useDispatch();
@@ -169,6 +170,12 @@ const Player = () => {
 
   currentTrack && updateTrackInfo();
 
+  // Generate customSongId for comments
+  const customSongId = currentTrack.artist && currentTrack.title && 
+    currentTrack.artist !== unknownArtist && currentTrack.title !== unknownSong
+    ? generateCustomSongId(currentTrack.artist, currentTrack.title)
+    : undefined;
+
   return (
     <div className="z-[1000] bg-gradient-to-r from-activeTab to-secondaryShade_1 w-full h-fit fixed bottom-0 px-4 sm:px-4 md:px-20 lg-px-24 xl:px-24 py-2 sm:py-2 md:py-3 lg:py-3 xl:py-3">
       {trackUrl && (
@@ -185,6 +192,7 @@ const Player = () => {
         isRemoteAvailable={isRemoteAvailable}
         isRemoteCasting={isRemoteCasting}
         isConnecting={isConnecting}
+        customSongId={customSongId}
         onRemoteClick={() => {
           if (isRemoteCasting) {
             stopRemotePlayback();
