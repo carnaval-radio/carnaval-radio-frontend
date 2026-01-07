@@ -20,6 +20,13 @@ export const fetchFacebookPosts = async (
       { next: { tags: ["social"] } }
     );
     const facebookData = await facebookResponse.json();
+    
+    // Check if response has data array
+    if (!facebookData.data || !Array.isArray(facebookData.data)) {
+      console.error('Facebook API error:', facebookData.error || facebookData);
+      return [];
+    }
+    
     return facebookData.data.map((post: any) => ({
       id: post.id,
       date: new Date(post.created_time),
@@ -47,6 +54,13 @@ export const fetchInstagramPosts = async (
       { next: { tags: ["social"] } }
     );
     const instagramData = await instagramResponse.json();
+    
+    // Check if response has data array
+    if (!instagramData.data || !Array.isArray(instagramData.data)) {
+      console.error('Instagram API error:', instagramData.error || instagramData);
+      return [];
+    }
+    
     return instagramData.data.map((post: any) => ({
       id: post.id,
       date: new Date(post.timestamp),
