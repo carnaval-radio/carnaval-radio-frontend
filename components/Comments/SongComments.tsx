@@ -18,6 +18,7 @@ export default function SongComments({ customSongId }: SongCommentsProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingComments, setLoadingComments] = useState(true);
   const [error, setError] = useState("");
   const [deviceId, setDeviceId] = useState<string>("");
 
@@ -27,6 +28,7 @@ export default function SongComments({ customSongId }: SongCommentsProps) {
   }, [customSongId]);
 
   async function loadComments() {
+    setLoadingComments(true);
     try {
       const response = await fetch(`/api/interactions/comment?custom_song_id=${customSongId}`);
       if (!response.ok) return;
@@ -37,6 +39,8 @@ export default function SongComments({ customSongId }: SongCommentsProps) {
       }
     } catch (err) {
       console.error("Error loading comments:", err);
+    } finally {
+      setLoadingComments(false);
     }
   }
 
@@ -145,9 +149,20 @@ export default function SongComments({ customSongId }: SongCommentsProps) {
 
       {/* Comments List */}
       <div>
-        <h3 className="text-lg font-bold mb-4">Reaksies ({comments.length})</h3>
+        <h3 className="text-lg font-bold mb-4">
+          Reaksies {loadingComments ? "(laden...)" : `(${comments.length})`}
+        </h3>
         <div className="space-y-4">
-        {comments.length === 0 ? (
+        {loadingComments ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="p-4 bg-gray-50 rounded-lg animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        ) : comments.length === 0 ? (
           <p className="text-gray-500 text-center py-4">Nog gein reaksies. Wees de ieëste!</p>
         ) : (
           comments.map((comment) => (
