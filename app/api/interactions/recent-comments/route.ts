@@ -23,7 +23,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Get unique song IDs
-    const songIds = [...new Set(commentsData.map((c) => c.entity_id))];
+    const entityIds = commentsData.map((c) => c.entity_id).filter(Boolean);
+    const uniqueIds = new Set<string>();
+    entityIds.forEach((id) => uniqueIds.add(id));
+    const songIds = Array.from(uniqueIds);
+
+    if (songIds.length === 0) {
+      return NextResponse.json({ comments: [] });
+    }
 
     // Get song data
     const { data: songsData, error: songsError } = await supabase!
