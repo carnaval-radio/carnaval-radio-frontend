@@ -122,14 +122,14 @@ export default function LatestComments() {
           <button
             key={comment.id}
             onClick={() => handleCommentClick(comment.song.custom_song_id, comment.song.title, comment.song.artist)}
-            className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gradient-to-r hover:from-primary/10 hover:to-secondary/10 transition-all border border-gray-200 hover:border-primary/30 hover:shadow-md group"
+            className="w-full text-left p-3 rounded-lg transition-all border shadow-sm hover:shadow-md group bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30 hover:from-white hover:to-white hover:border-gray-200"
           >
-            <p className="text-sm text-gray-700 italic mb-2 line-clamp-2 group-hover:text-gray-900">
+            <p className="text-md text-gray-900 group-hover:text-secondary italic mb-2 line-clamp-2">
               "{comment.content}"
             </p>
             <div className="flex items-center justify-between text-xs">
               <div className="flex-1 min-w-0 mr-2">
-                <span className="font-semibold text-gray-800 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-secondary">
+                <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary group-hover:text-gray-800 group-hover:bg-none">
                   {comment.song.title}
                 </span>
                 <span className="text-gray-400"> • </span>
@@ -139,16 +139,16 @@ export default function LatestComments() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-gray-400 whitespace-nowrap">{formatDate(comment.created_at)}</span>
-                <MdComment className="text-gray-400 group-hover:text-primary transition-colors" />
+                <MdComment className="text-primary group-hover:text-gray-400 transition-colors" />
               </div>
             </div>
           </button>
         ))}
       </div>
 
-      <div className="mt-4 p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg border border-dashed border-primary/30">
+      <div className="mt-4 px-2 pt-2">
         <p className="text-center text-sm text-gray-700">
-          💬 <span className="font-semibold">Wil je ook reageren?</span> Klik óp 't comment-icoon bij ein nummer!
+          <span className="font-semibold">Wil je ook reageren?</span> Klik óp 't comment-icoon bij een liedje!
         </p>
       </div>
 

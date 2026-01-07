@@ -126,7 +126,7 @@ export default function SongComments({ customSongId }: SongCommentsProps) {
         <textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Enne?... (10-300 tekens, max 1 per half uur)"
+          placeholder="Enne?... (5-300 tekens, max 1 per half uur)"
           className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           rows={3}
           maxLength={300}
@@ -138,7 +138,7 @@ export default function SongComments({ customSongId }: SongCommentsProps) {
           </span>
           <button
             type="submit"
-            disabled={loading || newComment.trim().length < 10}
+            disabled={loading || newComment.trim().length < 5}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {loading ? "Plaatsen..." : "Plaatsen"}

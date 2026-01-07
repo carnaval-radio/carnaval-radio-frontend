@@ -93,8 +93,8 @@ export async function POST(request: NextRequest) {
     // Validate content
     const trimmedContent = content.trim();
     
-    if (trimmedContent.length < 10) {
-      return NextResponse.json({ ok: false, error: "Comment moet minimaal 10 tekens bevatten" }, { status: 400 });
+    if (trimmedContent.length < 5) {
+      return NextResponse.json({ ok: false, error: "Comment moet minimaal 5 tekens bevatten" }, { status: 400 });
     }
     
     if (trimmedContent.length > 300) {
