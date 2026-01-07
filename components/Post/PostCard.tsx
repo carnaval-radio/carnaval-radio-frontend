@@ -29,7 +29,7 @@ const PostCard = ({ posts }: props) => {
           {sortedPosts &&
             sortedPosts.map((post: any, i: any) => (
               <Fragment key={"postFrag" + i}>
-                {i < 3 && (
+                {i < 6 && (
                   <PostDetails
                     key={"post" + i}
                     post={post}
