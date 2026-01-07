@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { FiX } from "react-icons/fi";
+import { MdComment } from "react-icons/md";
 import {
   getFavoritesLocal,
   getFavoriteTimestamps,
@@ -12,6 +13,7 @@ import SongCover from "@/components/SongCover";
 import FormateTitle from "@/components/FormatTitle";
 import DateAndTime from "@/components/DateAndTime";
 import { getOrCreateDeviceId } from "@/helpers/deviceId";
+import SongCommentsModal from "@/components/Comments/SongCommentsModal";
 
 interface SongRow {
   id: string;
@@ -27,6 +29,7 @@ export default function FavoritesClient() {
   const [songs, setSongs] = useState<SongRow[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [ts, setTs] = useState<Record<string, number>>({});
+  const [commentsModalOpen, setCommentsModalOpen] = useState<string | null>(null);
 
   useEffect(() => {
     const map = getFavoritesLocal();
@@ -155,9 +158,17 @@ export default function FavoritesClient() {
                 )}
                 <button
                   type="button"
+                  aria-label="Comments"
+                  onClick={() => setCommentsModalOpen(song.custom_song_id)}
+                  className="ml-2 p-2 rounded-full text-gray-400 hover:text-blue-500 transition-colors"
+                >
+                  <MdComment size={20} />
+                </button>
+                <button
+                  type="button"
                   aria-label="Verwijder favoriet"
                   onClick={() => handleDelete(song.custom_song_id)}
-                  className="ml-2 p-2 rounded-full text-gray-500 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  className="p-2 rounded-full text-gray-500 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
                 >
                   <FiX size={22} />
                 </button>
@@ -168,6 +179,17 @@ export default function FavoritesClient() {
           </div>
         );
       })}
+
+      {/* Comments Modal */}
+      {commentsModalOpen && sortedSongs && (
+        <SongCommentsModal
+          customSongId={commentsModalOpen}
+          songTitle={sortedSongs.find((s) => s.custom_song_id === commentsModalOpen)?.title || ""}
+          songArtist={sortedSongs.find((s) => s.custom_song_id === commentsModalOpen)?.artist?.name || ""}
+          isOpen={!!commentsModalOpen}
+          onClose={() => setCommentsModalOpen(null)}
+        />
+      )}
     </div>
   );
 }

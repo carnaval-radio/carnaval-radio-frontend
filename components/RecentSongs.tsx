@@ -1,11 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { MdMusicNote, MdFavorite, MdFavoriteBorder } from "react-icons/md";
+import { MdMusicNote, MdFavorite, MdFavoriteBorder, MdComment } from "react-icons/md";
 import DateAndTime from "./DateAndTime";
 import RecentSongsLoading from "./LoadingSkeleten/RecentSongsLoading";
 import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 import SongCover from "./SongCover";
 import FormateTitle from "./FormatTitle";
 import { getFavoritesLocal, toggleFavoriteLocal, syncFavoriteToSupabase } from "@/helpers/favorites";
+import SongCommentsModal from "./Comments/SongCommentsModal";
 
 
 type RecentSongsProps = {
@@ -22,6 +23,7 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
   canAddToFavorites = false,
 }) => {
   const [favorites, setFavorites] = useState<Record<string, true>>({});
+  const [commentsModalOpen, setCommentsModalOpen] = useState<string | null>(null);
 
   useEffect(() => {
     setFavorites(getFavoritesLocal());
@@ -82,6 +84,14 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                           </p>
                         </div>
                       )}
+                      <button
+                        type="button"
+                        aria-label="Comments"
+                        onClick={() => setCommentsModalOpen(recentSong.ID)}
+                        className="ml-2 text-xl text-gray-400 hover:text-blue-500 transition-colors"
+                      >
+                        <MdComment />
+                      </button>
                       {canAddToFavorites && (
                         <button
                           type="button"
@@ -106,6 +116,17 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
         </>
       ) : (
         <RecentSongsLoading />
+      )}
+
+      {/* Comments Modal */}
+      {commentsModalOpen && (
+        <SongCommentsModal
+          customSongId={commentsModalOpen}
+          songTitle={recentTracks.find((s) => s.ID === commentsModalOpen)?.title || ""}
+          songArtist={recentTracks.find((s) => s.ID === commentsModalOpen)?.artist || ""}
+          isOpen={!!commentsModalOpen}
+          onClose={() => setCommentsModalOpen(null)}
+        />
       )}
     </div>
   );
