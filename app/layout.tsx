@@ -11,6 +11,7 @@ import { GET_UI_NAVIGATION } from "@/GlobalState/ApiCalls/graphql/navigation_que
 import { fetchThemeData } from "@/GlobalState/ApiCalls/fetchTheme";
 import GoogleAnalytics from "@/components/Analytics/GoogleAnalytics";
 import CookieBanner from "@/components/cookieBanner";
+import TicketNotification from "@/components/TicketNotification";
 import GoogleAnalyticsPageView from "@/components/Analytics/GoogleAnalyticsPageView";
 import StructuredData from "@/components/StructuredData";
 import { Suspense } from "react";
@@ -96,6 +97,7 @@ export default async function RootLayout({
           )
         }
           <CookieBanner />
+          <TicketNotification />
           <StructuredData />
         </Suspense>
         <Providers>
