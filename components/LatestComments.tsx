@@ -31,7 +31,7 @@ export default function LatestComments() {
 
   async function loadComments() {
     try {
-      const response = await fetch("/api/interactions/recent-comments", { cache: "no-store" });
+      const response = await fetch("/api/interactions/recent-comments");
       if (!response.ok) {
         setLoading(false);
         return;

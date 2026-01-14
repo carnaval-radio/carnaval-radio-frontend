@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase, isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
 
+export const revalidate = 60; // Revalidate cache every 60 seconds
+
 export async function GET(request: NextRequest) {
   try {
     if (!isSupabaseConfigured()) {
@@ -15,7 +17,7 @@ export async function GET(request: NextRequest) {
       .eq("type", "comment")
       .not("content", "is", null)
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(6);
 
     if (commentsError || !commentsData || commentsData.length === 0) {
       console.error("Error loading comments:", commentsError);
