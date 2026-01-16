@@ -39,10 +39,11 @@ const page = async () => {
     <section className="flex-grow">
       <Hero />
       <Sponsors />
+      {posts && <PostCard posts={posts.slice(0, 3)} />}
       <div className="px-4 sm:px-8 md:px-20 lg:px-24 xl:px-24 py-8">
         <LatestComments />
       </div>
-      {posts && <PostCard posts={posts} />}
+      {posts && <PostCard posts={posts.slice(3, 6)} hideTitle={true} />}
       {facebookPosts.length > 0 && (
         <Section
           title="Facebook"

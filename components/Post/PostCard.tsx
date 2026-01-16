@@ -6,9 +6,10 @@ import Link from "next/link";
 import Section from "../Section";
 interface props {
   posts?: Post[];
+  hideTitle?: boolean;
 }
 
-const PostCard = ({ posts }: props) => {
+const PostCard = ({ posts, hideTitle = false }: props) => {
   function customSort(a: any, b: any) {
     const dateA: any = a.attributes.Date
       ? new Date(a.attributes.Date)
@@ -23,7 +24,7 @@ const PostCard = ({ posts }: props) => {
 
   const sortedPosts = posts && [...posts].sort(customSort);
   return (
-    <Section title="Nieuws" icon={news}>
+    <Section title={hideTitle ? "" : "Nieuws"} icon={hideTitle ? undefined : news}>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-4 md:gap-6 2xl:gap-10 mt-auto pt-2 sm:pt-2 md:pt-3 lg:pt-4 xl:pt-4 w-full">
         <>
           {sortedPosts &&
