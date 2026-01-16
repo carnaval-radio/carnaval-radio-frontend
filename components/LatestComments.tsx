@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { MdComment } from "react-icons/md";
 import { Indie } from "@/app/fonts/font";
 import SongCommentsModal from "./Comments/SongCommentsModal";
+import Link from "next/link";
 
 interface RecentComment {
   id: string;
@@ -75,7 +76,7 @@ export default function LatestComments() {
         <div className="flex items-center justify-center gap-2 mb-4">
           <MdComment className="text-2xl text-secondary" />
           <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>
-            Letste reäksies
+            Laatste reacties
           </h2>
         </div>
         <div className="space-y-3">
@@ -96,10 +97,10 @@ export default function LatestComments() {
         <div className="flex items-center justify-center gap-2 mb-4">
           <MdComment className="text-2xl text-secondary" />
           <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>
-            Wat vinje d'r van?
+            Laatste reacties
           </h2>
         </div>
-        <p className="text-center text-gray-500 py-4">Nog gein reäksies. Wees de ieëste! Klik op 't 💬 icoon bij een nummer.</p>
+        <p className="text-center text-gray-500 py-4">Nog geen reacties. Wees de eerste! Klik op 't 💬 icoon bij een nummer.</p>
       </div>
     );
   }
@@ -109,14 +110,10 @@ export default function LatestComments() {
       <div className="flex items-center justify-center gap-2 mb-4">
         <MdComment className="text-2xl text-secondary" />
         <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>
-          Wat vins ze d'r van?
+          Laatste reacties
         </h2>
       </div>
       
-      <p className="text-center text-sm text-gray-600 mb-4">
-        Letste reaksies • Klik óm te reageren
-      </p>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
         {comments.map((comment) => (
           <button
@@ -147,9 +144,17 @@ export default function LatestComments() {
       </div>
 
       <div className="mt-4 px-2 pt-2">
-        <p className="text-center text-sm text-gray-700">
-          <span className="font-semibold">Wil je ook reageren?</span> Klik óp 't comment-icoon bij een liedje!
+        <p className="text-center text-sm text-gray-700 mb-3">
+          <span className="font-semibold">Wil je ook reageren?</span> Klik óp 't comment-icoon bij een liedje of klik hierboven op een nummer!
         </p>
+        <div className="flex items-center justify-center">
+          <Link
+            href="/reacties"
+            className="bg-gradient-to-r from-primary to-secondary rounded-lg py-2 px-4 text-white font-semibold hover:shadow-lg transition-shadow"
+          >
+            Alle reacties bekijken
+          </Link>
+        </div>
       </div>
 
       {/* Comments Modal */}

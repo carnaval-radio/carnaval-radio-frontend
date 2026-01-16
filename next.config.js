@@ -58,6 +58,10 @@ const nextConfig = {
           source: '/nieuwsberichten/:path*',
           destination: '/articles/:path*',
         },
+        {
+          source: '/reacties',
+          destination: '/comments',
+        },
       ]
     }
   },
