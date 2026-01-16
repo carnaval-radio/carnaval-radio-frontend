@@ -61,11 +61,11 @@ export const useChromecast = ({
         const apiConfig = new chrome.cast.ApiConfig(
           sessionRequest,
           (session) => {
-            console.log("Cast session started:", session);
+            console.debug("Cast session started:", session);
             handleSessionJoined(session);
           },
           (availability) => {
-            console.log("Cast receiver availability:", availability);
+            console.debug("Cast receiver availability:", availability);
             setIsCastAvailable(availability === "available");
           },
           chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
@@ -74,7 +74,7 @@ export const useChromecast = ({
         chrome.cast.initialize(
           apiConfig,
           () => {
-            console.log("Cast API initialized successfully");
+            console.debug("Cast API initialized successfully");
           },
           (error) => {
             console.error("Cast initialization error:", error);
