@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { getLocalStorage, setLocalStorage } from "@/helpers/storageHelper";
 import { useState, useEffect } from "react";
 
@@ -82,7 +81,7 @@ export default function TicketNotification() {
           </p>
 
           <div className="flex gap-3 justify-center">
-            <Link
+            <a
               href="/start-verkoop"
               target="_blank"
               rel="noopener noreferrer"
@@ -90,7 +89,7 @@ export default function TicketNotification() {
               onClick={handleClose}
             >
               Koop nu je tickets
-            </Link>
+            </a>
             <button
               onClick={handleClose}
               className="px-6 py-3 bg-gray-200 text-gray-700 rounded-md font-semibold hover:bg-gray-300 transition-colors"
