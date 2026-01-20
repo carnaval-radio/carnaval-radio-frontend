@@ -15,11 +15,20 @@ interface SitemapItem {
   title?: string;
 }
 
+function escapeXml(unsafe: string = ""): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 function generateSiteMap(sitemapItems: SitemapItem[]) {
   return `<?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
-      <loc>${URL}/</loc>
+      <loc>${escapeXml(URL + "/")}</loc>
       <lastmod>${new Date().toISOString()}</lastmod>
       <changefreq>always</changefreq>
       <priority>1.0</priority>
@@ -29,7 +38,7 @@ function generateSiteMap(sitemapItems: SitemapItem[]) {
         if (x.isNews) {
           return `
             <url>
-              <loc>${x.url}</loc>
+              <loc>${escapeXml(x.url)}</loc>
               <lastmod>${x.lastModified}</lastmod>
               <changefreq>${x.changeFreq ?? "hourly"}</changefreq>
               <priority>${x.priority ?? "0.9"}</priority>
@@ -39,14 +48,14 @@ function generateSiteMap(sitemapItems: SitemapItem[]) {
                   <news:language>nl</news:language>
                 </news:publication>
                 <news:publication_date>${x.lastModified}</news:publication_date>
-                <news:title>${x.title}</news:title>
+                <news:title>${escapeXml(x.title ?? "")}</news:title>
               </news:news>
             </url>
           `;
         }
         return `
           <url>
-            <loc>${x.url}</loc>
+            <loc>${escapeXml(x.url)}</loc>
             <lastmod>${x.lastModified}</lastmod>
             <changefreq>${x.changeFreq ?? "daily"}</changefreq>
             <priority>${x.priority ?? "0.7"}</priority>
