@@ -70,12 +70,17 @@ const nextConfig = {
       {
         source: '/post/:path*.aspx',
         destination: '/nieuwsberichten/article/:path*',
-        permanent: false,
+        permanent: true,
+      },
+      {
+          source: '/n/:path*',
+          destination: '/nieuwsberichten/:path*',
+          permanent: true,
       },
       {
         source: '/:path*.aspx',
         destination: '/:path*',
-        permanent: false,
+        permanent: true,
       },
       {
         source: '/audioplayer',
@@ -85,12 +90,12 @@ const nextConfig = {
       {
         source: '/recente-nummers',
         destination: '/gedraaide-nummers',
-        permanent: false,
+        permanent: true,
       },
       {
         source: '/recentenummers',
         destination: '/gedraaide-nummers',
-        permanent: false,
+        permanent: true,
       },
       {
         source: "/beheer",
@@ -101,6 +106,12 @@ const nextConfig = {
       {
          source: "/start-verkoop",
          destination: "https://www.ticketcrew.nl/tickets/carnaval-radio",
+        permanent: false,
+        basePath: false,
+      },
+      {
+        source: "/tickets-kopen",
+        destination: "https://www.ticketcrew.nl/tickets/carnaval-radio",
         permanent: false,
         basePath: false,
       },
