@@ -6,10 +6,31 @@ import NotFoundPage from "@/components/NotFoundPage";
 import Video from "@/components/Video";
 
 export async function generateMetadata({ params }: any) {
-  const articleTitle = params.slug;
-  const capitalize = (str: any) => str.charAt(0).toUpperCase() + str.slice(1);
+  // Fetch the article data for metadata
+  const { client } = await import("@/GlobalState/ApiCalls/api.config");
+  const { GET_SINGLE_POST } = await import("@/GlobalState/ApiCalls/graphql/article_queries");
+  const { data } = await client.query({
+    query: GET_SINGLE_POST,
+    variables: { slugUrl: params.slug },
+  });
+  const post = data.articles?.data?.[0]?.attributes;
+  const title = post?.Title || params.slug;
+  // Use first 160 chars of content for description
+  const description = post?.Content ? post.Content.replace(/<[^>]+>/g, '').slice(0, 160) : "Nieuwsbericht op Carnaval Radio";
   return {
-    title: `${capitalize(articleTitle)} | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+    title: `${title} | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: post?.CoverImage?.data?.attributes?.url ? [post.CoverImage.data.attributes.url] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: post?.CoverImage?.data?.attributes?.url ? [post.CoverImage.data.attributes.url] : [],
+    },
   };
 }
 
@@ -74,34 +95,58 @@ const page = async ({ params }: { params: { slug?: string } }) => {
 
   return (
     <div className="py-8 px-4 sm:px-4 md:px-8 lg:px-8 xl:px-8 bg-heroBackground">
+      {/* Structured Data for NewsArticle */}
       {post && (
-        <div className="flex flex-col gap-4 max-w-3xl p-4 rounded-3xl bg-white">
-          {post.CoverVideo?.data?.attributes?.url && (
-            <Video
-              src={post.CoverVideo.data.attributes.url}
-              className="rounded-xl"
-            />
-          )}
-          <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-semibold text-primary">
-              {post.Title}
-            </h2>
-            {formatDate(post.publishedAt)}
-          </div>
-          <div className="cms-content">{ReactHtmlParser(post.Content)}</div>
-          <Image
-            src={post.CoverImage.data.attributes.url}
-            width={1000}
-            height={1000}
-            sizes="100vw"
-            className="rounded-xl"
-            style={{ width: '100%', height: 'auto' }}
-            alt={post.Title}
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "NewsArticle",
+                "headline": post.Title,
+                "image": post.CoverImage?.data?.attributes?.url ? [post.CoverImage.data.attributes.url] : [],
+                "datePublished": post.publishedAt,
+                "description": post.Content ? post.Content.replace(/<[^>]+>/g, '').slice(0, 160) : "Nieuwsbericht op Carnaval Radio",
+                "author": {
+                  "@type": "Organization",
+                  "name": "Carnaval Radio"
+                },
+                "mainEntityOfPage": {
+                  "@type": "WebPage",
+                  "@id": `https://www.carnaval-radio.nl/nieuwsberichten/${params.slug}`
+                }
+              })
+            }}
           />
-          <Suspense fallback={<ShareButtonsFallback />}>
-            <ShareButtons slug={`nieuwsberichten/${params.slug}`} />
-          </Suspense>
-        </div>
+          <div className="flex flex-col gap-4 max-w-3xl p-4 rounded-3xl bg-white">
+            {post.CoverVideo?.data?.attributes?.url && (
+              <Video
+                src={post.CoverVideo.data.attributes.url}
+                className="rounded-xl"
+              />
+            )}
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl font-semibold text-primary">
+                {post.Title}
+              </h2>
+              {formatDate(post.publishedAt)}
+            </div>
+            <div className="cms-content">{ReactHtmlParser(post.Content)}</div>
+            <Image
+              src={post.CoverImage.data.attributes.url}
+              width={1000}
+              height={1000}
+              sizes="100vw"
+              className="rounded-xl"
+              style={{ width: '100%', height: 'auto' }}
+              alt={post.Title}
+            />
+            <Suspense fallback={<ShareButtonsFallback />}>
+              <ShareButtons slug={`nieuwsberichten/${params.slug}`} />
+            </Suspense>
+          </div>
+        </>
       )}
     </div>
   );
