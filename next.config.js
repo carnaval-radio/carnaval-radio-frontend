@@ -126,6 +126,11 @@ const nextConfig = {
         destination: '/team/standaard',
         permanent: false,
       },
+      {
+        source: '/tune-in',
+        destination: 'https://tunein.com/radio/Carnaval-Radio-s351099/',
+        permanent: false,
+      },
     ];
   },
 };
