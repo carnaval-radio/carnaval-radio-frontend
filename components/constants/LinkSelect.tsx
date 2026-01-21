@@ -11,7 +11,8 @@ const LinkSelect: React.FC<LinkSelectProps> = ({ options }) => {
   const router = useRouter();
 
   // get last part of pathname
-  const pathname = usePathname().split("/").pop();
+  const currentPath = usePathname();
+  const pathname = currentPath ? currentPath.split("/").pop() : "";
 
   if (!router) {
     return null;
