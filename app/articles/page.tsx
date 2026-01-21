@@ -45,8 +45,16 @@ const page = async () => {
           ))}
         </div>
       )}
+      {/* Sponsor slider at the bottom */}
+      <div className="mt-8">
+        <Suspense fallback={null}>
+          <Sponsors />
+        </Suspense>
+      </div>
     </div>
   );
 };
 
+import Sponsors from "@/components/Sponsors/Sponsors";
+import { Suspense } from "react";
 export default page;

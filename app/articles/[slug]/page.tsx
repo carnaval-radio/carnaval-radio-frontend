@@ -146,10 +146,17 @@ const page = async ({ params }: { params: { slug?: string } }) => {
               <ShareButtons slug={`nieuwsberichten/${params.slug}`} />
             </Suspense>
           </div>
+          {/* Sponsor slider at the bottom */}
+          <div className="mt-8">
+            <Suspense fallback={null}>
+              <Sponsors />
+            </Suspense>
+          </div>
         </>
       )}
     </div>
   );
 };
 
+import Sponsors from "@/components/Sponsors/Sponsors";
 export default page;

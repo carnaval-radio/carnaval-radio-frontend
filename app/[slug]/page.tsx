@@ -49,17 +49,27 @@ const page = async ({ params }: { params: { slug: string } }) => {
   return (
     <div className="py-8 px-4 sm:px-4 md:px-8 lg:px-8 xl:px-8 bg-heroBackground">
       {!error && page && (
-        <div className="p-8 rounded-3xl bg-white max-w-3xl">
-          <h2
-            className={`text-3xl text-primary mb-5 font-bold ${Indie.className}`}
-          >
-            {page.Title}
-          </h2>
-          <div className="cms-content mb-4">{ReactHtmlParser(page.Content)}</div>
-        </div>
+        <>
+          <div className="p-8 rounded-3xl bg-white max-w-3xl">
+            <h2
+              className={`text-3xl text-primary mb-5 font-bold ${Indie.className}`}
+            >
+              {page.Title}
+            </h2>
+            <div className="cms-content mb-4">{ReactHtmlParser(page.Content)}</div>
+          </div>
+          {/* Sponsor slider at the bottom */}
+          <div className="mt-8">
+            <Suspense fallback={null}>
+              <Sponsors />
+            </Suspense>
+          </div>
+        </>
       )}
     </div>
   );
 };
 
+import Sponsors from "@/components/Sponsors/Sponsors";
+import { Suspense } from "react";
 export default page;
