@@ -115,6 +115,12 @@ const nextConfig = {
         permanent: false,
         basePath: false,
       },
+        {
+          source: "/tickets",
+          destination: "https://www.ticketcrew.nl/tickets/carnaval-radio",
+          permanent: false,
+          basePath: false,
+        },
       {
         source: "/donatie",
         destination: process.env.NEXT_PUBLIC_PAYMENT_LINK,
