@@ -122,7 +122,7 @@ const Player = () => {
       dispatch(setsSongTitle(title));
       setLoading(false);
     } catch (error) {
-      const problemSongname = "Veer hubbe un issue";
+      const problemSongname = "Veer hubbe un issue, of geer natuurlik! Check ook je internetverbinding.";
       setCurrentTrack({
         title: problemSongname,
         artist: unknownArtist,
