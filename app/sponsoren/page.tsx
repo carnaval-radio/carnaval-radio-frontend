@@ -25,6 +25,9 @@ const logoSizeMapping: {
 export async function generateMetadata() {
   return {
     title: `Sponsoren | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+    alternates: {
+      canonical: "/sponsoren",
+    },
   };
 }
 
@@ -45,10 +48,10 @@ const page = async () => {
       Link: x.attributes.Link,
       Logo: x.attributes.Logo.data
         ? {
-          Width: x.attributes.Logo.data.attributes.width,
-          Height: x.attributes.Logo.data.attributes.height,
-          Url: x.attributes.Logo.data.attributes.url,
-        }
+            Width: x.attributes.Logo.data.attributes.width,
+            Height: x.attributes.Logo.data.attributes.height,
+            Url: x.attributes.Logo.data.attributes.url,
+          }
         : null,
       TypeID: x.attributes.Type.data.id,
       Order: x.attributes.DisplayPriority ?? Number.MAX_SAFE_INTEGER,
@@ -63,7 +66,7 @@ const page = async () => {
         Order: x.attributes.Order,
         LogoSize: x.attributes.LogoSize,
       } as SponsorType;
-    }
+    },
   );
 
   const LogosPerType = ({
@@ -84,8 +87,9 @@ const page = async () => {
               href={x.Link}
               target="_blank"
               key={"SponsorOnSponsorPage" + x.Id}
-              className={`${x.Logo ? "p-6" : "p-4 h-"
-                } flex items-center w-fit justify-center bg-white rounded-xl`}
+              className={`${
+                x.Logo ? "p-6" : "p-4 h-"
+              } flex items-center w-fit justify-center bg-white rounded-xl`}
             >
               {x.Logo ? (
                 <Image
@@ -104,8 +108,14 @@ const page = async () => {
             </a>
           );
         })}
-        <Link href="sponsorprogramma-radio-reclame" className="flex items-center border-4 border-dotted border-gray-300 bg-transparent bg-opacity-50 w-fit justify-center cursor-pointer text-gray-300  rounded-xl hover:border-gray-600 hover:text-gray-600">
-          <MdAdd size={40} className={`${logoClassName} object-contain w-full max-w-48 p-2 min-w-16`} />
+        <Link
+          href="sponsorprogramma-radio-reclame"
+          className="flex items-center border-4 border-dotted border-gray-300 bg-transparent bg-opacity-50 w-fit justify-center cursor-pointer text-gray-300  rounded-xl hover:border-gray-600 hover:text-gray-600"
+        >
+          <MdAdd
+            size={40}
+            className={`${logoClassName} object-contain w-full max-w-48 p-2 min-w-16`}
+          />
         </Link>
       </div>
     );

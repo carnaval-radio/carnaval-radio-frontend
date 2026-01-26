@@ -12,6 +12,20 @@ export async function generateStaticParams() {
   }));
 }
 
+export async function generateMetadata({ params }: any) {
+  const foundPost: any = oldArticles.filter(
+    (p) =>
+      p.title.replace(/[^a-zA-Z0-9\s]/g, "").replaceAll(" ", "-") ===
+      params.title
+  );
+  return {
+    title: `${foundPost[0].title} | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+    alternates: {
+      canonical: `/nieuwsberichten/o/${params.title}`,
+    },
+  };
+}
+
 const page = ({ params }: { params: { title: string } }) => {
   const foundPost: any = oldArticles.filter(
     (p) =>

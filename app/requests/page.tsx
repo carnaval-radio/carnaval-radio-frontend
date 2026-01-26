@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Verzoekjes | Carnaval Radio | 24/7 Vasteloavend Muzieek",
   description:
     "Doe nu je eigen verzoekje! De vastelaoves Radio | 24/7 Vastelaovend Muzieek",
+  alternates: {
+    canonical: "/requests",
+  },
 };
 
 const RequestsPage = ({
@@ -13,7 +16,7 @@ const RequestsPage = ({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) => {
-  const token = searchParams?.["token"] ?? ""; 
+  const token = searchParams?.["token"] ?? "";
   const validToken = process.env.VALID_TOKEN;
 
   if (token !== validToken) {
@@ -27,7 +30,7 @@ const RequestsPage = ({
               Verzoekjes
             </h2>
             <p className="text-lg text-gray-700 mb-5">
-              Je hebt geen toegang tot deze pagina. 
+              Je hebt geen toegang tot deze pagina.
             </p>
           </div>
         </div>
@@ -99,7 +102,7 @@ const RequestsPage = ({
                 name="request[dedication]"
                 maxLength={127}
               />
-            </div>            
+            </div>
             <div className="mb-4">
               <label
                 className="block text-gray-700 text-l font-bold mb-2"
@@ -116,7 +119,13 @@ const RequestsPage = ({
                 maxLength={127}
               />
             </div>
-            <input className="hidden" readOnly type="text" name="request[email]" value="muziek@carnaval-radio.nl" />
+            <input
+              className="hidden"
+              readOnly
+              type="text"
+              name="request[email]"
+              value="muziek@carnaval-radio.nl"
+            />
             <div className="flex items-center justify-between py-2">
               <input
                 className="w-full input rounded-lg bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 focus:outline-none focus:shadow-outline cursor-pointer"

@@ -6,6 +6,9 @@ import { FaInstagram } from "react-icons/fa";
 export async function generateMetadata() {
   return {
     title: `Instagram Feed | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+      alternates: {
+    canonical: '/social/instagram',
+  },
   };
 }
 

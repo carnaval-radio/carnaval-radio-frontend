@@ -15,9 +15,7 @@ export async function generateStaticParams() {
     },
   });
 
-  return data.pages.data.map((page: any) => {
-    page.attributes.slug
-  });
+  return data.pages.data.map((page: any) => page.attributes.slug);
 }
 
 export async function generateMetadata({ params }: any) {
@@ -25,6 +23,9 @@ export async function generateMetadata({ params }: any) {
   const capitalize = (str: any) => str.charAt(0).toUpperCase() + str.slice(1);
   return {
     title: `${capitalize(slug)} | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+    alternates: {
+      canonical: `/${slug}`,
+    },
   };
 }
 

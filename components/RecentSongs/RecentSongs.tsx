@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { MdMusicNote, MdFavorite, MdFavoriteBorder, MdComment } from "react-icons/md";
-import DateAndTime from "./DateAndTime";
-import RecentSongsLoading from "./LoadingSkeleten/RecentSongsLoading";
+import DateAndTime from "../DateAndTime";
+import RecentSongsLoading from "../LoadingSkeleten/RecentSongsLoading";
 import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
-import SongCover from "./SongCover";
-import FormateTitle from "./FormatTitle";
+import SongCover from "../SongCover";
+import FormateTitle from "../FormatTitle";
 import { getFavoritesLocal, toggleFavoriteLocal, syncFavoriteToSupabase } from "@/helpers/favorites";
-import SongCommentsModal from "./Comments/SongCommentsModal";
+import SongCommentsModal from "../Comments/SongCommentsModal";
 
 
 type RecentSongsProps = {

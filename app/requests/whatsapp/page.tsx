@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   title: "Verzoekjes | Carnaval Radio | 24/7 Vasteloavend Muzieek",
   description:
     "Doe nu je eigen verzoekje! De vastelaoves Radio | 24/7 Vastelaovend Muzieek",
+      alternates: {
+    canonical: '/verzoekjes',
+  },
 };
 
 const RequestsPage: React.FC = () => {

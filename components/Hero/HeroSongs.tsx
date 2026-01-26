@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { BsFileMusicFill } from "react-icons/bs";
 import Link from "next/link";
 import { Indie } from "@/app/fonts/font";
-import RecentSongs from "../RecentSongs";
+import RecentSongs from "../RecentSongs/RecentSongs";
 import { RecentSong, fetchSongs } from "@/GlobalState/ApiCalls/fetchSongs";
 
 const HeroSongs = () => {

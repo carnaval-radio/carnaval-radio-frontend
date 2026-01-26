@@ -5,6 +5,15 @@ import EventsList from "@/components/Events/EventsList";
 import { fetchEvents } from "@/GlobalState/ApiCalls/fetchEvents";
 import Link from "next/link";
 
+export function generateMetadata() {
+  return {
+    title: `Evenementen | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+    alternates: {
+      canonical: "/evenementen",
+    },
+  };
+}
+
 const page = async () => {
   const events = await fetchEvents();
   const currentDate = new Date();
@@ -14,10 +23,12 @@ const page = async () => {
     return eventDate >= currentDate;
   });
 
-  const pastEvents = events.filter((event) => {
-    const eventDate = new Date(event.Date);
-    return eventDate < currentDate;
-  }).reverse();
+  const pastEvents = events
+    .filter((event) => {
+      const eventDate = new Date(event.Date);
+      return eventDate < currentDate;
+    })
+    .reverse();
 
   return (
     <div className="p-10">
@@ -28,10 +39,14 @@ const page = async () => {
         </h2>
       </div>
 
-      <h3 className={`text-xl font-semibold mt-4 mb-1 ${Indie.className}`}>Aankomende evenementen</h3>
+      <h3 className={`text-xl font-semibold mt-4 mb-1 ${Indie.className}`}>
+        Aankomende evenementen
+      </h3>
       <EventsList events={upcomingEvents} />
 
-      <h3 className={`text-xl font-semibold mt-8 mb-1 ${Indie.className}`}>Eerdere evenementen</h3>
+      <h3 className={`text-xl font-semibold mt-8 mb-1 ${Indie.className}`}>
+        Eerdere evenementen
+      </h3>
       <EventsList events={pastEvents} />
 
       <p className="p-10">

@@ -7,6 +7,10 @@ import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
 export async function generateMetadata() {
   return {
     title: `Nieuws | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
+    description: `Blijf op de hoogte van de laatste nieuwsberichten en updates van Carnaval Radio. Ontdek de nieuwste ontwikkelingen, evenementen en verrassingen op het gebied van vasteloavend muziek en carnavalsfeest.`,
+    alternates: {
+      canonical: `/nieuwsberichten`,
+    },
   };
 }
 

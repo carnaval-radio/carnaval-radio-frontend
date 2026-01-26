@@ -20,6 +20,9 @@ export async function generateMetadata({ params }: any) {
   return {
     title: `${title} | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
     description,
+    alternates: {
+      canonical: `/nieuwsberichten/${params.slug}`,
+    },
     openGraph: {
       title,
       description,

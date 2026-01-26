@@ -7,10 +7,16 @@ import LatestComments from "@/components/LatestComments";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import Link from "next/link";
 import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
-import { fetchFacebookPosts, fetchInstagramPosts } from "@/GlobalState/ApiCalls/fetchSocials";
+import {
+  fetchFacebookPosts,
+  fetchInstagramPosts,
+} from "@/GlobalState/ApiCalls/fetchSocials";
 
 export async function generateMetadata() {
   return {
+    alternates: {
+      canonical: "/",
+    },
     title: "Carnaval Radio | 24/7 Limburgse Vastelaovend Muziek",
     description:
       "De vastelaoves Radio. Carnaval Radio uit Brunssum houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. Luister naar de beste Limburgse en Duitse carnavalsleedsjes, polonaise en LVK hits. Live stream en verzoekjes mogelijk.",
@@ -28,12 +34,14 @@ const page = async () => {
   const posts = await fetchPosts();
 
   // Fetch social media posts once (not twice!)
-  const facebookPosts = facebookPageId && facebookAccessToken
-    ? await fetchFacebookPosts(facebookPageId, facebookAccessToken, 3)
-    : [];
-  const instagramPosts = instagramId && instagramAccessToken
-    ? await fetchInstagramPosts(instagramId, instagramAccessToken, 3)
-    : [];
+  const facebookPosts =
+    facebookPageId && facebookAccessToken
+      ? await fetchFacebookPosts(facebookPageId, facebookAccessToken, 3)
+      : [];
+  const instagramPosts =
+    instagramId && instagramAccessToken
+      ? await fetchInstagramPosts(instagramId, instagramAccessToken, 3)
+      : [];
 
   return (
     <section className="flex-grow">
@@ -49,10 +57,7 @@ const page = async () => {
           title="Facebook"
           iconElement={<FaFacebook className="h-8 w-8 text-primary" />}
         >
-          <SocialPosts
-            posts={facebookPosts}
-            charactersToShow={400}
-          />
+          <SocialPosts posts={facebookPosts} charactersToShow={400} />
           <div className="flex items-center justify-center pt-8">
             <Link
               href="social/facebook"
@@ -68,10 +73,7 @@ const page = async () => {
           title="Instagram"
           iconElement={<FaInstagram className="h-8 w-8 text-secondary" />}
         >
-          <SocialPosts
-            posts={instagramPosts}
-            charactersToShow={400}
-          />
+          <SocialPosts posts={instagramPosts} charactersToShow={400} />
           <div className="flex items-center justify-center pt-8">
             <Link
               href="social/instagram"
@@ -91,15 +93,15 @@ const page = async () => {
           </h2>
           <div className="prose prose-lg max-w-none text-gray-700">
             <p className="text-lg leading-relaxed mb-4">
-              <strong>Carnaval Radio</strong> brengt sinds 2005 de
-              Limburgse Vastelaovend bij je thuis. Het hele jaar door hoor je
-              bij ons de beste Limburgse en Duitse carnavalsmuziek.
+              <strong>Carnaval Radio</strong> brengt sinds 2005 de Limburgse
+              Vastelaovend bij je thuis. Het hele jaar door hoor je bij ons de
+              beste Limburgse en Duitse carnavalsmuziek.
             </p>
 
             <p className="text-lg leading-relaxed mb-4">
               We willen de Vastelaovend levend houden in Brunssum, Parkstad en
-              heel Limburg. Daarom draaien we 24/7 muziek, nemen we
-              verzoekjes aan en streamen we gratis.
+              heel Limburg. Daarom draaien we 24/7 muziek, nemen we verzoekjes
+              aan en streamen we gratis.
             </p>
 
             <p className="text-lg leading-relaxed mb-4">
@@ -112,8 +114,9 @@ const page = async () => {
 
             <p className="text-lg leading-relaxed mb-4">
               Carnaval Radio is er voor iedereen die de sfeer van de
-              Vastelaovend alvast wil ervaren, thuis, onderweg of samen met vrienden.
-              Luister en vier mee met wat ons in Parkstad en Limburg verbindt.
+              Vastelaovend alvast wil ervaren, thuis, onderweg of samen met
+              vrienden. Luister en vier mee met wat ons in Parkstad en Limburg
+              verbindt.
             </p>
           </div>
         </div>
