@@ -137,6 +137,16 @@ const nextConfig = {
         destination: 'https://tunein.com/radio/Carnaval-Radio-s351099/',
         permanent: false,
       },
+      {
+        source: '/app/android',
+        destination: 'https://play.google.com/store/apps/details?id=com.carnavalradio&hl=nl',
+        permanent: false,
+      },
+      {
+        source: '/app/ios',
+        destination: 'https://apps.apple.com/nl/app/carnaval-radio/id6470475333',
+        permanent: false,
+      },
     ];
   },
 };
