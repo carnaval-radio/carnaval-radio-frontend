@@ -12,6 +12,7 @@ export default function UploadMusicClient() {
   const [uploadResults, setUploadResults] = useState<{ name: string; status: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [name, setName] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
@@ -35,6 +36,9 @@ export default function UploadMusicClient() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("password", password);
+      if (name.trim()) {
+        formData.append("name", name.trim());
+      }
       try {
         const res = await fetch("/api/upload-music", {
           method: "POST",
@@ -77,6 +81,8 @@ export default function UploadMusicClient() {
           error={error}
           loading={loading}
           onSubmit={handleUpload}
+          name={name}
+          setName={setName}
         />
       ) : (
         <UploadResults

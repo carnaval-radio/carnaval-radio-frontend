@@ -21,7 +21,7 @@ export const config = {
   },
 };
 
-async function parseForm(req: NextApiRequest): Promise<{ file: formidable.File, password: string }> {
+async function parseForm(req: NextApiRequest): Promise<{ file: formidable.File, password: string, name?: string }> {
   return new Promise((resolve, reject) => {
     const form = formidable();
     form.parse(req, (err: any, fields: Fields, files: Files) => {
@@ -32,7 +32,8 @@ async function parseForm(req: NextApiRequest): Promise<{ file: formidable.File, 
       // formidable can return arrays for files and fields
       const file = Array.isArray(files.file) ? files.file[0] : files.file;
       const password = Array.isArray(fields.password) ? fields.password[0] : fields.password;
-      resolve({ file: file as formidable.File, password: password as string });
+      const name = fields.name ? (Array.isArray(fields.name) ? fields.name[0] : fields.name) : undefined;
+      resolve({ file: file as formidable.File, password: password as string, name });
     });
   });
 }
@@ -60,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.status(500).json({ message: 'UPLOAD_PASSWORD is not set in environment.' });
       return;
     }
-    const { file, password } = await parseForm(req);
+    const { file, password, name } = await parseForm(req);
     if (password !== UPLOAD_PASSWORD) {
       res.status(401).json({ message: 'Wachtwoord is onjuist.' });
       return;
@@ -78,7 +79,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
     const dayFolder = `${yyyy}-${mm}-${dd}`;
-    const targetDir = `${FTP_DIR}/${dayFolder}`;
+    // If name is provided, sanitize and use as subfolder
+    let safeName = name ? name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_').substring(0, 40) : undefined;
+    const targetDir = safeName ? `${FTP_DIR}/${dayFolder}/${safeName}` : `${FTP_DIR}/${dayFolder}`;
     await client.ensureDir(targetDir);
     await client.uploadFrom(file.filepath, `${targetDir}/${file.originalFilename}`);
     client.close();
