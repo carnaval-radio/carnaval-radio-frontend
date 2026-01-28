@@ -10,15 +10,33 @@ interface UploadResultsProps {
   onUploadMore: () => void;
 }
 
+
 const UploadResults: React.FC<UploadResultsProps> = ({ uploadResults, onUploadMore }) => (
   <div className="space-y-4">
     <div className="mb-2 font-semibold">Uploadresultaten:</div>
     <ul className="text-sm">
-      {uploadResults.map((result, idx) => (
-        <li key={idx} className={result.status.includes("Succes") ? "text-green-600" : "text-red-600"}>
-          {result.name}: {result.status}
-        </li>
-      ))}
+      {uploadResults.map((result, idx) => {
+        const statusLower = result.status.toLowerCase();
+        // Match both 'succes' and 'geslaagd' for Dutch success
+        const isSuccess = statusLower.includes("succes") || statusLower.includes("geslaagd");
+        return (
+          <li
+            key={idx}
+            className={`flex items-center gap-2 ${isSuccess ? "text-green-700" : "text-red-600"}`}
+          >
+            <span className="font-mono text-xs w-6">{idx + 1}.</span>
+            <span className="inline-block w-4">
+              {isSuccess ? (
+                <span title="Gelukt" aria-label="Gelukt">✅</span>
+              ) : (
+                <span title="Mislukt" aria-label="Mislukt">❌</span>
+              )}
+            </span>
+            <span className="font-semibold">{result.name}</span>
+            <span className="ml-2 text-xs">{result.status}</span>
+          </li>
+        );
+      })}
     </ul>
     <button
       onClick={onUploadMore}
