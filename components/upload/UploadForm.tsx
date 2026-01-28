@@ -13,9 +13,15 @@ interface UploadFormProps {
 }
 
 const UploadForm: React.FC<UploadFormProps> = ({ files, setFiles, fileInputRef, error, loading, onSubmit, name, setName }) => {
+  const [fileLimitMsg, setFileLimitMsg] = React.useState<string | null>(null);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const selected = Array.from(e.target.files);
+    if (selected.length > 10) {
+      setFileLimitMsg("Je kunt maximaal 10 bestanden tegelijk uploaden. Alleen de eerste 10 zijn geselecteerd.");
+    } else {
+      setFileLimitMsg(null);
+    }
     setFiles(selected.slice(0, 10));
   };
 
@@ -38,6 +44,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ files, setFiles, fileInputRef, 
         onChange={handleFileChange}
         className="block w-full border rounded p-2"
       />
+      {fileLimitMsg && <div className="text-orange-600 text-sm">{fileLimitMsg}</div>}
       {error && <div className="text-red-500 text-sm">{error}</div>}
       <button
         type="submit"
