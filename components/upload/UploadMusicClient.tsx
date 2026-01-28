@@ -62,6 +62,7 @@ export default function UploadMusicClient() {
     setFiles([]);
     setUploadResults([]);
     setError(null);
+    // Do NOT reset name, so it is remembered
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
