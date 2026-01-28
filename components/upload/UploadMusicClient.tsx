@@ -42,7 +42,7 @@ export default function UploadMusicClient() {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!files.length) {
-      setError("Selecteer tot 10 bestanden.");
+      setError("Selecteer tot 11 bestanden.");
       return;
     }
     setLoading(true);

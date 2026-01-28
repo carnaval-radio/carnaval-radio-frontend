@@ -17,12 +17,12 @@ const UploadForm: React.FC<UploadFormProps> = ({ files, setFiles, fileInputRef, 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const selected = Array.from(e.target.files);
-    if (selected.length > 10) {
-      setFileLimitMsg("Je kunt maximaal 10 bestanden tegelijk uploaden. Alleen de eerste 10 zijn geselecteerd.");
+    if (selected.length > 11) {
+      setFileLimitMsg("Je kunt maximaal 11 bestanden tegelijk uploaden. Alleen de eerste 11 zijn geselecteerd.");
     } else {
       setFileLimitMsg(null);
     }
-    setFiles(selected.slice(0, 10));
+    setFiles(selected.slice(0, 11));
   };
 
   return (
@@ -51,7 +51,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ files, setFiles, fileInputRef, 
         className="bg-primary text-white px-4 py-2 rounded w-full flex items-center justify-center"
         disabled={loading || files.length === 0}
       >
-        {loading ? <Spinner /> : `Uploaden (${files.length}/10)`}
+        {loading ? <Spinner /> : `Uploaden (${files.length}/11)`}
       </button>
     </form>
   );

@@ -5,7 +5,7 @@ import fs from 'fs';
 
 // Simple in-memory rate limiting
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX = 30; // max uploads per window per IP
+const RATE_LIMIT_MAX = 33; // max uploads per window per IP
 const rateLimitMap = new Map<string, { count: number; last: number }>();
 
 const FTP_HOST = process.env.FTP_HOST || 'localhost';
