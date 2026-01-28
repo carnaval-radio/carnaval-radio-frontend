@@ -9,16 +9,34 @@ export default function UploadMusicClient() {
   const [files, setFiles] = useState<File[]>([]);
   const [password, setPassword] = useState("");
   const [passwordEntered, setPasswordEntered] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [uploadResults, setUploadResults] = useState<{ name: string; status: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password) return;
-    setPasswordEntered(true);
+    setPasswordLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/validate-upload-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (res.ok && data.valid) {
+        setPasswordEntered(true);
+      } else {
+        setError(data.message || "Wachtwoord is onjuist.");
+      }
+    } catch (err) {
+      setError("Netwerkfout bij valideren van wachtwoord.");
+    }
+    setPasswordLoading(false);
   };
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -69,11 +87,19 @@ export default function UploadMusicClient() {
   return (
     <>
       {!passwordEntered ? (
-        <PasswordForm
-          password={password}
-          setPassword={setPassword}
-          onSubmit={handlePasswordSubmit}
-        />
+        <>
+          <PasswordForm
+            password={password}
+            setPassword={setPassword}
+            onSubmit={handlePasswordSubmit}
+          />
+          {passwordLoading && (
+            <div className="text-center text-sm text-gray-500 mt-2">Bezig met valideren...</div>
+          )}
+          {error && (
+            <div className="text-center text-sm text-red-500 mt-2">{error}</div>
+          )}
+        </>
       ) : uploadResults.length === 0 ? (
         <UploadForm
           files={files}
