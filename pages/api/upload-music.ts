@@ -5,7 +5,7 @@ import fs from 'fs';
 
 // Simple in-memory rate limiting
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX = 10; // max uploads per window per IP
+const RATE_LIMIT_MAX = 30; // max uploads per window per IP
 const rateLimitMap = new Map<string, { count: number; last: number }>();
 
 const FTP_HOST = process.env.FTP_HOST || 'localhost';
@@ -21,6 +21,8 @@ export const config = {
   },
 };
 
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const ALLOWED_EXTENSIONS = ["mp3", "m4a", "aac", "ogg", "opus", "mpeg"];
 async function parseForm(req: NextApiRequest): Promise<{ file: formidable.File, password: string, name?: string }> {
   return new Promise((resolve, reject) => {
     const form = formidable();
@@ -31,6 +33,17 @@ async function parseForm(req: NextApiRequest): Promise<{ file: formidable.File, 
       }
       // formidable can return arrays for files and fields
       const file = Array.isArray(files.file) ? files.file[0] : files.file;
+      if (file.size > MAX_FILE_SIZE) {
+        reject('Bestand is te groot. Maximaal 20MB per bestand.');
+        return;
+      }
+      // Check file extension
+      const originalFilename = file.originalFilename || "";
+      const ext = originalFilename.split('.').pop()?.toLowerCase() || "";
+      if (!ALLOWED_EXTENSIONS.includes(ext)) {
+        reject(`Bestandstype niet toegestaan. Alleen audioformaten (${ALLOWED_EXTENSIONS.join(", ")}) zijn toegestaan.`);
+        return;
+      }
       const password = Array.isArray(fields.password) ? fields.password[0] : fields.password;
       const name = fields.name ? (Array.isArray(fields.name) ? fields.name[0] : fields.name) : undefined;
       resolve({ file: file as formidable.File, password: password as string, name });
@@ -88,6 +101,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     fs.unlinkSync(file.filepath);
     res.status(200).json({ message: 'Upload geslaagd!' });
   } catch (err: any) {
-    res.status(500).json({ message: 'Upload mislukt: ' + err });
+    // If file is too large or wrong type, show a clear error
+    if (typeof err === 'string' && (err.includes('te groot') || err.includes('niet toegestaan'))) {
+      res.status(413).json({ message: err });
+    } else {
+      res.status(500).json({ message: 'Upload mislukt: ' + err });
+    }
   }
 }
