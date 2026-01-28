@@ -172,6 +172,10 @@ function specialCasesContains(text?: string) {
 }
 
 function enrichCover(coverUrl: string, song: Song) {
+  if(song.title.toLowerCase().includes("live")) {
+    return CRLogo;
+  }
+  
   if (specialCasesContains(song.artist)) {
     return CRLogo;
   }
