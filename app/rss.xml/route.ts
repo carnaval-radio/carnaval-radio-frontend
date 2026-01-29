@@ -50,7 +50,7 @@ function generateRssFeed(allPosts: Post[]) {
     feed.addItem({
       title: post.attributes.Title,
       id: post.id + '-' + post.attributes.Slug,
-      link: `${site_url}/articles/${post.attributes.Slug}`,
+      link: `${site_url}/nieuwsberichten/${post.attributes.Slug}`,
       description: '<img src="' + post.attributes.CoverImage?.data?.attributes?.url + '" />' + post.attributes.Content,
       date: new Date(post.attributes.publishedAt),
     });
