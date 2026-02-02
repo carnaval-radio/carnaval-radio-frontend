@@ -147,6 +147,26 @@ const nextConfig = {
         destination: 'https://apps.apple.com/nl/app/carnaval-radio/id6470475333',
         permanent: false,
       },
+      {
+        source: '/insta',
+        destination: 'https://www.instagram.com/carnaval.radio',
+        permanent: false,
+      },
+      {
+        source: '/fb',
+        destination: 'https://www.facebook.com/carnavalradio',
+        permanent: false,
+      },
+      {
+        source: '/yt',
+        destination: 'https://www.youtube.com/@Carnavalsradio',
+        permanent: false,
+      },
+      {
+        source: '/tiktok',
+        destination: 'https://www.tiktok.com/@carnavalradiobrunssum',
+        permanent: false,
+      },
     ];
   },
 };
