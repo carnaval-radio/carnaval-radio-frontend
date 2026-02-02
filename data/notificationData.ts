@@ -1,5 +1,6 @@
 export interface NotificationData {
   enabled: boolean;
+  nudgeEnabled: boolean;
   delay: number; // in milliseconds
   title: string;
   message: string;
@@ -11,7 +12,8 @@ export interface NotificationData {
 }
 
 export const notificationData: NotificationData = {
-  enabled: true,
+  enabled: false,
+  nudgeEnabled: false,
   delay: 15000, // 15 seconds
   title: "Carnaval Radio Limburgse Avond 2026",
   message: "Er zijn nog tickets beschikbaar voor de Carnaval Radio Limburgse Avond 2026! o.a: Rempetemp, Träcksäck, Bjorn en Mieke, Erwin, Wir Sind Spitze, Van Lieshout en Arts en meer.",

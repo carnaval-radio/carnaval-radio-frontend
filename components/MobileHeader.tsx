@@ -9,6 +9,7 @@ import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa";
 import MobileChromecast from "./MobileChromecast";
 import TicketNudge from "./TicketNudge";
+import { notificationData } from "@/data/notificationData";
 
 interface props {
   themeData: any;
@@ -42,10 +43,13 @@ const MobileHeader = ({ themeData, menu }: props) => {
           />
         </Link>
         <div className="flex gap-4 items-center">
-          {/* Spacer to help center TicketNudge between logo and Chromecast */}
-          <div style={{ width: 8 }} />
-          <TicketNudge />
-          <div style={{ width: 8 }} />
+          {notificationData.nudgeEnabled && (
+            <>
+              <div style={{ width: 8 }} />
+              <TicketNudge />
+              <div style={{ width: 8 }} />
+            </>
+          )}
           <MobileChromecast />
           <Link className="rounded m-auto" href="verzoekjes">
             <FaWhatsapp className="text-emerald-500" size={40} />
