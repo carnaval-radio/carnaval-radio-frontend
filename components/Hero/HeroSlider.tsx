@@ -60,6 +60,23 @@ const HeroSlider = ({ slides }: { slides: Slide[] }) => {
             />
           );
 
+          // if slideLink is external link, use target="_blank" And rel="noopener noreferrer"
+          // to determine if link is external or internal check if it starts with http
+          const isExternalLink = slideLink?.startsWith("http");
+
+          if (isExternalLink) {
+            return (
+              <a
+                key={i}
+                href={slideLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {imageElement}
+              </a>
+            );
+          }
+          
           return slideLink ? (
             <Link key={i} href={slideLink}>
               {imageElement}

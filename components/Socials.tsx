@@ -6,17 +6,22 @@ const socialsData = [
   {
     iconImg: "/icons/facebook.png",
     iconName: "Facebook",
-    link: "https://www.facebook.com/carnavalradio/",
+    link: "https://carnaval.radio/fb",
   },
   {
     iconImg: "/icons/instagram.png",
     iconName: "Instagram",
-    link: "https://www.instagram.com/carnaval.radio",
+    link: "https://carnaval.radio/insta",
+  },
+  {
+    iconImg: "/icons/tiktok.png",
+    iconName: "TikTok",
+    link: "https://carnaval.radio/tiktok",
   },
   {
     iconImg: "/icons/youtube.png",
     iconName: "Youtube",
-    link: "https://www.youtube.com/carnavalsradio",
+    link: "https://carnaval.radio/yt",
   },
 ];
 
