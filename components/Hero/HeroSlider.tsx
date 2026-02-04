@@ -56,6 +56,7 @@ const HeroSlider = ({ slides }: { slides: Slide[] }) => {
               className="h-[40vh] sm:h-[50vh] md:h-[50vh] lg:h-[450px] xl:h-[500px] rounded-2xl object-cover max-w-full"
               height={1000}
               width={1000}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
               alt={Url}
             />
           );

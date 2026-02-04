@@ -147,9 +147,10 @@ export function estimatePlayTimes(trackHistory: string[], offset?: number): numb
 
 const DefaultCarnavalRadio = "Carnaval-Radio.nl";
 const SpecialCases = ["Carnaval Radio", "carnaval.radio", "Carnaval-Radio.nl", "unknown", "moritz gimsa"];
-const CRLogo =
-  "https://res.cloudinary.com/dwzn0q9wj/image/upload/c_scale,h_100,w_100/f_webp/logo_square_512_1_78657ec246.jpg";
+// const CRLogo = "https://res.cloudinary.com/dwzn0q9wj/image/upload/c_scale,h_100,w_100/f_webp/logo_square_512_1_78657ec246.jpg";
 
+const CRLogo = "https://res.cloudinary.com/dwzn0q9wj/image/upload/c_scale,h_100,w_100/f_webp/logo-cr-roze_upwtdf.png";
+  
 function enrichTitle(song: Song) {
   const artist = specialCasesContains(song.artist)
     ? DefaultCarnavalRadio
@@ -173,6 +174,10 @@ function specialCasesContains(text?: string) {
 
 function enrichCover(coverUrl: string, song: Song) {
   if(song.title.toLowerCase().includes("live")) {
+    return CRLogo;
+  }
+
+  if(song.title.toLowerCase().includes("carnaval-radio")) {
     return CRLogo;
   }
   
