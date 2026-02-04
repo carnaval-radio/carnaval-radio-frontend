@@ -69,11 +69,11 @@ const PostDetails = ({
       >
         {/* if no video */}
         {!post?.attributes?.CoverVideo?.data?.attributes?.url && (
-          <img
+          <a href={`/nieuwsberichten/${post.attributes.Slug}`}><img
             className="h-60 w-[98%] object-cover rounded-xl"
             src={post?.attributes?.CoverImage?.data?.attributes?.url}
             alt=""
-          />
+          /></a>
         )}
         {/* if video */}
         {post?.attributes?.CoverVideo?.data?.attributes?.url && (
@@ -88,7 +88,7 @@ const PostDetails = ({
             ? formatDate(post.attributes?.Date)
             : formatDate(post.attributes?.publishedAt)}
         </p>
-        <p className="text-2xl font-bold">{post.attributes.Title}</p>
+        <p className="text-2xl font-bold"><a href={`/nieuwsberichten/${post.attributes.Slug}`}>{post.attributes.Title}</a></p>
         {ReactHtmlParser(sanitizeHtml(post?.attributes?.Content))}
         <Link
           href={`/nieuwsberichten/${post.attributes.Slug}`}
