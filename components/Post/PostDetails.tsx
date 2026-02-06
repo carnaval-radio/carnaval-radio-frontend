@@ -28,8 +28,8 @@ const PostDetails = ({
           colorIndex === 0
             ? "tertiaryShade_2"
             : colorIndex === 1
-            ? "secondaryShade_2"
-            : "primaryShade_3"
+              ? "secondaryShade_2"
+              : "primaryShade_3"
         }`}  rounded-xl p-5 overflow-hidden space-y-3`}
       >
         {/* <img
@@ -48,8 +48,8 @@ const PostDetails = ({
             colorIndex === 0
               ? "border-tertiary text-tertiary"
               : colorIndex === 1
-              ? "border-secondary text-secondary"
-              : "border-primary text-primary"
+                ? "border-secondary text-secondary"
+                : "border-primary text-primary"
           } rounded-md p-2 text-sm font-semibold`}
         >
           Lees verder
@@ -63,32 +63,39 @@ const PostDetails = ({
           colorIndex === 0
             ? "tertiaryShade_2"
             : colorIndex === 1
-            ? "secondaryShade_2"
-            : "primaryShade_3"
+              ? "secondaryShade_2"
+              : "primaryShade_3"
         }`}  rounded-xl p-5 overflow-hidden space-y-3`}
       >
         {/* if no video */}
         {!post?.attributes?.CoverVideo?.data?.attributes?.url && (
-          <a href={`/nieuwsberichten/${post.attributes.Slug}`}><img
-            className="h-60 w-[98%] object-cover rounded-xl"
-            src={post?.attributes?.CoverImage?.data?.attributes?.url}
-            alt=""
-          /></a>
+          <Link href={`/nieuwsberichten/${post.attributes.Slug}`}>
+            <img
+              className="h-60 w-[98%] object-cover rounded-xl"
+              src={post?.attributes?.CoverImage?.data?.attributes?.url}
+              alt=""
+            />
+          </Link>
         )}
         {/* if video */}
         {post?.attributes?.CoverVideo?.data?.attributes?.url && (
           <div className="h-60 rounded-xl flex">
-          <Video
-            className="h-60 w-[98%] object-cover rounded-xl"
-            src={post?.attributes?.CoverVideo?.data?.attributes?.url}
-          /></div>
+            <Video
+              className="h-60 w-[98%] object-cover rounded-xl"
+              src={post?.attributes?.CoverVideo?.data?.attributes?.url}
+            />
+          </div>
         )}
         <p className="text-sm text-gray-500">
           {post.attributes?.Date
             ? formatDate(post.attributes?.Date)
             : formatDate(post.attributes?.publishedAt)}
         </p>
-        <p className="text-2xl font-bold"><a href={`/nieuwsberichten/${post.attributes.Slug}`}>{post.attributes.Title}</a></p>
+        <p className="text-2xl font-bold">
+          <Link href={`/nieuwsberichten/${post.attributes.Slug}`}>
+            {post.attributes.Title}
+          </Link>
+        </p>
         {ReactHtmlParser(sanitizeHtml(post?.attributes?.Content))}
         <Link
           href={`/nieuwsberichten/${post.attributes.Slug}`}
@@ -96,8 +103,8 @@ const PostDetails = ({
             colorIndex === 0
               ? "border-tertiary text-tertiary"
               : colorIndex === 1
-              ? "border-secondary text-secondary"
-              : "border-primary text-primary"
+                ? "border-secondary text-secondary"
+                : "border-primary text-primary"
           } rounded-md p-2 text-sm font-semibold`}
         >
           Lees verder
