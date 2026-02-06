@@ -25,7 +25,7 @@ const SongCover = ({ url, artist, type = "hero" }: Props) => {
   return (
     <div
       style={{ backgroundColor }}
-      className={`${commonClasses} flex items-center justify-center`}
+      className={`${commonClasses} flex items-center justify-center flex-shrink-0`}
     >
       {isNocover ? (
         <h3 className="text-xl font-semibold text-white">{initials}</h3>
@@ -35,7 +35,7 @@ const SongCover = ({ url, artist, type = "hero" }: Props) => {
           alt={artist}
           height={100}
           width={100}
-          className={commonClasses}
+          className={`${commonClasses} object-cover`}
         />
       )}
     </div>

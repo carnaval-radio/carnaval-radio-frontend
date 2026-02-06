@@ -51,7 +51,7 @@ const HeroSongs = () => {
 			{error ? <p>Helaas ondervinden wij problemen met het ophalen van de gedraaide nummers.</p>
 				: (
 					<>
-						<RecentSongs loading={loading} recentTracks={recentTracks} maxTracks={4} canAddToFavorites={canAddToFavorites} />
+						<RecentSongs loading={loading} recentTracks={recentTracks} maxTracks={4} canAddToFavorites={canAddToFavorites} denseDate={true} />
 						<Link
 							href="/gedraaide-nummers"
 							className="bg-gradient-to-r text-center from-primary to-secondary rounded-lg mt-8 py-3 px-4 text-white font-semibold"

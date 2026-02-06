@@ -1,11 +1,19 @@
-const DateAndTime = ({ timestamp, date }: { timestamp?: number, date?: Date }) => {
+const DateAndTime = ({
+  timestamp,
+  date,
+  dense = false,
+}: {
+  timestamp?: number;
+  date?: Date;
+  dense?: boolean;
+}) => {
   const currentDate = new Date();
   let formattedTimestamp = new Date();
-  
-  if(timestamp) {
+
+  if (timestamp) {
     // Timestamp is already in milliseconds, just create Date object directly
     formattedTimestamp = new Date(timestamp);
-  } else if(date) {
+  } else if (date) {
     formattedTimestamp = date;
     formattedTimestamp.setHours(formattedTimestamp.getHours() + 1);
   }
@@ -19,6 +27,10 @@ const DateAndTime = ({ timestamp, date }: { timestamp?: number, date?: Date }) =
     currentDate.getDate() === formattedTimestamp.getDate() &&
     currentDate.getMonth() === formattedTimestamp.getMonth() &&
     currentDate.getFullYear() === formattedTimestamp.getFullYear();
+
+  if (dense) {
+    return formattedTimestamp.toLocaleTimeString("nl-NL", options);
+  }
 
   if (isToday) {
     return (

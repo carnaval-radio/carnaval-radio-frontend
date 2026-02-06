@@ -14,12 +14,14 @@ type RecentSongsProps = {
   loading: boolean;
   maxTracks?: number; // 10 is the default and the maximum
   canAddToFavorites?: boolean;
+  denseDate?: boolean;
 };
 
 const RecentSongs: React.FC<RecentSongsProps> = ({
   recentTracks,
   loading = null,
   maxTracks = 10,
+  denseDate = false,
   canAddToFavorites = false,
 }) => {
   const [favorites, setFavorites] = useState<Record<string, true>>({});
@@ -80,7 +82,7 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                               i % 2 !== 0 ? "text-tertiary" : "text-secondary"
                             }`}
                           >
-                            <DateAndTime timestamp={recentSong.date} />
+                            <DateAndTime timestamp={recentSong.date} dense={denseDate} />
                           </p>
                         </div>
                       )}
