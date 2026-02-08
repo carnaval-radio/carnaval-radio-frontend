@@ -4,6 +4,7 @@ import { Post } from "@/types/articleTypes";
 import ReactHtmlParser from "html-react-parser";
 import { formatDate } from "@/helpers/formatDate";
 import Video from "../Video";
+import { optimizeCardImage, getBlurPlaceholder } from "@/src/types/cloudinaryOptimization";
 
 const PostDetails = ({
   post,
@@ -72,8 +73,10 @@ const PostDetails = ({
           <Link href={`/nieuwsberichten/${post.attributes.Slug}`}>
             <img
               className="h-60 w-[98%] object-cover rounded-xl"
-              src={post?.attributes?.CoverImage?.data?.attributes?.url}
+              src={optimizeCardImage(post?.attributes?.CoverImage?.data?.attributes?.url, 500)}
               alt=""
+              loading="lazy"
+              style={{ background: getBlurPlaceholder(post?.attributes?.CoverImage?.data?.attributes?.url, { width: 10, height: 8, quality: 5 }) }}
             />
           </Link>
         )}

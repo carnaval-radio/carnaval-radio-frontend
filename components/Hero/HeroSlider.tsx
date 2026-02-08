@@ -5,6 +5,7 @@ import Carousel from "react-multi-carousel";
 import Image from "next/image";
 import { Slide } from "@/types/slideTypes";
 import Link from "next/link";
+import { getOptimizedImageProps } from "@/src/types/cloudinaryOptimization";
 
 const HeroSlider = ({ slides }: { slides: Slide[] }) => {
   const responsive = {
@@ -49,15 +50,18 @@ const HeroSlider = ({ slides }: { slides: Slide[] }) => {
         }
       >
         {slides.map(({ Link: slideLink, Image: { Url } }: Slide, i: number) => {
+          const optimizedProps = getOptimizedImageProps(Url, 'hero');
           const imageElement = (
             <Image
               loading="lazy"
-              src={Url}
+              src={optimizedProps.src}
               className="h-[40vh] sm:h-[50vh] md:h-[50vh] lg:h-[450px] xl:h-[500px] rounded-2xl object-cover max-w-full"
-              height={1000}
-              width={1000}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
+              height={500}
+              width={1920}
+              sizes={optimizedProps.sizes}
               alt={Url}
+              placeholder={optimizedProps.placeholder as any}
+              blurDataURL={optimizedProps.blurDataURL}
             />
           );
 

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { TeamMember as TeamMemberType } from "@/types/teamTypes";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
 import { getInitials, getRandomColor } from "@/helpers/randomColor";
+import { optimizeProfileImage, getOptimizedImageProps } from "@/src/types/cloudinaryOptimization";
 
 interface Props {
   data: TeamMemberType;
@@ -60,12 +61,13 @@ const TeamMember = ({
           id={generateTeamId(person.Slug)}
           width="0"
           height="0"
-          src={person?.Photo.data?.attributes?.url}
+          src={optimizeProfileImage(person?.Photo.data?.attributes?.url, 'lg')}
           alt={person.Name}
-          sizes="404px"
+          sizes="(max-width: 640px) 200px, (max-width: 1024px) 300px, 400px"
           priority
           className="mx-auto h-48 w-48 rounded-full md:h-56 md:w-56"
-          blurDataURL={person.Photo.data?.attributes?.url}
+          placeholder="blur"
+          blurDataURL={getOptimizedImageProps(person?.Photo.data?.attributes?.url, 'profile').blurDataURL}
         />
       ) : (
         <div

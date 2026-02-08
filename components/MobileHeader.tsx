@@ -10,6 +10,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import MobileChromecast from "./MobileChromecast";
 import TicketNudge from "./TicketNudge";
 import { notificationData } from "@/data/notificationData";
+import { optimizeLogoImage } from "@/src/types/cloudinaryOptimization";
 
 interface props {
   themeData: any;
@@ -36,10 +37,11 @@ const MobileHeader = ({ themeData, menu }: props) => {
       <div className="bg-gradient-to-r from-gradientStart to-gradientEnd md:hidden lg:hidden xl:hidden flex sm:flex justify-between p-2 pb-4 items-center sticky top-0 z-30">
         <Link href="/" onClick={closeSidebar}>
           <Image
-            src={themeData.attributes.Logo.data.attributes.url}
+            src={optimizeLogoImage(themeData.attributes.Logo.data.attributes.url, 120)}
             width={120}
             height={120}
             alt="Logo"
+            loading="lazy"
           />
         </Link>
         <div className="flex gap-4 items-center">

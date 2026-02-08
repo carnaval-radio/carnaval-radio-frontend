@@ -6,6 +6,7 @@ import { Sponsor } from "../../types/sponsorTypes";
 import { useEffect, useState } from "react";
 import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
 import SponsorsSkeleton from "../LoadingSkeleten/SponsorsSkeleton";
+import { optimizeLogoImage, getBlurPlaceholder } from "@/src/types/cloudinaryOptimization";
 
 interface Props {
   sponsors?: Sponsor[];
@@ -76,10 +77,11 @@ export default function SponsorCard({ sponsors }: Props) {
                   <a href={x.Link || '#'} target="_blank" key={x.Name}>
                     <Image
                       className="h-24 object-contain max-w-full inline-block cursor-pointer rounded-lg"
-                      src={x.Logo.Url}
+                      src={optimizeLogoImage(x.Logo.Url, 300)}
                       width={300}
-                      height={250}
+                      height={100}
                       alt={`Logo van ${x.Name}`}
+                      loading="lazy"
                     />
                   </a>
                 </div>

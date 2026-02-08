@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Socials from "./Socials";
 import { TbMinusVertical } from "react-icons/tb";
+import { optimizeLogoImage } from "@/src/types/cloudinaryOptimization";
 interface props {
   data: any;
   themeData: any;
@@ -14,10 +15,11 @@ const Footer = ({ data, themeData }: props) => {
         <div>
           <Link href="/" className="flex items-center justify-center">
             <Image
-              src={themeData.attributes.Logo.data.attributes.url}
+              src={optimizeLogoImage(themeData.attributes.Logo.data.attributes.url, 200)}
               width={200}
               height={200}
               alt="Logo"
+              loading="lazy"
             />
           </Link>
           <Socials options="footer" />

@@ -4,6 +4,7 @@ import Image from "next/image";
 import ReactHtmlParser from "html-react-parser";
 import NotFoundPage from "@/components/NotFoundPage";
 import Video from "@/components/Video";
+import { optimizeCardImage, getOptimizedImageProps } from "@/src/types/cloudinaryOptimization";
 
 export async function generateMetadata({ params }: any) {
   // Fetch the article data for metadata
@@ -137,13 +138,15 @@ const page = async ({ params }: { params: { slug?: string } }) => {
             </div>
             <div className="cms-content">{ReactHtmlParser(post.Content)}</div>
             <Image
-              src={post.CoverImage.data.attributes.url}
-              width={1000}
-              height={1000}
+              src={optimizeCardImage(post.CoverImage.data.attributes.url, 600)}
+              width={600}
+              height={400}
               sizes="100vw"
               className="rounded-xl"
               style={{ width: '100%', height: 'auto' }}
               alt={post.Title}
+              placeholder="blur"
+              blurDataURL={getOptimizedImageProps(post.CoverImage.data.attributes.url, 'card').blurDataURL}
             />
             <Suspense fallback={<ShareButtonsFallback />}>
               <ShareButtons slug={`nieuwsberichten/${params.slug}`} />
