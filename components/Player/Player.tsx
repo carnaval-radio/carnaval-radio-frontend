@@ -10,7 +10,7 @@ import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
 import { useRemotePlayback } from "./useRemotePlayback";
 import { setCastClickHandler } from "../MobileChromecast";
-import { generateCustomSongId } from "@/GlobalState/ApiCalls/fetchSongs";
+import { enrichCover, generateCustomSongId } from "@/GlobalState/ApiCalls/fetchSongs";
 
 const Player = () => {
   const dispatch = useDispatch();
@@ -113,10 +113,12 @@ const Player = () => {
           .map((s: string) => s.trim());
       }
 
+      const coverArt = enrichCover(data.coverart || "", { title, artist });
+
       setCurrentTrack({
         title,
         artist,
-        imageurl: data.coverart || "",
+        imageurl: coverArt,
       });
 
       dispatch(setsSongTitle(title));

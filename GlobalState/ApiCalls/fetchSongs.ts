@@ -172,7 +172,7 @@ function specialCasesContains(text?: string) {
   return SpecialCases.includes(text.toLocaleLowerCase());
 }
 
-function enrichCover(coverUrl: string, song: Song) {
+export function enrichCover(coverUrl: string, song: Song) {
   if(song.title.toLowerCase().includes("live")) {
     return CRLogo;
   }
