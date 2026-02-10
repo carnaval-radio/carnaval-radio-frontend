@@ -18,6 +18,7 @@ import { Suspense } from "react";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import LimburgConsoleMessage from "@/components/LimburgConsoleMessage";
+import { RootClientComponent } from "@/components/RootClientComponent";
 
 export const metadata: Metadata = {
   title: "Carnaval Radio | 24/7 Limburgse Vastelaovend Muziek",
@@ -100,19 +101,21 @@ export default async function RootLayout({
           <Notification />
           <StructuredData />
         </Suspense>
-        <Providers>
-          <MobileHeader themeData={themeData} menu={menu.renderNavigation} />
-          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0">
-            <div className="col-span-1">
-              <SideBar menu={menu.renderNavigation} themeData={themeData} />
+        <RootClientComponent>
+          <Providers>
+            <MobileHeader themeData={themeData} menu={menu.renderNavigation} />
+            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-0">
+              <div className="col-span-1">
+                <SideBar menu={menu.renderNavigation} themeData={themeData} />
+              </div>
+              <div className="col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-4 xl:col-span-5 pb-20">
+                {children}
+                <Footer data={footer.renderNavigation} themeData={themeData} />
+                <Player />
+              </div>
             </div>
-            <div className="col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-4 xl:col-span-5 pb-20">
-              {children}
-              <Footer data={footer.renderNavigation} themeData={themeData} />
-              <Player />
-            </div>
-          </div>
-        </Providers>
+          </Providers>
+        </RootClientComponent>
         <Analytics />
         <SpeedInsights />
       </body>

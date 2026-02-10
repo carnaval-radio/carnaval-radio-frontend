@@ -250,6 +250,23 @@ CREATE INDEX IF NOT EXISTS idx_interactions_user ON public.interactions (user_id
 ANALYZE public.interactions;
 
 -- ============================================
+-- DEVICE PROFILES - Link devices to user accounts (NextAuth)
+-- ============================================
+
+-- Link device IDs to NextAuth user accounts
+-- This allows cross-device sync of favorites when user is logged in
+CREATE TABLE IF NOT EXISTS device_profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  device_id TEXT NOT NULL UNIQUE,
+  user_email TEXT NOT NULL,
+  linked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for fast lookups
+CREATE INDEX IF NOT EXISTS idx_device_profiles_device_id ON device_profiles(device_id);
+CREATE INDEX IF NOT EXISTS idx_device_profiles_user_email ON device_profiles(user_email);
+
+-- ============================================
 -- SETUP COMPLETE!
 -- ============================================
 

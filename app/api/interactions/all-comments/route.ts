@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase, isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
+import { getSupabase, isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
 
 export const revalidate = 60; // Revalidate cache every 60 seconds
 
@@ -9,8 +9,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ comments: [] });
     }
 
+    const supabase = getSupabase();
+    if (!supabase) {
+      return NextResponse.json({ comments: [] });
+    }
+
     // Get recent comments (limited to 100)
-    const { data: commentsData, error: commentsError } = await supabase!
+    const { data: commentsData, error: commentsError } = await supabase
       .from("interactions")
       .select("id, content, created_at, entity_id")
       .eq("entity_type", "song")
@@ -25,9 +30,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Get unique song IDs
-    const entityIds = commentsData.map((c) => c.entity_id).filter(Boolean);
+    const entityIds = commentsData.map((c: any) => c.entity_id).filter(Boolean);
     const uniqueIds = new Set<string>();
-    entityIds.forEach((id) => uniqueIds.add(id));
+    entityIds.forEach((id: string) => uniqueIds.add(id));
     const songIds = Array.from(uniqueIds);
 
     if (songIds.length === 0) {
@@ -35,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get song data
-    const { data: songsData, error: songsError } = await supabase!
+    const { data: songsData, error: songsError } = await supabase
       .from("songs")
       .select(`
         id,
@@ -66,7 +71,7 @@ export async function GET(request: NextRequest) {
 
     // Combine comments with song data
     const comments = commentsData
-      .map((comment) => {
+      .map((comment: { entity_id: any; id: any; content: any; created_at: any; }) => {
         const song = songsMap.get(comment.entity_id);
         if (!song) return null;
 
@@ -77,7 +82,7 @@ export async function GET(request: NextRequest) {
           song,
         };
       })
-      .filter((c) => c !== null);
+      .filter((c: any) => c !== null);
 
     return NextResponse.json({ comments });
   } catch (error) {

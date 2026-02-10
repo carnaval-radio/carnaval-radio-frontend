@@ -3,6 +3,7 @@ import SidebarLinks from "./SidebarLinks";
 import Socials from "../Socials";
 import SidebarPlayer from "./SidebarPlayer";
 import Link from "next/link";
+import { AuthButtonWithSuspense } from "../AuthButtonSuspense";
 import { optimizeLogoImage } from "@/src/types/cloudinaryOptimization";
 
 interface props {
@@ -48,6 +49,9 @@ const SideBar = ({ menu, themeData }: props) => {
         <SidebarLinks menu={menu} />
       </div>
       <Socials options="sidebar" />
+      <div className="mt-6 px-4 pb-4 border-t pt-4">
+        <AuthButtonWithSuspense />
+      </div>
     </div>
   );
 };

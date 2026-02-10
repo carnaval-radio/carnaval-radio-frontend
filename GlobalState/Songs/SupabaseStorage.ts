@@ -166,7 +166,7 @@ export class DataStorage implements IStorage, IInteractionsStorage {
       // Prepare all new play_times to insert in one batch, deduping only by song_id
       const playTimesToInsert = [];
       for (const song of songs) {
-        const songRow = refreshedSongs.find(s => s.custom_song_id === song.ID);
+        const songRow = refreshedSongs.find((s: any) => s.custom_song_id === song.ID);
         if (!songRow || !songRow.id) {
           console.log(`[DEBUG] Skipping play_times insert: song not found in DB for ID`, song.ID, song.title, song.artist);
           continue;

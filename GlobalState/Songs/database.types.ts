@@ -101,6 +101,27 @@ export interface Database {
         }
         Relationships: []
       }
+      device_profiles: {
+        Row: {
+          id: string
+          device_id: string
+          user_email: string
+          linked_at: string
+        }
+        Insert: {
+          id?: string
+          device_id: string
+          user_email: string
+          linked_at?: string
+        }
+        Update: {
+          id?: string
+          device_id?: string
+          user_email?: string
+          linked_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

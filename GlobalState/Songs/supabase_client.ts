@@ -1,17 +1,26 @@
 import { createClient } from "@supabase/supabase-js";
 import { Database } from "./database.types";
 
-// Modern Supabase configuration with updated key naming
-// Since this runs on the server-side (API routes), we can use the service role key for full access
-const supabaseUrl = process.env.SUPABASE_URL || "";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+let supabaseInstance: ReturnType<typeof createClient<Database>> | null | undefined;
+let initialized = false;
 
-// Create client with fallback for missing environment variables
-export const supabase = supabaseUrl && supabaseKey 
-  ? createClient<Database>(supabaseUrl, supabaseKey, {
+function initializeSupabase() {
+  if (initialized) return;
+  initialized = true;
+
+  const supabaseUrl = process.env.SUPABASE_URL || "";
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+  if (!supabaseUrl || !supabaseKey) {
+    supabaseInstance = null;
+    return;
+  }
+
+  try {
+    supabaseInstance = createClient<Database>(supabaseUrl, supabaseKey, {
       auth: {
-        autoRefreshToken: false, // Not needed for server-side
-        persistSession: false,  // Not needed for server-side
+        autoRefreshToken: false,
+        persistSession: false,
         detectSessionInUrl: false
       },
       global: {
@@ -19,12 +28,26 @@ export const supabase = supabaseUrl && supabaseKey
           'X-Client-Info': 'carnaval-radio-server@1.0.0',
         },
       },
-    })
-  : null;
+    });
+  } catch (error) {
+    console.error("Failed to initialize Supabase:", error);
+    supabaseInstance = null;
+  }
+}
+
+// Lazy getter for supabase - only initializes on first access
+export const getSupabase = () => {
+  initializeSupabase();
+  return supabaseInstance;
+};
+
+// Deprecated: use getSupabase() instead (kept for backward compatibility)
+export const supabase = null as any;
 
 // Helper function to check if Supabase is configured
 export const isSupabaseConfigured = () => {
-  return !!(supabaseUrl && supabaseKey && supabase);
+  const client = getSupabase();
+  return !!client;
 };
 
 // Export types for use throughout the app

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa";
 import MobileChromecast from "./MobileChromecast";
 import TicketNudge from "./TicketNudge";
+import { AuthButtonWithSuspense } from "./AuthButtonSuspense";
 import { notificationData } from "@/data/notificationData";
 import { optimizeLogoImage } from "@/src/types/cloudinaryOptimization";
 
@@ -56,6 +57,9 @@ const MobileHeader = ({ themeData, menu }: props) => {
           <Link className="rounded m-auto" href="verzoekjes">
             <FaWhatsapp className="text-emerald-500" size={40} />
           </Link>
+          <div className="hidden sm:flex">
+            <AuthButtonWithSuspense compact={true} />
+          </div>
           <button className="rounded" onClick={toggleSidebar}>
             <MdMenu size={50} />
           </button>
