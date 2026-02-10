@@ -1,7 +1,12 @@
 "use client";
 
-// CR aftermovie
-const youtubeVideoId = "81-IQsNImXU";
+// CR aftermovie 2025
+// const youtubeVideoId = "81-IQsNImXU";
+
+// CR aftermovie 2026
+// https://www.youtube.com/watch?v=zbSbj_hSPJo
+
+const youtubeVideoId = "zbSbj_hSPJo";
 
 const HeroYoutubeMovie = () => {
     return (
