@@ -15,8 +15,8 @@ const HeroToggleSwitch = ({
   slides,
   showAfterMovie,
 }: HeroToggleSwitchProps) => {
-  const [showSlider, setShowSlider] = useState<boolean>(false);
-  const [showMovie, setShowMovie] = useState<boolean>(true);
+  const [showSlider, setShowSlider] = useState<boolean>(true);
+  const [showMovie, setShowMovie] = useState<boolean>(false);
 
   const handleToggle = () => {
     setShowSlider((prev) => !prev);
