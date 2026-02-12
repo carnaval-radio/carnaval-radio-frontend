@@ -134,7 +134,7 @@ const nextConfig = {
       },
       {
         source: '/tune-in',
-        destination: 'https://tunein.com/radio/Carnaval-Radio-s351099/',
+        destination: 'https://tunein.com/radio/Carnaval-Radio-s150125/',
         permanent: false,
       },
       {
