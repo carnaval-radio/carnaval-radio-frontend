@@ -48,7 +48,7 @@ const HeroSongs = () => {
 					Gedraaide nummers
 				</h2>
 			</div>
-			{error ? <p>Helaas ondervinden wij problemen met het ophalen van de gedraaide nummers.</p>
+			{error ? <p>Helaas ondervinden wij problemen met het ophalen van de gedraaide nummers. Je kunt wel luisteren.</p>
 				: (
 					<>
 						<RecentSongs loading={loading} recentTracks={recentTracks} maxTracks={4} canAddToFavorites={canAddToFavorites} denseDate={true} />
