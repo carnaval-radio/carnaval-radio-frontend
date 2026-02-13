@@ -124,7 +124,7 @@ const Player = () => {
       dispatch(setsSongTitle(title));
       setLoading(false);
     } catch (error) {
-      const problemSongname = "Er is een probleem bij onze streamingprovider. We werken aan een oplossing.";
+      const problemSongname = "Tijdelijk minder bereikbaar. Er is een probleem bij onze streamingprovider. We werken aan een oplossing.";
       setCurrentTrack({
         title: problemSongname,
         artist: unknownArtist,
