@@ -17,7 +17,7 @@ export const fetchFacebookPosts = async (
       `https://graph.facebook.com/v18.0/${facebookPageId}/posts?access_token=${facebookAccessToken}&fields=id,message,created_time,full_picture,permalink_url${
         limit ? `&limit=${limit}` : ""
       }`,
-      { next: { tags: ["social"] } }
+      { next: { revalidate: 3600, tags: ["social"] } } // Cache for 1 hour
     );
     const facebookData = await facebookResponse.json();
     
@@ -51,7 +51,7 @@ export const fetchInstagramPosts = async (
       `https://graph.facebook.com/v18.0/${instagramId}/media?fields=id,caption,media_type,media_url,permalink,timestamp&access_token=${instagramAccessToken}${
         limit ? `&limit=${limit}` : ""
       }`,
-      { next: { tags: ["social"] } }
+      { next: { revalidate: 3600, tags: ["social"] } } // Cache for 1 hour
     );
     const instagramData = await instagramResponse.json();
     

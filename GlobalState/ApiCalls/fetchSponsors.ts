@@ -7,7 +7,7 @@ export const fetchSponsors = async () => {
         query: GET_ALL_SPONSORS,
         context: {
             fetchOptions: {
-                next: { tags: ["sponsors"] },
+                next: { revalidate: 3600, tags: ["sponsors"] }, // Cache for 1 hour
             },
         },
     });

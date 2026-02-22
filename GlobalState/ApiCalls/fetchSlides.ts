@@ -9,7 +9,7 @@ export const fetchSlides = async () => {
       query: GET_ALL_SLIDES,
       context: {
         fetchOptions: {
-          next: { tags: ["slides"] },
+          next: { revalidate: 3600, tags: ["slides"] }, // Cache for 1 hour
         },
       },
     });

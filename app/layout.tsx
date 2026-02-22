@@ -63,6 +63,11 @@ export default async function RootLayout({
   const { data: footer } = await client.query({
     query: GET_UI_NAVIGATION,
     variables: { menuName: "footer" },
+    context: {
+      fetchOptions: {
+        next: { revalidate: 3600, tags: ["navigation"]}, // Cache for 1 hour
+      },
+    },
   });
 
   const { data: menu } = await client.query({

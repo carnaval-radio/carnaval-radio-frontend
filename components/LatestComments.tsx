@@ -26,7 +26,8 @@ export default function LatestComments() {
 
   useEffect(() => {
     loadComments();
-    const interval = setInterval(loadComments, 60000); // Refresh every minute
+    // Reduced from 60s to 10 minutes (600,000ms) - comments don't need real-time updates
+    const interval = setInterval(loadComments, 600000);
     return () => clearInterval(interval);
   }, []);
 

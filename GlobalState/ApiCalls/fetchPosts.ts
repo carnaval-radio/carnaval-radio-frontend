@@ -7,7 +7,7 @@ const { data } = await client.query({
     query: GET_ALL_ARTICLES,
     context: {
         fetchOptions: {
-            next: { tags: ["articles"] },
+            next: { revalidate: 3600, tags: ["articles"] }, // Cache for 1 hour
         },
     },
 });

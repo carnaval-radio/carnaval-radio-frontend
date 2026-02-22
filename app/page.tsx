@@ -31,15 +31,17 @@ const page = async () => {
   const instagramAccessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
   const instagramId = process.env.NEXT_PUBLIC_INSTAGRAM_ID;
 
+  const enableSocialPosts = process.env.ENABLE_SOCIAL_POSTS === "true";
+
   const posts = await fetchPosts();
 
   // Fetch social media posts once (not twice!)
   const facebookPosts =
-    facebookPageId && facebookAccessToken
+    enableSocialPosts && facebookPageId && facebookAccessToken
       ? await fetchFacebookPosts(facebookPageId, facebookAccessToken, 3)
       : [];
   const instagramPosts =
-    instagramId && instagramAccessToken
+    enableSocialPosts && instagramId && instagramAccessToken
       ? await fetchInstagramPosts(instagramId, instagramAccessToken, 3)
       : [];
 

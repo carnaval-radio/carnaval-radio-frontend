@@ -16,8 +16,8 @@ const HeroSongs = () => {
 		try {
 			// Fetch only the 4 most recent songs for the hero section
 			setLoading(true);
-			// Fetch from API route
-			const res = await fetch('/api/songs?limit=4', { cache: 'no-store' });
+			// Fetch from API route with caching enabled
+			const res = await fetch('/api/songs?limit=4', { cache: 'default' });
 			if (!res.ok) {
 				// dont render component on error
 				throw new Error(`HTTP error! status: ${res.status}`);
@@ -36,7 +36,8 @@ const HeroSongs = () => {
 
 	useEffect(() => {
 		fetchTracks();
-		const interval = setInterval(fetchTracks, 30000);
+		// Reduced from 30s to 5 minutes (300,000ms) - homepage songs don't need constant updates
+		const interval = setInterval(fetchTracks, 300000);
 		return () => clearInterval(interval);
 	}, [error]);
 

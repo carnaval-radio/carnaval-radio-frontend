@@ -15,7 +15,7 @@ export const fetchEvents = async () => {
         query: GET_ALL_EVENTS, 
         context: { 
             fetchOptions: { 
-                next: { tags: ["events"] }, 
+                next: { revalidate: 3600, tags: ["events"] }, // Cache for 1 hour
             }, 
         }, 
     });

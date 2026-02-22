@@ -15,7 +15,7 @@ export async function fetchTwitch(): Promise<boolean> {
       return false;
     }
 
-    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + 'api/feature-toggle', { next: { tags: ["twitch"] } });
+    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + 'api/feature-toggle', { next: { revalidate: 3600, tags: ["twitch"] } }); // Cache for 1 hour
     const responseData = await response.json();
     const isTwitchVisible = responseData?.data?.attributes?.ShowTwitch;
     return isTwitchVisible ?? false;

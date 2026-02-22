@@ -17,11 +17,8 @@ const RecentSongsPage = () => {
   const fetchTracks = async () => {
     try {
       const res = await fetch(`/api/songs?limit=${limit}`, {
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          Pragma: "no-cache",
-        },
+        // Changed from no-store to allow browser caching (API has 60s revalidate)
+        cache: "default",
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -39,7 +36,8 @@ const RecentSongsPage = () => {
     document.title =
       "Recente Nummers | Carnaval Radio Brunssum - Laatste Vastelaovend Hits";
     fetchTracks();
-    const interval = setInterval(fetchTracks, 60000);
+    // Reduced from 60s to 5 minutes (300,000ms) - recent songs don't need constant updates
+    const interval = setInterval(fetchTracks, 300000);
     return () => clearInterval(interval);
   }, [error]);
   return (

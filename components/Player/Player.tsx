@@ -140,6 +140,7 @@ const Player = () => {
   useEffect(() => {
     fetchStream();
     fetchTrackData();
+    // Direct client-side calls to external API - doesn't consume Vercel credits
     const interval = setInterval(fetchTrackData, 30000);
     return () => clearInterval(interval);
   }, []);
