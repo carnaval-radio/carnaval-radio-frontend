@@ -7,6 +7,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const revalidate = 60; // Cache for 60 seconds
 
+// Rate-limit updateSongs to once every 10 minutes per container instance
+let lastUpdateTime: number = 0;
+const UPDATE_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const limitParam = searchParams.get('limit');
@@ -34,7 +38,12 @@ export async function GET(request: NextRequest) {
 
   // Try to fetch from Supabase, but don't crash if it fails
   if (shouldFetchFromSupabase && isSupabaseConfigured()) {
-    updateSongs().catch((e) => console.warn("updateSongs background error", e));
+    // Rate-limit updateSongs: only run if 10+ minutes have passed since last execution
+    const now = Date.now();
+    if (now - lastUpdateTime > UPDATE_INTERVAL_MS) {
+      updateSongs().catch((e) => console.warn("updateSongs background error", e));
+      lastUpdateTime = now;
+    }
     try {
       const storage = new DataStorage();
       supabaseSongs = await storage.loadSongs(limit);
