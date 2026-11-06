@@ -196,7 +196,7 @@ const Player = () => {
     : undefined;
 
   return (
-    <div ref={barRef} className="z-[1000] bg-gradient-to-r from-activeTab to-secondaryShade_1 w-full h-fit fixed bottom-0 px-3 sm:px-4 md:px-20 lg-px-24 xl:px-24 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:py-2 md:py-3 lg:py-3 xl:py-3">
+    <div ref={barRef} className="z-[1000] bg-gradient-to-r from-activeTab to-secondaryShade_1 h-fit fixed inset-x-0 md:left-1/4 lg:left-[20%] xl:left-[16.666667%] bottom-0 border-t border-white/60 px-3 sm:px-6 lg:px-10 pt-2 sm:pt-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:pb-[max(0.75rem,env(safe-area-inset-bottom))]">
       {trackUrl && (
         <>
           <audio src={trackUrl} ref={audioElem} muted={muted} preload="none" />

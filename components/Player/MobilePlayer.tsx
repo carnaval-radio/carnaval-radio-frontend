@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BsFillPauseFill, BsFillPlayFill } from "react-icons/bs";
-import { MdComment, MdFavorite, MdFavoriteBorder, MdClose, MdVolumeOff, MdVolumeUp } from "react-icons/md";
+import { MdComment, MdClose, MdVolumeOff, MdVolumeUp } from "react-icons/md";
 import type { Track } from "@/types/trackTypes";
-import { getFavoritesLocal, toggleFavoriteLocal, syncFavoriteToSupabase } from "@/helpers/favorites";
+import PlayerFavoriteButton from "./PlayerFavoriteButton";
 import ImageWithFallback from "../constants/ImageWithFallback";
 import RemotePlaybackButton from "./RemotePlaybackButton";
 import type { RemotePlaybackType } from "./useRemotePlayback";
@@ -30,25 +30,6 @@ export default function MobilePlayer({
   onComments, playbackType, isRemoteAvailable, isRemoteCasting, isConnecting, onRemoteClick,
 }: Props) {
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [favorites, setFavorites] = useState<Record<string, true>>({});
-
-  useEffect(() => {
-    const update = () => setFavorites(getFavoritesLocal());
-    update();
-    window.addEventListener("focus", update);
-    window.addEventListener("storage", update);
-    return () => {
-      window.removeEventListener("focus", update);
-      window.removeEventListener("storage", update);
-    };
-  }, [customSongId, detailsOpen]);
-
-  const toggleFavorite = () => {
-    if (!customSongId) return;
-    const next = toggleFavoriteLocal(customSongId);
-    setFavorites(next);
-    void syncFavoriteToSupabase(customSongId, !!next[customSongId]);
-  };
 
   return (
     <div className="sm:hidden">
@@ -93,9 +74,7 @@ export default function MobilePlayer({
           )}
         </div>
         {customSongId && !loading && (
-          <button type="button" aria-label={`Favoriet: ${track.title}`} aria-pressed={!!favorites[customSongId]} onClick={toggleFavorite} className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${favorites[customSongId] ? "text-red-500" : "text-gray-500"}`}>
-            {favorites[customSongId] ? <MdFavorite size={25} /> : <MdFavoriteBorder size={25} />}
-          </button>
+          <PlayerFavoriteButton customSongId={customSongId} title={track.title} refreshKey={detailsOpen} />
         )}
         <button type="button" aria-label="Speleropties" aria-expanded={detailsOpen} onClick={() => setDetailsOpen(!detailsOpen)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
           {loading ? <span className="h-10 w-10 animate-pulse rounded-lg bg-white" /> : (

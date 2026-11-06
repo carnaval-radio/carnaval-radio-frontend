@@ -33,7 +33,11 @@ const props = (): ComponentProps<typeof MobilePlayer> => ({
 
 beforeEach(() => {
   vi.mocked(getFavoritesLocal).mockReturnValue({});
-  vi.mocked(toggleFavoriteLocal).mockReturnValue({ "song-1": true });
+  vi.mocked(toggleFavoriteLocal).mockImplementation(() => {
+    const next = { "song-1": true as const };
+    vi.mocked(getFavoritesLocal).mockReturnValue(next);
+    return next;
+  });
   vi.mocked(syncFavoriteToSupabase).mockResolvedValue();
 });
 

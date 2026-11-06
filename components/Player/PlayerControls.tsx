@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { BsFillPlayFill, BsFillPauseFill } from "react-icons/bs";
-import { GiSpeaker, GiSpeakerOff } from "react-icons//gi";
-import { MdComment } from "react-icons/md";
+import { MdComment, MdVolumeOff, MdVolumeUp } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { setPlay, setMuted } from "../../GlobalState/features/PlayerSlice";
 import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
-import SongCover from "../SongCover";
+import ImageWithFallback from "../constants/ImageWithFallback";
+import PlayerFavoriteButton from "./PlayerFavoriteButton";
 import RemotePlaybackButton from "./RemotePlaybackButton";
 import { RemotePlaybackType } from "./useRemotePlayback";
 import SongCommentsModal from "../Comments/SongCommentsModal";
@@ -16,7 +16,7 @@ import MobilePlayer from "./MobilePlayer";
 
 interface Props {
   currentTrack: Track;
-  audioElem: any;
+  audioElem: React.RefObject<HTMLAudioElement>;
   loading: boolean;
   trackUrl: string;
   playbackType: RemotePlaybackType;
@@ -46,7 +46,6 @@ const PlayerControls = ({
     (state: GlobalState) => state.Player
   );
 
-  const [showVolume, setShowVolume] = useState(false);
   const [volume, setVolume] = useState(30);
   const [commentsModalOpen, setCommentsModalOpen] = useState(false);
 
@@ -65,11 +64,11 @@ const PlayerControls = ({
   };
 
   useEffect(() => {
-    if (trackUrl) {
+    if (trackUrl && audioElem.current) {
       audioElem.current.volume = volume / 100;
-      audioElem.current.mute = muted;
+      audioElem.current.muted = muted;
     }
-  }, [volume, muted]);
+  }, [volume, muted, trackUrl, audioElem]);
   return (
     <>
       <MobilePlayer
@@ -87,60 +86,50 @@ const PlayerControls = ({
         isConnecting={isConnecting}
         onRemoteClick={onRemoteClick}
       />
-    <div className="hidden sm:flex sm:flex-row items-center gap-8 justify-start">
-      <div className="flex items-center gap-2 sm:gap-8 md:gap-8 lg:gap-8 xl:gap-8">
-        {!loading ? (
-          <div className="hidden sm:block md:block lg:block xl:block">
-            <SongCover
-              url={currentTrack.imageurl}
-              artist={currentTrack.artist}
-            />
-          </div>
-        ) : (
-          <div className="hidden sm:block md:block lg:block xl:block h-14 w-14 rounded-md animate-pulse bg-white"></div>
-        )}
-        <div
-          className={`hidden sm:flex md::flex lg:flex xl:flex items-center justify-center p-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white cursor-pointer`}
+    <div aria-label="Desktopspeler" className="mx-auto hidden w-full max-w-7xl items-center gap-3 sm:flex lg:gap-5">
+        <button
+          type="button"
+          aria-label={isCurrentlyPlaying ? "Pauzeren" : "Afspelen"}
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-primary to-secondary text-white shadow-sm transition-shadow hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           onClick={handlePlayPause}
         >
           {isCurrentlyPlaying ? (
-            <BsFillPauseFill size={35} />
+            <BsFillPauseFill size={30} />
           ) : (
-            <BsFillPlayFill size={35} />
+            <BsFillPlayFill size={30} />
           )}
-        </div>
-      </div>
-      <div className="flex gap-4 items-end">
+        </button>
+        <div className="min-w-0 flex-1 py-1" aria-live="polite">
         {!loading ? (
-          <div className="hidden items-start flex-col sm:flex md::flex lg:flex xl:flex">
-            <h2 className="text-2xl font-bold  uppercase text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+          <>
+            <p className="break-words text-lg font-semibold leading-snug text-gray-900 lg:text-xl">
               {currentTrack.title}
-            </h2>
-            <p className="text-xs">{currentTrack.artist}</p>
-          </div>
+            </p>
+            <p className="mt-0.5 break-words text-sm leading-snug text-gray-600">{currentTrack.artist}</p>
+          </>
         ) : (
-          <div className="hidden items-start flex-col gap-1 sm:flex md::flex lg:flex xl:flex">
-            <span className="p-2 h-6 w-24 bg-white rounded-md"></span>
-            <span className="p-2 h-4 w-20 bg-white rounded-md"></span>
+          <div role="status" aria-label="Nummer laden" className="space-y-2">
+            <div className="h-5 w-3/4 animate-pulse rounded bg-white" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-white" />
           </div>
         )}
-        <div className="hidden sm:flex md::flex lg:flex xl:flex items-center gap-8">
-          <div className="flex items-center">
-            {muted ? (
-              <GiSpeakerOff
-                onClick={() => dispatch(setMuted())}
-                onMouseMove={() => setShowVolume(!showVolume)}
-                className="text-2xl text-playerControls cursor-pointer"
-              />
-            ) : (
-              <GiSpeaker
-                onClick={() => dispatch(setMuted())}
-                onMouseMove={() => setShowVolume(!showVolume)}
-                className="text-2xl text-playerControls cursor-pointer"
-              />
-            )}
+        </div>
+        <div className="flex shrink-0 items-center gap-1 lg:gap-2">
+          {customSongId && !loading && (
+            <>
+              <PlayerFavoriteButton customSongId={customSongId} title={currentTrack.title} />
+              <button type="button" onClick={() => setCommentsModalOpen(true)} className="flex h-11 items-center gap-2 rounded-full px-3 text-gray-600 transition-colors hover:bg-white/60 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" aria-label={`Reacties: ${currentTrack.title}`}>
+                <MdComment size={22} /><span className="hidden text-sm font-medium xl:inline">Reageren</span>
+              </button>
+            </>
+          )}
+          <div className="flex items-center gap-1 border-l border-gray-400/20 pl-2 lg:pl-4">
+            <button type="button" onClick={() => dispatch(setMuted())} aria-label={muted ? "Geluid aan" : "Geluid uit"} aria-pressed={muted} className="flex h-11 w-11 items-center justify-center rounded-full text-gray-600 hover:bg-white/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+              {muted ? <MdVolumeOff size={24} /> : <MdVolumeUp size={24} />}
+            </button>
             <input
-              className="cursor-pointer"
+              aria-label="Volume"
+              className="h-11 w-16 cursor-pointer accent-primary lg:w-24 xl:w-28"
               type="range"
               min={0}
               max={100}
@@ -157,20 +146,12 @@ const PlayerControls = ({
             isRemoteCasting={isRemoteCasting}
             isConnecting={isConnecting}
             onRemoteClick={onRemoteClick}
-            className="text-playerControls"
+            className="h-11 w-11 rounded-full text-gray-600 hover:bg-white/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           />
-          {customSongId && (
-            <button
-              onClick={() => setCommentsModalOpen(true)}
-              className="text-playerControls hover:text-primary transition-colors"
-              aria-label="Comments"
-            >
-              <MdComment size={24} />
-            </button>
-          )}
         </div>
-      </div>
-
+        {loading ? <div className="h-12 w-12 shrink-0 animate-pulse rounded-xl bg-white lg:h-14 lg:w-14" /> : (
+          <ImageWithFallback src={currentTrack.imageurl || "/logo.png"} fallbackSrc="/logo.png" alt={`Albumhoes: ${currentTrack.artist}`} className="h-12 w-12 shrink-0 rounded-xl object-cover shadow-sm lg:h-14 lg:w-14" />
+        )}
     </div>
       {/* Comments Modal */}
       {customSongId && commentsModalOpen && (
