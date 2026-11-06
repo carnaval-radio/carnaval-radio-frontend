@@ -21,13 +21,13 @@ const page = () => {
           {<MdCreditCard />} <span>Tickets</span>
         </h2>
         <p className="my-2">De kaartverkoop start 3 december 2025 om 20:00 uur.</p>
-        <IframeComponent src="https://www.ticketcrew.nl/tickets/carnaval-radio" />
+        <IframeComponent src="https://entrii.shop/carnaval-radio#" />
         <p className="my-2">
           Zie je hier geen tickets? Check de link: <Link
             className="text-blue-500 font-semibold underline"
-            href="https://www.ticketcrew.nl/tickets/carnaval-radio"
+            href="https://entrii.shop/carnaval-radio#"
             target="_blank"
-          >ticketcrew.nl/tickets/carnaval-radio
+          >entrii.shop/carnaval-radio
           </Link>
         </p>
       </div>

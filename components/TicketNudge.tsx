@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { notificationData } from "@/data/notificationData";
 
 
 const TicketNudge = () => {
@@ -26,7 +27,7 @@ const TicketNudge = () => {
   }, []);
 
   return (
-    <a href="/tickets-kopen" target='_blank' rel="noopener noreferrer" aria-label="Koop tickets voor Carnaval Radio Limburgse Avond!" title="Koop tickets voor Carnaval Radio Limburgse Avond!">
+    <a href={notificationData.buttonLink} target='_blank' rel="noopener noreferrer" aria-label={`${notificationData.buttonText}: ${notificationData.title}`} title={notificationData.title}>
       <span
         className={`text-primary inline-block ${bouncing ? 'animate-bounce' : ''}`}
         style={{ marginTop: '5px', width: '80px', height: '32px', maxWidth: '100%', maxHeight: '100%' }}

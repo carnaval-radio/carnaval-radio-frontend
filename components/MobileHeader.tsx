@@ -10,6 +10,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import MobileChromecast from "./MobileChromecast";
 import TicketNudge from "./TicketNudge";
 import { notificationData } from "@/data/notificationData";
+import { useScheduledActivation } from "@/helpers/useScheduledActivation";
 import { optimizeLogoImage } from "@/src/types/cloudinaryOptimization";
 
 interface props {
@@ -19,6 +20,7 @@ interface props {
 
 const MobileHeader = ({ themeData, menu }: props) => {
   const sideBarRef = useRef<HTMLDivElement>(null);
+  const promotionActive = useScheduledActivation(notificationData.startsAt);
 
   function toggleSidebar() {
     if (sideBarRef.current) {
@@ -45,7 +47,7 @@ const MobileHeader = ({ themeData, menu }: props) => {
           />
         </Link>
         <div className="flex gap-4 items-center">
-          {notificationData.nudgeEnabled && (
+          {notificationData.nudgeEnabled && promotionActive && (
             <>
               <div style={{ width: 8 }} />
               <TicketNudge />

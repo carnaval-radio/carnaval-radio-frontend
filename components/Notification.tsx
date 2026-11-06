@@ -4,14 +4,16 @@ import Link from "next/link";
 import { getLocalStorage, setLocalStorage } from "@/helpers/storageHelper";
 import { useState, useEffect } from "react";
 import { notificationData } from "@/data/notificationData";
+import { useScheduledActivation } from "@/helpers/useScheduledActivation";
 
 export default function Notification() {
+  const promotionActive = useScheduledActivation(notificationData.startsAt);
   const [showNotification, setShowNotification] = useState(false);
   const [hasShown, setHasShown] = useState(true); // Start with true to prevent flash
 
   useEffect(() => {
     // Don't show if disabled
-    if (!notificationData.enabled) {
+    if (!notificationData.enabled || !promotionActive) {
       return;
     }
 
@@ -42,13 +44,13 @@ export default function Notification() {
     }, notificationData.delay);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [promotionActive]);
 
   const handleClose = () => {
     setShowNotification(false);
   };
 
-  if (hasShown || !showNotification || !notificationData.enabled) {
+  if (hasShown || !showNotification || !notificationData.enabled || !promotionActive) {
     return null;
   }
 
