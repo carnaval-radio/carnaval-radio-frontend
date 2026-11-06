@@ -3,7 +3,7 @@ import SidebarLinks from "./SidebarLinks";
 import Socials from "../Socials";
 import SidebarPlayer from "./SidebarPlayer";
 import Link from "next/link";
-import { optimizeLogoImage } from "@/src/types/cloudinaryOptimization";
+import BrandLogo from "../BrandLogo";
 
 interface props {
   menu: any;
@@ -29,12 +29,10 @@ const SideBar = ({ menu, themeData }: props) => {
     justify-center"
         >
           <Link href="/" className="flex items-center justify-center">
-            <Image
-              src={optimizeLogoImage(logoUrl, 200)}
+            <BrandLogo
+              src={logoUrl}
               width={200}
-              height={200}
-              alt="Logo"
-              loading="lazy"
+              priority
             />
           </Link>
         </div>

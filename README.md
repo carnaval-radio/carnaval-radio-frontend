@@ -65,6 +65,8 @@ The homepage widget and history page share [RecentSongs](components/RecentSongs/
 
 ## Homepage news and comments
 
+The site brand logo (mobile header, desktop sidebar and footer) is an image-quality exception: [BrandLogo](components/BrandLogo.tsx) replaces existing Cloudinary transformations with automatic format selection, quality 100 and a size limit of three times the displayed width for retina screens. It preserves aspect ratio and avoids a second Next image compression pass. Sponsor logos and other images keep their existing optimizations.
+
 Homepage news uses photo-led cards with alternating soft background colours, compact dates, readable titles and excerpts, and understated article links without an outer container. News and latest-comments section headings retain the site's Indie Flower style, and article titles retain the body font; news section headers have no subtitle and a colourful **Alle nieuws** button. The second news block is titled **Meer nieuws**. Video covers and current/archived article links remain supported; the news archive and article detail layouts are unchanged.
 
 **Laatste reacties** shows the three newest listener quotes in orange, rose and green accented cards with song artwork, title/artist and timestamps in an open section, matching the homepage spacing without repeating the social widget container. Cards still open the song comments modal and refresh when it closes; the ten-minute background refresh remains. Loading, empty and error states stay visible.
