@@ -1,6 +1,6 @@
 import type { SocialFeedPost } from "@/GlobalState/ApiCalls/fetchSocials";
 import Link from "next/link";
-import { FaArrowRight, FaExternalLinkAlt, FaFacebook, FaInstagram } from "react-icons/fa";
+import { FaArrowRight, FaFacebook, FaInstagram } from "react-icons/fa";
 import ImageWithFallback from "../constants/ImageWithFallback";
 import SocialCaption from "./SocialCaption";
 
@@ -67,26 +67,40 @@ const SocialWidget = ({
                 key={`${post.type}-${post.id}`}
                 className="relative min-w-0 snap-start overflow-hidden rounded-2xl bg-white shadow-sm hover:shadow-md"
               >
+                <div className="relative aspect-[4/5]">
                 <a
                   href={post.link}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`Bekijk bericht op ${post.type}: ${displayText} (opent in een nieuw tabblad)`}
-                  className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
+                  className="group block h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden bg-primary/10">
+                  <div className="h-full overflow-hidden bg-primary/10">
                     <ImageWithFallback
                       src={post.image || fallbackURL}
                       fallbackSrc={fallbackURL}
                       alt={`Foto bij bericht op ${post.type}`}
                       className="h-full w-full object-cover"
                     />
-                    <span className="absolute bottom-3 right-3 rounded-full bg-black/60 p-2 text-white group-hover:bg-primary">
-                      <FaExternalLinkAlt aria-hidden="true" className="h-3 w-3" />
-                    </span>
                   </div>
                 </a>
-                  <div className="p-4">
+                    {sources.map((source) => {
+                      const SourceIcon = source.type === "Facebook" ? FaFacebook : FaInstagram;
+                      return (
+                        <a
+                          key={source.type}
+                          href={source.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open dit bericht op ${source.type} (opent in een nieuw tabblad)`}
+                          className={`absolute flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold text-white shadow-sm hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${source.type === "Facebook" ? "right-3 top-3 bg-orange-500" : "bottom-3 left-3 bg-red-500"}`}
+                        >
+                          <SourceIcon aria-hidden="true" className="h-3.5 w-3.5" /> {source.type}
+                        </a>
+                      );
+                    })}
+                </div>
+                <div className="p-4">
                     <time
                       dateTime={post.date.toISOString()}
                       className="text-xs font-medium text-gray-500"
@@ -100,23 +114,6 @@ const SocialWidget = ({
                     </time>
                     <SocialCaption text={post.text} />
                   </div>
-                <div className="absolute left-3 right-3 top-3 flex flex-wrap gap-2">
-                  {sources.map((source) => {
-                    const SourceIcon = source.type === "Facebook" ? FaFacebook : FaInstagram;
-                    return (
-                      <a
-                        key={source.type}
-                        href={source.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`Open dit bericht op ${source.type} (opent in een nieuw tabblad)`}
-                        className={`flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-white shadow-sm hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${source.type === "Facebook" ? "bg-orange-500" : "bg-red-500"}`}
-                      >
-                        <SourceIcon aria-hidden="true" className="h-4 w-4" /> {source.type}
-                      </a>
-                    );
-                  })}
-                </div>
               </article>
             );
           })}

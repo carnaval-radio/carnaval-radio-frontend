@@ -42,8 +42,8 @@ describe("homepage social widget", () => {
     expect(screen.getByRole("link", { name: /Open dit bericht op Instagram/ }))
       .toHaveAttribute("href", "https://example.com/posts/ig");
     expect(screen.queryByText("Facebook + Instagram")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Facebook")[0]).toHaveClass("bg-orange-500");
-    expect(screen.getAllByText("Instagram")[0]).toHaveClass("bg-red-500");
+    expect(screen.getAllByText("Facebook")[0]).toHaveClass("bg-orange-500", "top-3", "right-3");
+    expect(screen.getAllByText("Instagram")[0]).toHaveClass("bg-red-500", "bottom-3", "left-3");
   });
 
   it("combines identical cross-platform images with different genuine captions", () => {
@@ -157,6 +157,8 @@ describe("homepage social widget", () => {
     }
     expect(screen.getByAltText("Foto bij bericht op Facebook").getAttribute("src"))
       .toContain("res.cloudinary.com");
+    expect(screen.getByAltText("Foto bij bericht op Facebook").closest(".aspect-\\[4\\/5\\]"))
+      .toHaveClass("aspect-[4/5]");
     expect(screen.getByText("6 november 2026")).toHaveAttribute("dateTime", item.date.toISOString());
     expect(screen.getByRole("region", { name: "Recente social posts" })).toHaveAttribute("tabindex", "0");
   });

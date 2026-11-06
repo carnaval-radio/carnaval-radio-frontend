@@ -95,7 +95,9 @@ Posts without meaningful caption text (blank, emoji-only, or only hashtags/menti
 
 Cross-posts within 48 hours are combined into one card, retaining links to both platforms. Matching uses identical image URLs or captions, ignoring case/spacing. Longer captions may differ slightly in emoji, tags and mentions: at least 20 distinct words, the same opening eight words and a word-overlap score of at least 90% are required. The homepage widget is a swipeable strip on mobile and a grid on desktop. Images/captions link to Instagram when a cross-post is available, otherwise to the original platform. **Alles bekijken** opens the combined social page.
 
-Social cards label Facebook with an orange pill and Instagram with a red pill, including separate pills on combined cross-posts. Each pill independently opens its own platform's post in a new tab.
+Social cards have solid orange Facebook pills at the image's top-right and red Instagram pills at bottom-left, including separate links on combined cross-posts. Each opens its own platform's post in a new tab. Images remain clickable without an additional external-link badge.
+
+Social card images use a 4:5 portrait ratio on the homepage and combined feed, showing more of the vertical artwork.
 
 Captions longer than 160 characters have a **Meer lezen** button showing the full text with line breaks in a scrollable reading view inside the existing card. Card height and surrounding layout remain unchanged. A translucent top fades into the solid text background, showing a glimpse of the photo without a heading. Close using the close button or Escape; focus returns to **Meer lezen**. It works with touch, mouse and keyboard without opening the external post. Short captions are shown in full.
 
