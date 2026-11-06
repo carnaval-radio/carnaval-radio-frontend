@@ -38,6 +38,9 @@ describe("homepage social widget", () => {
       .toHaveAttribute("href", "https://example.com/posts/fb");
     expect(screen.getByRole("link", { name: /Open dit bericht op Instagram/ }))
       .toHaveAttribute("href", "https://example.com/posts/ig");
+    expect(screen.queryByText("Facebook + Instagram")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Facebook")[0]).toHaveClass("bg-orange-500");
+    expect(screen.getAllByText("Instagram")[0]).toHaveClass("bg-red-500");
   });
 
   it("combines identical cross-platform images even without captions", () => {

@@ -92,8 +92,6 @@ const SocialWidget = ({ posts }: { posts: SocialPost[] }) => {
           className="mt-6 grid auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto px-5 pb-6 pt-1 snap-x snap-mandatory focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary sm:auto-cols-[45%] sm:px-8 lg:grid-cols-3 lg:grid-flow-row lg:auto-cols-auto lg:overflow-visible"
         >
           {uniquePosts.map(({ post, sources }) => {
-            const isFacebook = post.type === "Facebook";
-            const Icon = isFacebook ? FaFacebook : FaInstagram;
             const displayText = post.text.length > 160
               ? `${post.text.slice(0, 160).trimEnd()}...`
               : post.text;
@@ -117,9 +115,19 @@ const SocialWidget = ({ posts }: { posts: SocialPost[] }) => {
                       alt={`Foto bij bericht op ${post.type}`}
                       className="h-full w-full object-cover"
                     />
-                    <span className={`absolute left-3 top-3 flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-white shadow-sm ${isFacebook ? "bg-primary" : "bg-secondary"}`}>
-                      <Icon aria-hidden="true" className="h-4 w-4" />
-                      {sources.length > 1 ? "Facebook + Instagram" : post.type}
+                    <span className="absolute left-3 right-3 top-3 flex flex-wrap gap-2">
+                      {sources.map((source) => {
+                        const Icon = source.type === "Facebook" ? FaFacebook : FaInstagram;
+                        return (
+                          <span
+                            key={source.type}
+                            className={`flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold text-white shadow-sm ${source.type === "Facebook" ? "bg-orange-500" : "bg-red-500"}`}
+                          >
+                            <Icon aria-hidden="true" className="h-4 w-4" />
+                            {source.type}
+                          </span>
+                        );
+                      })}
                     </span>
                     <span className="absolute bottom-3 right-3 rounded-full bg-black/60 p-2 text-white group-hover:bg-primary">
                       <FaExternalLinkAlt aria-hidden="true" className="h-3 w-3" />

@@ -75,6 +75,8 @@ After changing local environment variables, restart the development server if th
 
 The homepage uses [SocialWidget](components/Socials/SocialWidget.tsx), titled **Op onze socials**: a photo-led mixed feed alternating Facebook and Instagram, starting with the newest post and keeping each platform in newest-first order. It fetches three posts from each platform and combines cross-posts within 48 hours into one card, retaining links to both platforms. Matching uses identical image URLs or captions, ignoring case/spacing. Longer captions may differ slightly in emoji, tags and mentions: at least 20 distinct words, the same opening eight words and a word-overlap score of at least 90% are required. Empty captions alone are never matched. The widget is a swipeable strip on mobile and a grid on desktop. Cards open the original post in a new tab; **Alles bekijken** opens the combined social page. Dedicated social pages keep their existing layout.
 
+Social cards label Facebook with an orange pill and Instagram with a red pill, including separate pills on combined cross-posts.
+
 ## Ticket promotion
 
 - Manage the shared desktop and mobile menu in Strapi's `main` navigation. Add a **Tickets** external link with the URL `https://entrii.shop/carnaval-radio#`, rather than linking to the local tickets page. HTTPS menu links automatically open in a new tab. Navigation is cached for one hour.
