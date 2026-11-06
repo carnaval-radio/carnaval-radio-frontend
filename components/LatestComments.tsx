@@ -2,9 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { MdComment } from "react-icons/md";
-import { Indie } from "@/app/fonts/font";
+import { FaArrowRight, FaQuoteLeft, FaMusic } from "react-icons/fa";
+import ImageWithFallback from "./constants/ImageWithFallback";
 import SongCommentsModal from "./Comments/SongCommentsModal";
 import Link from "next/link";
+import { Indie } from "@/app/fonts/font";
 
 interface RecentComment {
   id: string;
@@ -21,6 +23,7 @@ interface RecentComment {
 export default function LatestComments() {
   const [comments, setComments] = useState<RecentComment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [commentsModalOpen, setCommentsModalOpen] = useState<string | null>(null);
   const [selectedSong, setSelectedSong] = useState<{ title: string; artist: string } | null>(null);
 
@@ -35,6 +38,8 @@ export default function LatestComments() {
     try {
       const response = await fetch("/api/interactions/recent-comments");
       if (!response.ok) {
+        console.error("Error loading recent comments:", response.status);
+        setError(true);
         setLoading(false);
         return;
       }
@@ -43,9 +48,11 @@ export default function LatestComments() {
       if (result.comments) {
         setComments(result.comments);
       }
+      setError(false);
       setLoading(false);
     } catch (err) {
       console.error("Error loading recent comments:", err);
+      setError(true);
       setLoading(false);
     }
   }
@@ -71,92 +78,64 @@ export default function LatestComments() {
     setCommentsModalOpen(customSongId);
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col py-8 px-2 sm:px-4 md:px-8 lg:px-8 xl:px-8 rounded-xl shadow-lg bg-gradient-to-br from-gradientStart to-gradientEnd">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <MdComment className="text-2xl text-secondary" />
-          <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>
-            Laatste reacties
-          </h2>
-        </div>
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-100 rounded w-1/2"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (comments.length === 0) {
-    return (
-      <div className="flex flex-col py-8 px-2 sm:px-4 md:px-8 lg:px-8 xl:px-8 rounded-xl shadow-lg bg-white">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <MdComment className="text-2xl text-secondary" />
-          <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>
-            Laatste reacties
-          </h2>
-        </div>
-        <p className="text-center text-gray-500 py-4">Nog geen reacties. Wees de eerste! Klik op 't 💬 icoon bij een nummer.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col py-8 px-2 sm:px-4 md:px-8 lg:px-8 xl:px-8 rounded-xl shadow-lg bg-white">
-      <div className="flex items-center justify-center gap-2 mb-4">
-        <MdComment className="text-2xl text-secondary" />
-        <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>
-          Laatste reacties
-        </h2>
+    <section aria-labelledby="latest-comments-title" className="sm:py-6">
+      <div className="mb-3 flex items-center justify-between gap-3 sm:mb-6 sm:gap-5">
+        <div className="flex min-w-0 items-center gap-2">
+          <MdComment aria-hidden="true" className="text-2xl text-secondary" />
+          <h2 id="latest-comments-title" className={`text-2xl font-semibold sm:text-3xl ${Indie.className}`}>Laatste reacties</h2>
+        </div>
+        <Link href="/reacties" aria-label="Alle reacties" className="flex shrink-0 items-center gap-2 rounded-full bg-secondary/10 px-3 py-2 text-sm font-semibold text-secondary hover:bg-secondary/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:px-5 sm:py-3 sm:text-base">
+          <span className="sm:hidden">Alles</span><span className="hidden sm:inline">Alle reacties</span> <FaArrowRight aria-hidden="true" />
+        </Link>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-        {comments.map((comment) => (
+      {error && <p role="alert" className="mb-4 text-sm text-red-700">Reacties konden niet worden geladen. Probeer het opnieuw.</p>}
+      {loading ? (
+        <div role="status" aria-label="Reacties laden" className="grid auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto sm:grid-flow-row sm:grid-cols-2 sm:auto-cols-auto sm:overflow-visible lg:grid-cols-3">
+          {[1, 2, 3].map((i) => <div key={i} className="h-44 animate-pulse rounded-2xl bg-white p-5"><div className="mb-3 h-4 w-3/4 rounded bg-gray-200" /><div className="h-4 w-1/2 rounded bg-gray-100" /></div>)}
+        </div>
+      ) : comments.length === 0 ? (
+        !error && <p className="rounded-2xl bg-white p-6 text-gray-600">Nog geen reacties. Vertel ons wat jouw favoriete nummer bijzonder maakt!</p>
+      ) : (
+      <div role="region" aria-label="Recente reacties" tabIndex={0} className="grid auto-cols-[85%] grid-flow-col gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:grid-flow-row sm:grid-cols-2 sm:auto-cols-auto sm:overflow-visible lg:grid-cols-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+        {comments.slice(0, 3).map((comment, index) => (
           <button
             key={comment.id}
+            type="button"
+            aria-label={`Bekijk reacties op ${comment.song.title} van ${comment.song.artist}`}
             onClick={() => handleCommentClick(comment.song.custom_song_id, comment.song.title, comment.song.artist)}
-            className="w-full text-left p-3 rounded-lg transition-all border shadow-sm hover:shadow-md group bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/30 hover:from-white hover:to-white hover:border-gray-200"
+            className={`group flex min-w-0 snap-start flex-col rounded-2xl border-t-4 p-4 sm:p-5 text-left shadow-sm hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+              index === 0 ? "border-orange-400 bg-gradient-to-br from-orange-100 to-amber-50"
+                : index === 1 ? "border-rose-400 bg-gradient-to-br from-rose-100 to-orange-50"
+                : "border-emerald-400 bg-gradient-to-br from-emerald-100 to-lime-50"
+            }`}
           >
-            <p className="text-md text-gray-900 group-hover:text-secondary italic mb-2 line-clamp-2">
-              "{comment.content}"
+            <div className="mb-3 flex w-full items-center justify-between gap-2">
+              <span className={`flex h-9 w-9 items-center justify-center rounded-full bg-white/70 ${
+                index === 0 ? "text-orange-600" : index === 1 ? "text-rose-600" : "text-emerald-600"
+              }`}><FaQuoteLeft aria-hidden="true" /></span>
+              <time dateTime={comment.created_at} className="text-xs text-gray-600">{formatDate(comment.created_at)}</time>
+            </div>
+            <p className="mb-5 line-clamp-3 break-words text-base leading-relaxed text-gray-800">
+              {comment.content}
             </p>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex-1 min-w-0 mr-2">
-                <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary group-hover:text-gray-800 group-hover:bg-none">
-                  {comment.song.title}
-                </span>
-                <span className="text-gray-400"> • </span>
-                <span className="text-gray-600">
-                  {comment.song.artist}
-                </span>
+            <div className="mt-auto flex w-full items-center gap-3 rounded-xl bg-white/70 p-3">
+              {comment.song.cover_url ? (
+                <ImageWithFallback src={comment.song.cover_url} fallbackSrc="/logo.png" alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover" />
+              ) : (
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><FaMusic aria-hidden="true" /></span>
+              )}
+              <div className="min-w-0 flex-1">
+                <span className="block break-words text-sm font-semibold text-gray-900 group-hover:text-primary">{comment.song.title}</span>
+                <span className="block break-words text-sm text-gray-500">{comment.song.artist}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400 whitespace-nowrap">{formatDate(comment.created_at)}</span>
-                <MdComment className="text-primary group-hover:text-gray-400 transition-colors" />
-              </div>
+              <FaArrowRight aria-hidden="true" className="shrink-0 text-primary" />
             </div>
           </button>
         ))}
       </div>
-
-      <div className="mt-4 px-2 pt-2">
-        <p className="text-center text-sm text-gray-700 mb-3">
-          <span className="font-semibold">Wil je ook reageren?</span> Klik óp 't comment-icoon bij een liedje of klik hierboven op een nummer!
-        </p>
-        <div className="flex items-center justify-center">
-          <Link
-            href="/reacties"
-            className="bg-gradient-to-r from-primary to-secondary rounded-lg py-2 px-4 text-white font-semibold hover:shadow-lg transition-shadow"
-          >
-            Alle reacties bekijken
-          </Link>
-        </div>
-      </div>
+      )}
+      <p className="mt-5 hidden items-start gap-2 text-sm text-gray-600 sm:flex"><MdComment aria-hidden="true" className="mt-1 shrink-0 text-secondary" />Praat mee: klik op een reactie of het reactie-icoon bij een liedje.</p>
 
       {/* Comments Modal */}
       {commentsModalOpen && selectedSong && (
@@ -172,6 +151,6 @@ export default function LatestComments() {
           }}
         />
       )}
-    </div>
+    </section>
   );
 }

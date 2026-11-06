@@ -45,7 +45,7 @@ export default function SponsorCard({ sponsors }: Props) {
   return (
     !loaded ? <SponsorsSkeleton /> : <div className="md:max-w-[72vw]">
       <Carousel
-        showDots={true}
+        showDots={false}
         responsive={responsive}
         autoPlay={true}
         autoPlaySpeed={3000}

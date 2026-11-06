@@ -61,6 +61,16 @@ After committing and pushing this workflow, enable the **Lint, types, and tests*
 
 The homepage widget and history page share [RecentSongs](components/RecentSongs/RecentSongs.tsx). On mobile, full-size titles and artists wrap rather than being cut off at 18 characters, the time pill sits below the artist, and the heart/comment controls share a narrow vertical column. Comments remain directly accessible through a subdued icon, without an extra menu. Desktop keeps the original inline time pill and controls. The compact mobile date format is local to this list; other date displays keep their existing behavior.
 
+## Homepage news and comments
+
+Homepage news uses photo-led cards with alternating soft background colours, compact dates, readable titles and excerpts, and understated article links without an outer container. News and latest-comments section headings retain the site's Indie Flower style, and article titles retain the body font; news section headers have no subtitle and a colourful **Alle nieuws** button. The second news block is titled **Meer nieuws**. Video covers and current/archived article links remain supported; the news archive and article detail layouts are unchanged.
+
+**Laatste reacties** shows the three newest listener quotes in orange, rose and green accented cards with song artwork, title/artist and timestamps in an open section, matching the homepage spacing without repeating the social widget container. Cards still open the song comments modal and refresh when it closes; the ten-minute background refresh remains. Loading, empty and error states stay visible.
+
+On mobile, homepage news, comments and social cards use swipeable, scroll-snapping strips with a glimpse of the next card. Section spacing is reduced, archive links stay beside headings as compact **Alles** buttons, and social introductions/comment instructions are hidden. Desktop grids, full link labels and explanatory text remain unchanged.
+
+News excerpts and **Lees verder** buttons use normal body-size text. Read-more buttons retain white backgrounds with per-card tertiary, secondary and primary accent borders/text.
+
 ## Article images
 
 Current and archived article bodies use [ArticleContent](components/Post/ArticleContent.tsx). Consecutive image-only blocks (including Strapi figures or images inside a paragraph) become a responsive gallery, ignoring editor widths, floats, and alignment. Images separated by text remain in place. Images are uncropped, lazy-loaded, and constrained to the content width; captions and existing image links are preserved. A single image is centered.

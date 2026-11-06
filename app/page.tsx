@@ -32,7 +32,7 @@ const page = async () => {
       <Sponsors />
       {posts && <PostCard posts={posts.slice(0, 3)} />}
       <SocialWidget posts={socialPosts.slice(0, 3)} />
-      <div className="px-4 sm:px-8 md:px-20 lg:px-24 xl:px-24 py-8">
+      <div className="px-4 py-4 sm:py-8 md:px-8">
         <LatestComments />
       </div>
       <SocialWidget posts={socialPosts.slice(3, 6)} continuation />
