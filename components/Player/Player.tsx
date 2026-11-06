@@ -28,6 +28,22 @@ const Player = () => {
   });
   const audioElem = useRef<HTMLAudioElement>(null);
   const [loading, setLoading] = useState(true);
+  const barRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const updateHeight = () => {
+      document.documentElement.style.setProperty("--player-height", `${bar.getBoundingClientRect().height}px`);
+    };
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty("--player-height");
+    };
+  }, []);
 
   // Initialize Remote Playback (Chromecast or AirPlay depending on platform)
   const {
@@ -180,7 +196,7 @@ const Player = () => {
     : undefined;
 
   return (
-    <div className="z-[1000] bg-gradient-to-r from-activeTab to-secondaryShade_1 w-full h-fit fixed bottom-0 px-4 sm:px-4 md:px-20 lg-px-24 xl:px-24 py-2 sm:py-2 md:py-3 lg:py-3 xl:py-3">
+    <div ref={barRef} className="z-[1000] bg-gradient-to-r from-activeTab to-secondaryShade_1 w-full h-fit fixed bottom-0 px-3 sm:px-4 md:px-20 lg-px-24 xl:px-24 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:py-2 md:py-3 lg:py-3 xl:py-3">
       {trackUrl && (
         <>
           <audio src={trackUrl} ref={audioElem} muted={muted} preload="none" />

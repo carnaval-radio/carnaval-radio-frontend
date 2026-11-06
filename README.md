@@ -59,6 +59,8 @@ After committing and pushing this workflow, enable the **Lint, types, and tests*
 
 ## Played songs
 
+The mobile bottom player places a 44px play/pause target on the left, fully wrapping song title/artist in the middle, then the favorite heart and compact artwork on the right. Favorites use the existing local favorites/sync helpers. Tap the artwork for comments, mute and available remote-playback controls; there is no comment button in the bottom bar. Desktop controls remain unchanged. The bottom bar respects the device safe-area inset, and mobile page padding follows its measured height.
+
 The homepage widget and history page share [RecentSongs](components/RecentSongs/RecentSongs.tsx). On mobile, full-size titles and artists wrap rather than being cut off at 18 characters, the time pill sits below the artist, and the heart/comment controls share a narrow vertical column. Comments remain directly accessible through a subdued icon, without an extra menu. Desktop keeps the original inline time pill and controls. The compact mobile date format is local to this list; other date displays keep their existing behavior.
 
 ## Homepage news and comments

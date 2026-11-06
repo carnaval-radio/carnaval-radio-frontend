@@ -9,10 +9,10 @@ import { setPlay, setMuted } from "../../GlobalState/features/PlayerSlice";
 import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
 import SongCover from "../SongCover";
-import FormateTitle from "../FormatTitle";
 import RemotePlaybackButton from "./RemotePlaybackButton";
 import { RemotePlaybackType } from "./useRemotePlayback";
 import SongCommentsModal from "../Comments/SongCommentsModal";
+import MobilePlayer from "./MobilePlayer";
 
 interface Props {
   currentTrack: Track;
@@ -71,7 +71,23 @@ const PlayerControls = ({
     }
   }, [volume, muted]);
   return (
-    <div className="flex sm:flex-row md:flex-row lg:flex-row xl:flex-row items-start sm:items-center gap-[2px] sm:gap-8 md:gap-8 lg:gap-8 xl:gap-8 justify-between sm:justify-start md:justify-start lg:justify-start xl:justify-start">
+    <>
+      <MobilePlayer
+        track={currentTrack}
+        loading={loading}
+        playing={isCurrentlyPlaying}
+        muted={muted}
+        customSongId={customSongId}
+        onPlayPause={handlePlayPause}
+        onMute={() => dispatch(setMuted())}
+        onComments={() => setCommentsModalOpen(true)}
+        playbackType={playbackType}
+        isRemoteAvailable={isRemoteAvailable}
+        isRemoteCasting={isRemoteCasting}
+        isConnecting={isConnecting}
+        onRemoteClick={onRemoteClick}
+      />
+    <div className="hidden sm:flex sm:flex-row items-center gap-8 justify-start">
       <div className="flex items-center gap-2 sm:gap-8 md:gap-8 lg:gap-8 xl:gap-8">
         {!loading ? (
           <div className="hidden sm:block md:block lg:block xl:block">
@@ -83,35 +99,6 @@ const PlayerControls = ({
         ) : (
           <div className="hidden sm:block md:block lg:block xl:block h-14 w-14 rounded-md animate-pulse bg-white"></div>
         )}
-        <div
-          className="flex sm:hidden md:hidden lg:hidden xl:hidden items-center justify-center p-3 rounded-lg bg-gradient-to-r from-primary to-secondary text-white cursor-pointer"
-          onClick={handlePlayPause}
-        >
-          {isCurrentlyPlaying ? (
-            <BsFillPauseFill size={35} className="h-7 w-7" />
-          ) : (
-            <BsFillPlayFill size={35} className="h-7 w-7" />
-          )}
-        </div>
-        <>
-          {!loading ? (
-            <div className="flex items-start flex-col sm:hidden md::hidden lg:hidden xl:hidden">
-              <h2
-                className={`text-lg font-semibold uppercase text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary`}
-              >
-                <FormateTitle text={currentTrack.title} />
-              </h2>
-              <div className="text-xs">
-                <FormateTitle text={currentTrack.artist} />
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-start flex-col gap-1 sm:hidden md::hidden lg:hidden xl:hidden">
-              <span className="p-2 h-3 w-24 bg-white rounded-lg"></span>
-              <span className="p-2 h-2 w-20 bg-white rounded-lg"></span>
-            </div>
-          )}
-        </>
         <div
           className={`hidden sm:flex md::flex lg:flex xl:flex items-center justify-center p-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-white cursor-pointer`}
           onClick={handlePlayPause}
@@ -184,42 +171,7 @@ const PlayerControls = ({
         </div>
       </div>
 
-      {/* for mobile view */}
-      <div className="flex items-center gap-4 sm:hidden md::hidden lg:hidden xl:hidden">
-        {/* progress track and sound for mobile */}
-        {muted ? (
-          <GiSpeakerOff
-            onClick={() => dispatch(setMuted())}
-            onMouseMove={() => setShowVolume(!showVolume)}
-            className="text-4xl text-playerControls cursor-pointer"
-          />
-        ) : (
-          <GiSpeaker
-            onClick={() => dispatch(setMuted())}
-            onMouseMove={() => setShowVolume(!showVolume)}
-            className="text-4xl text-playerControls cursor-pointer"
-          />
-        )}
-        {customSongId && (
-          <button
-            onClick={() => setCommentsModalOpen(true)}
-            className="text-playerControls hover:text-primary transition-colors"
-            aria-label="Comments"
-          >
-            <MdComment size={28} />
-          </button>
-        )}
-        {!loading ? (
-          <SongCover
-            url={currentTrack.imageurl}
-            artist={currentTrack.artist}
-            type="hero"
-          />
-        ) : (
-          <div className="inline-block sm:hidden md:hidden lg:hidden xl:hidden h-14 w-14 rounded-md animate-pulse bg-white"></div>
-        )}
-      </div>
-
+    </div>
       {/* Comments Modal */}
       {customSongId && commentsModalOpen && (
         <SongCommentsModal
@@ -230,7 +182,7 @@ const PlayerControls = ({
           onClose={() => setCommentsModalOpen(false)}
         />
       )}
-    </div>
+    </>
   );
 };
 

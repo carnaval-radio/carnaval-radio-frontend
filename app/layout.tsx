@@ -111,7 +111,7 @@ export default async function RootLayout({
             <div className="col-span-1">
               <SideBar menu={menu.renderNavigation} themeData={themeData} />
             </div>
-            <div className="col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-4 xl:col-span-5 pb-20">
+            <div className="col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-4 xl:col-span-5 pb-[max(5rem,var(--player-height,5rem))] sm:pb-20">
               {children}
               <Footer data={footer.renderNavigation} themeData={themeData} />
               <Player />
