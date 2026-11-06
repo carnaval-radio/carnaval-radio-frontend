@@ -105,19 +105,19 @@ const nextConfig = {
       },
       {
          source: "/start-verkoop",
-         destination: "https://www.ticketcrew.nl/tickets/carnaval-radio",
+         destination: "https://entrii.shop/carnaval-radio#",
         permanent: false,
         basePath: false,
       },
       {
         source: "/tickets-kopen",
-        destination: "https://www.ticketcrew.nl/tickets/carnaval-radio",
+        destination: "https://entrii.shop/carnaval-radio#",
         permanent: false,
         basePath: false,
       },
         {
           source: "/tickets",
-          destination: "https://www.ticketcrew.nl/tickets/carnaval-radio",
+          destination: "https://entrii.shop/carnaval-radio#",
           permanent: false,
           basePath: false,
         },
