@@ -1,3 +1,6 @@
+import { createHash } from "node:crypto";
+import { unstable_cache, unstable_noStore } from "next/cache";
+
 export interface SocialPost {
   id: string;
   date: Date;
@@ -45,29 +48,47 @@ const fetchGraphPosts = async <T>(
   fields: string,
   limit?: number
 ): Promise<T[]> => {
-  try {
-    const response = await fetch(
-      `${GRAPH_API_URL}/${accountId}/${connection}?fields=${fields}${
-        limit ? `&limit=${limit}` : ""
-      }`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        next: { revalidate: 3600, tags: ["social"] },
-      }
-    );
-    const payload: GraphResponse<T> = await response.json();
+  // Cache validated payloads, never raw error responses or failure fallbacks.
+  // Hash credentials so Next's background revalidation logs cannot expose them.
+  const load = unstable_cache(async (): Promise<T[]> => {
+    let response: Response;
+    let payload: GraphResponse<T>;
+    try {
+      response = await fetch(
+        `${GRAPH_API_URL}/${accountId}/${connection}?fields=${fields}${
+          limit ? `&limit=${limit}` : ""
+        }`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        }
+      );
+      payload = await response.json();
+    } catch (error) {
+      console.error(`${platform} feed request failed:`, error instanceof Error ? error.name : "Unknown error");
+      throw new Error(`${platform} feed request failed.`);
+    }
 
-    if (!response.ok || payload.error || !Array.isArray(payload.data)) {
+    if (!response.ok || payload?.error || !Array.isArray(payload?.data)) {
       console.error(`${platform} API error:`, {
         status: response.status,
-        code: payload.error?.code,
-        subcode: payload.error?.error_subcode,
+        code: payload?.error?.code,
+        subcode: payload?.error?.error_subcode,
       });
-      return [];
+      throw new Error(`${platform} API returned an invalid feed.`);
     }
     return payload.data;
+  }, [
+    "social-validated-v1", GRAPH_API_URL, platform, accountId, connection, fields,
+    String(limit), createHash("sha256").update(token).digest("hex"),
+  ], { revalidate: 3600, tags: ["social"] });
+
+  try {
+    return await load();
   } catch (error) {
-    console.error(`${platform} feed request failed:`, error instanceof Error ? error.name : "Unknown error");
+    console.error(`${platform} feed unavailable:`, error instanceof Error ? error.name : "Unknown error");
+    // Keep the empty-feed UI, but do not persist a failed render in the route cache.
+    unstable_noStore();
     return [];
   }
 };
@@ -158,7 +179,7 @@ export const prepareSocialPosts = (posts: SocialPost[]): SocialFeedPost[] => {
   return uniquePosts.map(({ post, sources }) => ({ post, sources }));
 };
 
-// Same arguments/URLs everywhere keep the hourly Next data cache shared across pages.
+// Same arguments everywhere keep the hourly validated cache shared across pages.
 export const fetchSocialPosts = async (): Promise<SocialFeedPost[]> => {
   const facebookPageId = process.env.NEXT_PUBLIC_FACEBOOK_PAGE_ID;
   const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN;

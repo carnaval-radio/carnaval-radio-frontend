@@ -21,6 +21,7 @@ const SITE_PATHS = [
   "/articles",
   "/team",
   "/events",
+  "/social",
   "/",
 ] as const;
 
@@ -43,11 +44,19 @@ export default async function action(refreshTags: string[] = []) {
 
   await Promise.all(
     tagsOrPaths.map((item) =>
-      item.startsWith("/")
-        ? revalidatePath(item)
-        : revalidateTag(item),
+      item === "social"
+        ? refreshSocial()
+        : item.startsWith("/")
+          ? revalidatePath(item)
+          : revalidateTag(item),
     ),
   );
+}
+
+async function refreshSocial() {
+  revalidateTag("social");
+  revalidatePath("/");
+  revalidatePath("/social");
 }
 
 async function revalidateMainSite() {

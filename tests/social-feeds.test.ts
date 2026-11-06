@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { fetchFacebookPosts, fetchInstagramPosts, fetchSocialPosts } from "@/GlobalState/ApiCalls/fetchSocials";
+import { unstable_noStore } from "next/cache";
+
+vi.mock("next/cache", () => ({
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
+  unstable_noStore: vi.fn(),
+}));
 
 describe("social feed integration", () => {
   it("fetches Facebook posts on a supported version with credentials outside the URL", async () => {
@@ -17,7 +23,7 @@ describe("social feed integration", () => {
       "https://graph.facebook.com/v27.0/page-id/posts?fields=id,message,created_time,full_picture,permalink_url&limit=3",
       {
         headers: { Authorization: "Bearer test-token" },
-        next: { revalidate: 3600, tags: ["social"] },
+        cache: "no-store",
       },
     );
   });
@@ -51,7 +57,7 @@ describe("social feed integration", () => {
     expect(url).not.toContain("test-token");
     expect(options).toEqual({
       headers: { Authorization: "Bearer test-token" },
-      next: { revalidate: 3600, tags: ["social"] },
+      cache: "no-store",
     });
   });
 
@@ -72,7 +78,7 @@ describe("social feed integration", () => {
     expect(fetch).toHaveBeenCalledTimes(2);
     for (const [url, options] of vi.mocked(fetch).mock.calls) {
       expect(url).toContain("&limit=25");
-      expect(options).toMatchObject({ next: { revalidate: 3600, tags: ["social"] } });
+      expect(options).toMatchObject({ cache: "no-store" });
     }
     expect(posts).toHaveLength(1);
     expect(posts[0].post).toMatchObject({ type: "Instagram", link: "/ig", date: new Date("2026-11-06T20:00:00Z") });
@@ -112,12 +118,14 @@ describe("social feed integration", () => {
       [{ error: { code: 190, error_subcode: 463, message: "secret-token" } }, 400],
       [{ data: [] }, 500],
       [{ data: "invalid" }, 200],
+      [null, 200],
     ])(`${platform} reports invalid/error responses without exposing credentials`, async (payload, status) => {
       const log = vi.spyOn(console, "error").mockImplementation(() => {});
       vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(payload), { status }));
       expect(await load("account", "test-token")).toEqual([]);
       expect(log).toHaveBeenCalledWith(`${platform} API error:`, expect.objectContaining({ status }));
       expect(JSON.stringify(log.mock.calls)).not.toContain("secret-token");
+      expect(unstable_noStore).toHaveBeenCalled();
     });
 
     it(`${platform} logs request failures without logging sensitive error messages`, async () => {
@@ -126,6 +134,7 @@ describe("social feed integration", () => {
       expect(await load("account", "test-token")).toEqual([]);
       expect(log).toHaveBeenCalledWith(`${platform} feed request failed:`, "Error");
       expect(JSON.stringify(log.mock.calls)).not.toContain("secret-token");
+      expect(unstable_noStore).toHaveBeenCalled();
     });
   }
 });

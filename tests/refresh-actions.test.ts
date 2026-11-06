@@ -40,10 +40,17 @@ describe("cache refresh actions", () => {
     expect(vi.mocked(revalidateTag).mock.calls.map(([tag]) => tag).sort())
       .toEqual(["pages", "sponsors", "team", "events", "twitch", "slides", "navigation", "social"].sort());
     expect(vi.mocked(revalidatePath).mock.calls.map(([path]) => path).sort()).toEqual([
-      "/sponsoren", "/sitemap.xml", "/articles", "/team", "/events", "/",
+      "/sponsoren", "/sitemap.xml", "/articles", "/team", "/events", "/social", "/",
       "/nieuwsberichten/first-article", "/nieuwsberichten/second-article",
     ].sort());
     expect(client.query).toHaveBeenCalledWith(expect.objectContaining({ variables: { limit: 3 } }));
+  });
+
+  it("invalidates both social consumers when refreshing the social tag", async () => {
+    await refresh(["social"]);
+    expect(revalidateTag).toHaveBeenCalledExactlyOnceWith("social");
+    expect(vi.mocked(revalidatePath).mock.calls).toEqual([["/"], ["/social"]]);
+    expect(client.query).not.toHaveBeenCalled();
   });
 
   it("supports a custom recent article count alongside explicit tags", async () => {
