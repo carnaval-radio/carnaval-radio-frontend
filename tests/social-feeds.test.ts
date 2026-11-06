@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fetchFacebookPosts, fetchInstagramPosts, fetchSocialPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 import { unstable_noStore } from "next/cache";
+import { DynamicServerError } from "next/dist/client/components/hooks-server-context";
 
 vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
@@ -23,7 +24,6 @@ describe("social feed integration", () => {
       "https://graph.facebook.com/v27.0/page-id/posts?fields=id,message,created_time,full_picture,permalink_url&limit=3",
       {
         headers: { Authorization: "Bearer test-token" },
-        cache: "no-store",
       },
     );
   });
@@ -57,7 +57,6 @@ describe("social feed integration", () => {
     expect(url).not.toContain("test-token");
     expect(options).toEqual({
       headers: { Authorization: "Bearer test-token" },
-      cache: "no-store",
     });
   });
 
@@ -78,7 +77,7 @@ describe("social feed integration", () => {
     expect(fetch).toHaveBeenCalledTimes(2);
     for (const [url, options] of vi.mocked(fetch).mock.calls) {
       expect(url).toContain("&limit=25");
-      expect(options).toMatchObject({ cache: "no-store" });
+      expect(options).not.toHaveProperty("cache");
     }
     expect(posts).toHaveLength(1);
     expect(posts[0].post).toMatchObject({ type: "Instagram", link: "/ig", date: new Date("2026-11-06T20:00:00Z") });
@@ -109,6 +108,15 @@ describe("social feed integration", () => {
   for (const [platform, load] of [
     ["Facebook", fetchFacebookPosts], ["Instagram", fetchInstagramPosts],
   ] as const) {
+    it(`${platform} propagates Next static-generation control flow without API failure logs`, async () => {
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      const bailout = new DynamicServerError("static generation bailout");
+      vi.mocked(fetch).mockRejectedValue(bailout);
+      await expect(load("account", "test-token")).rejects.toBe(bailout);
+      expect(log).not.toHaveBeenCalled();
+      expect(unstable_noStore).not.toHaveBeenCalled();
+    });
+
     it(`${platform} accepts empty successful feeds`, async () => {
       vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: [] })));
       expect(await load("account", "test-token")).toEqual([]);

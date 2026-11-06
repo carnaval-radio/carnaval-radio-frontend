@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { CacheHandler, IncrementalCache, type CacheHandlerValue } from "next/dist/server/lib/incremental-cache";
 import type { StaticGenerationStore } from "next/dist/client/components/static-generation-async-storage.external";
 import { fetchSocialPosts } from "@/GlobalState/ApiCalls/fetchSocials";
+import * as serverHooks from "next/dist/client/components/hooks-server-context";
 
 class MemoryCache extends CacheHandler {
   private entries = new Map<string, CacheHandlerValue>();
@@ -51,6 +52,22 @@ describe("Next social data cache", () => {
     });
     const { staticGenerationAsyncStorage: storage }: typeof import("next/dist/client/components/static-generation-async-storage.external") =
         require("next/dist/client/components/static-generation-async-storage.external");
+    // Ordinary React lacks the server-only cache API. Disable only render memoization.
+    const dedupeModule = require.cache[require.resolve("next/dist/server/lib/dedupe-fetch")];
+    if (!dedupeModule) throw new Error("Next fetch deduplication module was not loaded.");
+    const originalDedupeExports: unknown = dedupeModule.exports;
+    dedupeModule.exports = { createDedupeFetch: (fn: typeof fetch) => fn };
+    const patchFetchPath = require.resolve("next/dist/server/lib/patch-fetch");
+    const originalPatchModule = require.cache[patchFetchPath];
+    delete require.cache[patchFetchPath];
+    try {
+      const { patchFetch }: typeof import("next/dist/server/lib/patch-fetch") = require(patchFetchPath);
+      patchFetch({ serverHooks, staticGenerationAsyncStorage: storage });
+    } finally {
+      dedupeModule.exports = originalDedupeExports;
+      if (originalPatchModule) require.cache[patchFetchPath] = originalPatchModule;
+      else delete require.cache[patchFetchPath];
+    }
     const renderFeed = async (failed = false) => {
       const store: StaticGenerationStore = {
         isStaticGeneration: false,
@@ -120,5 +137,22 @@ describe("Next social data cache", () => {
     expect(await renderFeed()).toEqual([]);
     expect(await renderFeed()).toEqual([]);
     expect(upstream).toHaveBeenCalledTimes(19);
+
+    // Build-time cache misses must reach Meta without forcing the route dynamic.
+    await incrementalCache.revalidateTag("social");
+    upstream.mockImplementation(async () => new Response(JSON.stringify({
+      data: [{ id: "build-post", message: "Build feed", created_time: "2026-11-06T22:00:00Z", permalink_url: "/build" }],
+    })));
+    const buildStore: StaticGenerationStore = {
+      isStaticGeneration: true,
+      urlPathname: "/social",
+      prerenderState: null,
+      incrementalCache,
+    };
+    expect((await storage.run(buildStore, fetchSocialPosts))[0].post.id).toBe("build-post");
+    expect(upstream).toHaveBeenCalledTimes(20);
+    expect(buildStore.revalidate).toBe(3600);
+    expect(buildStore.dynamicUsageErr).toBeUndefined();
+    expect(buildStore.isUnstableNoStore).toBeUndefined();
   });
 });

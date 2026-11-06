@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { unstable_cache, unstable_noStore } from "next/cache";
+import { isDynamicServerError } from "next/dist/client/components/hooks-server-context";
 
 export interface SocialPost {
   id: string;
@@ -54,17 +55,18 @@ const fetchGraphPosts = async <T>(
     let response: Response;
     let payload: GraphResponse<T>;
     try {
+      // unstable_cache bypasses inner fetch caching; explicit no-store breaks Next 14 prerendering.
       response = await fetch(
         `${GRAPH_API_URL}/${accountId}/${connection}?fields=${fields}${
           limit ? `&limit=${limit}` : ""
         }`,
         {
           headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
         }
       );
       payload = await response.json();
     } catch (error) {
+      if (isDynamicServerError(error)) throw error;
       console.error(`${platform} feed request failed:`, error instanceof Error ? error.name : "Unknown error");
       throw new Error(`${platform} feed request failed.`);
     }
@@ -86,6 +88,7 @@ const fetchGraphPosts = async <T>(
   try {
     return await load();
   } catch (error) {
+    if (isDynamicServerError(error)) throw error;
     console.error(`${platform} feed unavailable:`, error instanceof Error ? error.name : "Unknown error");
     // Keep the empty-feed UI, but do not persist a failed render in the route cache.
     unstable_noStore();
