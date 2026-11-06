@@ -1,11 +1,8 @@
 import Hero from "@/components/Hero/Hero";
 import Sponsors from "@/components/Sponsors/Sponsors";
 import PostCard from "@/components/Post/PostCard";
-import SocialPosts from "@/components/Socials/SocialPosts";
-import Section from "@/components/Section";
+import SocialWidget from "@/components/Socials/SocialWidget";
 import LatestComments from "@/components/LatestComments";
-import { FaFacebook, FaInstagram } from "react-icons/fa";
-import Link from "next/link";
 import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
 import {
   fetchFacebookPosts,
@@ -54,38 +51,7 @@ const page = async () => {
         <LatestComments />
       </div>
       {posts && <PostCard posts={posts.slice(3, 6)} hideTitle={true} />}
-      {facebookPosts.length > 0 && (
-        <Section
-          title="Facebook"
-          iconElement={<FaFacebook className="h-8 w-8 text-primary" />}
-        >
-          <SocialPosts posts={facebookPosts} charactersToShow={400} />
-          <div className="flex items-center justify-center pt-8">
-            <Link
-              href="social/facebook"
-              className="bg-gradient-to-r from-primary to-secondary rounded-lg py-2 px-4 text-white font-semibold"
-            >
-              Meer van facebook
-            </Link>
-          </div>
-        </Section>
-      )}
-      {instagramPosts.length > 0 && (
-        <Section
-          title="Instagram"
-          iconElement={<FaInstagram className="h-8 w-8 text-secondary" />}
-        >
-          <SocialPosts posts={instagramPosts} charactersToShow={400} />
-          <div className="flex items-center justify-center pt-8">
-            <Link
-              href="social/instagram"
-              className="bg-gradient-to-r from-primary to-secondary rounded-lg py-2 px-4 text-white font-semibold"
-            >
-              Meer van instagram
-            </Link>
-          </div>
-        </Section>
-      )}
+      <SocialWidget posts={[...facebookPosts, ...instagramPosts]} />
 
       {/* SEO Content Section */}
       <section className="bg-gray-50 py-12 px-4">

@@ -67,6 +67,14 @@ Current and archived article bodies use [ArticleContent](components/Post/Article
 
 Click an image to enlarge it. The native modal supports Escape, previous/next buttons, arrow keys, and returning focus to the opening button. Article cover images and non-image content retain their existing rendering.
 
+## Social feeds
+
+Facebook and Instagram use Graph API v27.0 through [fetchSocials](GlobalState/ApiCalls/fetchSocials.ts), with one-hour caching under the `social` tag. Keep `FACEBOOK_ACCESS_TOKEN` and `INSTAGRAM_ACCESS_TOKEN` server-side; use Page tokens with the required permissions. Configure `NEXT_PUBLIC_FACEBOOK_PAGE_ID` and the connected professional account's `NEXT_PUBLIC_INSTAGRAM_ID`. Set `ENABLE_SOCIAL_POSTS=true` to show feeds on the homepage; dedicated social pages do not use that flag.
+
+After changing local environment variables, restart the development server if they are not picked up. Production environment changes must also be applied in Vercel and redeployed. Refresh cached social data with `/refresh?token=YOUR_REFRESH_TOKEN&tags=social,/`. Instagram videos use thumbnails in the image cards. API failures retain the existing empty-feed behavior and log HTTP status/Meta error codes without tokens or response bodies.
+
+The homepage uses [SocialWidget](components/Socials/SocialWidget.tsx), titled **Op onze socials**: a photo-led mixed feed alternating Facebook and Instagram, starting with the newest post and keeping each platform in newest-first order. It fetches three posts from each platform and combines cross-posts within 48 hours into one card, retaining links to both platforms. Matching uses identical image URLs or captions, ignoring case/spacing. Longer captions may differ slightly in emoji, tags and mentions: at least 20 distinct words, the same opening eight words and a word-overlap score of at least 90% are required. Empty captions alone are never matched. The widget is a swipeable strip on mobile and a grid on desktop. Cards open the original post in a new tab; **Alles bekijken** opens the combined social page. Dedicated social pages keep their existing layout.
+
 ## Ticket promotion
 
 - Manage the shared desktop and mobile menu in Strapi's `main` navigation. Add a **Tickets** external link with the URL `https://entrii.shop/carnaval-radio#`, rather than linking to the local tickets page. HTTPS menu links automatically open in a new tab. Navigation is cached for one hour.
