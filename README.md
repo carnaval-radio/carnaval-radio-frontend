@@ -12,21 +12,50 @@ This is the frontend of Carnaval-Radio.nl, built with Next.JS
 - Create `.env.local` in the root
 - Copy the `.env.example` file into the `.env.local` file.
 
-First, run the development server:
+Use Node.js 22.12 or newer within the Node 22 release line (see [.nvmrc](.nvmrc)) and the pinned pnpm version in [package.json](package.json). The engine range deliberately keeps deployments on Node 22 rather than automatically selecting a newer major.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+nvm use
+corepack enable
+pnpm install --frozen-lockfile
 pnpm dev
 ```
+
+Use pnpm for dependency changes and commit [pnpm-lock.yaml](pnpm-lock.yaml). Do not generate an npm or Yarn lockfile. `corepack pnpm` can be used instead of `pnpm` if your globally installed pnpm has a different version.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+
+## Automated checks and maintenance
+
+```bash
+pnpm check          # lint, TypeScript, tests, and coverage
+pnpm test           # all regression tests, once
+pnpm test:watch     # interactive test runner
+pnpm test:coverage  # enforce thresholds and generate coverage/index.html
+pnpm build          # production build with the configured backend environment
+pnpm audit --prod   # review the remaining production dependency advisories
+```
+
+`pnpm check` uses Corepack for its child commands so every check uses the pinned pnpm version, even when a different global pnpm is installed.
+
+- [CI](.github/workflows/ci.yml) runs a frozen pnpm install, lint, type checks, and coverage on pull requests and pushes to `main`, without production credentials. The HTML coverage report is uploaded as an artifact.
+- [Dependabot](.github/dependabot.yml) opens weekly dependency and GitHub Actions update PRs. Minor/patch updates are grouped separately for development and production dependencies; major upgrades remain separate PRs. Updates are not auto-merged.
+- [Tests](tests/) use Vitest and React Testing Library. They cover scheduled ticket promotions (including the exact activation boundary and timer cleanup), the shared Strapi navigation, ticket redirects, local favorites/device identity, player state, radio metadata, songs API merging and fallback behavior, and authenticated cache refresh.
+- Tests use fake clocks and mocked network/database dependencies: they do not access Strapi, Supabase, or the live radio API. Async server pages are tested directly rather than through a running Next.js server.
+- Coverage thresholds are **90% statements/lines/functions and 85% branches** for the explicit regression-tested modules listed in [vitest.config.mts](vitest.config.mts). These are **not whole-project coverage figures**. Extend that list when adding tests for another module.
+- Existing hook, image/accessibility, and text-escaping lint warnings remain visible. Text escaping is a warning, not a correctness error. ESLint 8 remains aligned with Next.js 14 until the framework upgrade; no major production framework upgrade is included in this baseline.
+
+### Remaining maintenance work
+
+This baseline does not make the whole application fully tested or bring every dependency up to date. Production dependency advisories still require review and upgrades. Prioritize those, then a supported Next.js/React migration in separate, regression-tested changes.
+
+Real-browser end-to-end coverage, audio playback/Chromecast on real devices, upload flows, comments/likes database integration, and full-page CMS rendering remain outside this suite. Production builds need the configured external services and font downloads, so the offline CI checks do not replace Vercel's deployment build.
+
+After committing and pushing this workflow, enable the **Lint, types, and tests** check as a required status check in the GitHub branch rules for `main`, and require reviewed pull requests. This repository configuration alone does not block direct pushes or make Vercel wait for CI.
 
 ## Ticket promotion
 

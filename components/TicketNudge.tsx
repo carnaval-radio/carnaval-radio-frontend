@@ -8,20 +8,21 @@ const TicketNudge = () => {
   const [bouncing, setBouncing] = useState(false);
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    let interval: NodeJS.Timeout;
-    // First bounce after 7s
-    timeout = setTimeout(() => {
+    let interval: ReturnType<typeof setInterval> | undefined;
+    let bounceTimeout: ReturnType<typeof setTimeout> | undefined;
+    const bounce = () => {
       setBouncing(true);
-      setTimeout(() => setBouncing(false), 2000);
+      bounceTimeout = setTimeout(() => setBouncing(false), 2000);
+    };
+    // First bounce after 7s
+    const timeout = setTimeout(() => {
+      bounce();
       // Then every 5 minutes
-      interval = setInterval(() => {
-        setBouncing(true);
-        setTimeout(() => setBouncing(false), 2000);
-      }, 300000);
+      interval = setInterval(bounce, 300000);
     }, 7000);
     return () => {
       clearTimeout(timeout);
+      clearTimeout(bounceTimeout);
       if (interval) clearInterval(interval);
     };
   }, []);
