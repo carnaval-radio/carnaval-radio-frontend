@@ -5,18 +5,11 @@ import SocialWidget from "@/components/Socials/SocialWidget";
 import LatestComments from "@/components/LatestComments";
 import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
 import { fetchSocialPosts } from "@/GlobalState/ApiCalls/fetchSocials";
+import { pageMetadata, SITE_TITLE, SITE_DESCRIPTION } from "@/helpers/seo";
+import Link from "next/link";
 
 export async function generateMetadata() {
-  return {
-    alternates: {
-      canonical: "/",
-    },
-    title: "Carnaval Radio | 24/7 Limburgse Vastelaovend Muziek",
-    description:
-      "De vastelaoves Radio. Carnaval Radio uit Brunssum houdt de Limburgse Vastelaovend traditie in ere met 24/7 carnavalsmuziek. Luister naar de beste Limburgse en Duitse carnavalsleedsjes, polonaise en LVK hits. Live stream en verzoekjes mogelijk.",
-    keywords:
-      "Carnaval Radio, Brunssum, Limburg, Vastelaovend, carnavalsmuziek, Limburgse muziek, polonaise, LVK, Parkstad, Zuid-Limburg, carnaval traditie, 24/7 radio, Broenssem, Heerlen, Landgraag, Kerkrade, Echt, Sittard, Roermond, Venlo, Maastricht, Duitse carnavalsmuziek, Vastelaovend hits, carnavalsleedsjes, live stream, verzoekjes",
-  };
+  return pageMetadata(SITE_TITLE, SITE_DESCRIPTION, "/");
 }
 
 const page = async () => {
@@ -41,10 +34,11 @@ const page = async () => {
       {/* SEO Content Section */}
       <section className="bg-gray-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            Over Carnaval Radio
-          </h2>
+          <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Carnaval Radio: 24/7 Vastelaovend muziek
+          </h1>
           <div className="prose prose-lg max-w-none text-gray-700">
+            <h3 className="text-xl font-semibold mb-2">Wat is Carnaval Radio?</h3>
             <p className="text-lg leading-relaxed mb-4">
               <strong>Carnaval Radio</strong> brengt sinds 2005 de Limburgse
               Vastelaovend bij je thuis. Het hele jaar door hoor je bij ons de
@@ -56,13 +50,22 @@ const page = async () => {
               heel Limburg. Daarom draaien we 24/7 muziek, nemen we verzoekjes
               aan en streamen we gratis.
             </p>
+            <h3 className="text-xl font-semibold mb-2">Hoe luister je naar Carnaval Radio?</h3>
+            <p className="text-lg leading-relaxed mb-4">
+              Je kunt gratis <Link href="/luisteren" className="underline">online luisteren</Link> via
+              de speler op deze website. Carnaval Radio draait het hele jaar door,
+              24 uur per dag. Wil je een nummer horen?{" "}
+              <Link href="/verzoekjes" className="underline">Stuur een verzoekje via WhatsApp</Link>.
+            </p>
 
             <p className="text-lg leading-relaxed mb-4">
               Tijdens de carnavalsperiode maken we live-uitzendingen vanuit
               meerdere cafés in Brunssum. Hoogtepunt is onze jaarlijkse
               feestavond, waar bekende Limburgse artiesten optreden, vaak zelfs
-              de LVK-winnaar van dat jaar. Zo brengen we de Vastelaovend van het
-              podium direct naar onze luisteraars.
+              de LVK-winnaar van dat jaar. Bekijk onze{" "}
+              <Link href="/evenementen" className="underline">evenementen</Link> en{" "}
+              <Link href="/live-uitzendingen" className="underline">live-uitzendingen</Link> voor
+              meer informatie.
             </p>
 
             <p className="text-lg leading-relaxed mb-4">

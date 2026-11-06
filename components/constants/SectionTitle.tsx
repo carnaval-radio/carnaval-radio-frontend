@@ -6,9 +6,10 @@ interface Props {
   title: string;
   image?: any;
   iconElement?: ReactElement;
+  as?: "h1" | "h2";
 }
 
-const SectionTitle = ({ title, image, iconElement }: Props) => {
+const SectionTitle = ({ title, image, iconElement, as: Heading = "h2" }: Props) => {
   return (
     <div className="flex space-x-4 items-center">
       {image && (
@@ -21,7 +22,7 @@ const SectionTitle = ({ title, image, iconElement }: Props) => {
         />
       )}
       {iconElement && iconElement}
-      <h2 className={`text-3xl font-semibold ${Indie.className}`}>{title}</h2>
+      <Heading className={`text-3xl font-semibold ${Indie.className}`}>{title}</Heading>
     </div>
   );
 };

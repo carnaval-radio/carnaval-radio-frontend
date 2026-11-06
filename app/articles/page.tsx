@@ -3,15 +3,14 @@ import SectionTitle from "@/components/constants/SectionTitle";
 import news from "../../public/news.png";
 import { oldArticles } from "@/data/allNewsArticles"
 import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
+import { pageMetadata } from "@/helpers/seo";
 
 export async function generateMetadata() {
-  return {
-    title: `Nieuws | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
-    description: `Blijf op de hoogte van de laatste nieuwsberichten en updates van Carnaval Radio. Ontdek de nieuwste ontwikkelingen, evenementen en verrassingen op het gebied van vasteloavend muziek en carnavalsfeest.`,
-    alternates: {
-      canonical: `/nieuwsberichten`,
-    },
-  };
+  return pageMetadata(
+    "Nieuws over de Limburgse Vastelaovend | Carnaval Radio",
+    "Lees het laatste nieuws van Carnaval Radio uit Brunssum: Limburgse carnavalsmuziek, artiesten, evenementen en updates over onze radio-uitzendingen.",
+    "/nieuwsberichten",
+  );
 }
 
 const page = async () => {
@@ -35,7 +34,7 @@ const page = async () => {
   return (
     <div className="py-8 px-4 sm:px-4 md:px-8 lg:px-8 xl:px-8">
       <div className="flex justify-between items-center">
-        <SectionTitle title="Nieuws" image={news} />
+        <SectionTitle title="Nieuws" image={news} as="h1" />
       </div>
 
       {allPosts && (

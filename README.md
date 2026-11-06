@@ -57,6 +57,12 @@ Real-browser end-to-end coverage, audio playback/Chromecast on real devices, upl
 
 After committing and pushing this workflow, enable the **Lint, types, and tests** check as a required status check in the GitHub branch rules for `main`, and require reviewed pull requests. This repository configuration alone does not block direct pushes or make Vercel wait for CI.
 
+## Search and AI discovery
+
+The homepage, news archive, events and team pages have distinct titles, descriptions, canonical URLs and matching social metadata. All team sort orders canonicalize to `/team/standaard`. Strapi content pages use their `Title` and a plain-text excerpt of `Content`; `/luisteren` and `/live-uitzendingen` have dedicated descriptions in [helpers/seo.ts](helpers/seo.ts). The root layout does not assign the homepage canonical to unrelated pages.
+
+Station and website JSON-LD is rendered server-side, with stable entity IDs, official social profiles and Brunssum/Limburg location information. The service area includes the Dutch province of Limburg, the municipality of Beekdaelen, Parkstad and the cities Brunssum, Heerlen, Maastricht, Sittard, Geleen, Roermond, Venlo, Weert, Kerkrade, Landgraaf and Venray. These represent listener coverage, not additional studio addresses. The homepage includes visible, factual answers about the station and listening, with links to relevant pages. These improve machine-readable context; they do not guarantee Google snippets, sitelinks, rich results or AI citations. After deploying, request reindexing of the affected URLs in Google Search Console; Google decides the final search presentation.
+
 ## Played songs
 
 The mobile bottom player places a 44px play/pause target on the left, fully wrapping song title/artist in the middle, then the favorite heart and compact artwork on the right. Favorites use the existing local favorites/sync helpers. Tap the artwork for comments, mute and available remote-playback controls; there is no comment button in the bottom bar. Desktop controls remain unchanged. The bottom bar respects the device safe-area inset, and mobile page padding follows its measured height.

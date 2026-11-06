@@ -4,14 +4,14 @@ import { Indie } from "../fonts/font";
 import EventsList from "@/components/Events/EventsList";
 import { fetchEvents } from "@/GlobalState/ApiCalls/fetchEvents";
 import Link from "next/link";
+import { pageMetadata } from "@/helpers/seo";
 
 export function generateMetadata() {
-  return {
-    title: `Evenementen | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
-    alternates: {
-      canonical: "/evenementen",
-    },
-  };
+  return pageMetadata(
+    "Evenementen en carnavalsfeesten | Carnaval Radio",
+    "Ontdek aankomende carnavalsevenementen en feesten bij Carnaval Radio. Bekijk datums, locaties en eerdere evenementen rond de Limburgse Vastelaovend.",
+    "/evenementen",
+  );
 }
 
 const page = async () => {
@@ -34,9 +34,9 @@ const page = async () => {
     <div className="p-10">
       <div className="flex items-center gap-2 mb-4">
         <BsFileMusicFill className="text-2xl text-secondary" />
-        <h2 className={`text-center text-2xl font-semibold ${Indie.className}`}>
+        <h1 className={`text-center text-2xl font-semibold ${Indie.className}`}>
           Evenementen
-        </h2>
+        </h1>
       </div>
 
       <h3 className={`text-xl font-semibold mt-4 mb-1 ${Indie.className}`}>

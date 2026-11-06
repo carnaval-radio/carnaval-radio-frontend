@@ -48,6 +48,8 @@ describe("homepage social layout", () => {
     expect(screen.getAllByRole("heading").slice(0, 5).map((heading) => heading.textContent))
       .toEqual(["Nieuws 1,2,3", "Op onze socials", "Laatste reacties", "Meer op onze socials", "Nieuws 4,5,6"]);
     const first = screen.getByRole("region", { name: "Op onze socials" });
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Carnaval Radio: 24/7 Vastelaovend muziek");
+    expect(screen.getByRole("link", { name: "online luisteren" })).toHaveAttribute("href", "/luisteren");
     const second = screen.getByRole("region", { name: "Meer op onze socials" });
     expect(first.querySelectorAll("article")).toHaveLength(3);
     expect(second.querySelectorAll("article")).toHaveLength(3);
