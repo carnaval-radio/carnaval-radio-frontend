@@ -38,6 +38,7 @@ export default defineConfig({
         "components/Post/ArticleContent.tsx",
         "components/Post/ArticleGallery.tsx",
         "components/Socials/SocialWidget.tsx",
+        "components/Socials/SocialCaption.tsx",
         "components/Sidebar/SidebarLinkItem.tsx",
         "components/Sidebar/SidebarLinks.tsx",
         "app/api/songs/route.ts",

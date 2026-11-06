@@ -83,6 +83,8 @@ Cross-posts within 48 hours are combined into one card, retaining links to both 
 
 Social cards label Facebook with an orange pill and Instagram with a red pill, including separate pills on combined cross-posts. Each pill independently opens its own platform's post in a new tab.
 
+Captions longer than 160 characters have a **Meer lezen** button showing the full text with line breaks in a scrollable reading view inside the existing card. Card height and surrounding layout remain unchanged. A translucent top fades into the solid text background, showing a glimpse of the photo without a heading. Close using the close button or Escape; focus returns to **Meer lezen**. It works with touch, mouse and keyboard without opening the external post. Short captions are shown in full.
+
 ## Ticket promotion
 
 - Manage the shared desktop and mobile menu in Strapi's `main` navigation. Add a **Tickets** external link with the URL `https://entrii.shop/carnaval-radio#`, rather than linking to the local tickets page. HTTPS menu links automatically open in a new tab. Navigation is cached for one hour.

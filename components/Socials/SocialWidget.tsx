@@ -2,6 +2,7 @@ import type { SocialFeedPost } from "@/GlobalState/ApiCalls/fetchSocials";
 import Link from "next/link";
 import { FaArrowRight, FaExternalLinkAlt, FaFacebook, FaInstagram } from "react-icons/fa";
 import ImageWithFallback from "../constants/ImageWithFallback";
+import SocialCaption from "./SocialCaption";
 
 const fallbackURL =
   "https://res.cloudinary.com/dwzn0q9wj/image/upload/c_fill,w_500,q_auto,f_auto/v1706569127/030_Momenttom_com_2024_TOM_18995_b4adb75114.jpg";
@@ -83,6 +84,7 @@ const SocialWidget = ({
                       <FaExternalLinkAlt aria-hidden="true" className="h-3 w-3" />
                     </span>
                   </div>
+                </a>
                   <div className="p-4">
                     <time
                       dateTime={post.date.toISOString()}
@@ -95,11 +97,8 @@ const SocialWidget = ({
                         timeZone: "Europe/Amsterdam",
                       })}
                     </time>
-                    <p className="mt-2 line-clamp-3 break-words text-sm leading-relaxed text-gray-800">
-                      {displayText}
-                    </p>
+                    <SocialCaption text={post.text} />
                   </div>
-                </a>
                 <div className="absolute left-3 right-3 top-3 flex flex-wrap gap-2">
                   {sources.map((source) => {
                     const SourceIcon = source.type === "Facebook" ? FaFacebook : FaInstagram;

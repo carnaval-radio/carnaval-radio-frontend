@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { prepareSocialPosts, type SocialPost } from "@/GlobalState/ApiCalls/fetchSocials";
 import Widget from "@/components/Socials/SocialWidget";
@@ -189,5 +189,34 @@ describe("homepage social widget", () => {
     render(<Widget posts={prepareSocialPosts([post("all", "Facebook", 6)])} allPosts />);
     expect(screen.queryByRole("link", { name: /Alles bekijken/ })).not.toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Recente social posts" })).toHaveClass("grid-cols-1");
+  });
+
+  it("shows full captions in a fixed in-card overlay and restores focus on close", () => {
+    const caption = `${"Een lange aankondiging. ".repeat(12)}\nAlle details staan hier!`;
+    const { container } = render(<SocialWidget posts={[post("long", "Instagram", 6, caption)]} />);
+    const trigger = screen.getByRole("button", { name: "Meer lezen" });
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(trigger);
+    const panel = screen.getByRole("region", { name: "Volledig bericht" });
+    expect(panel).toHaveClass("absolute", "inset-0");
+    expect(panel.querySelector("p")?.textContent).toBe(caption);
+    expect(panel.querySelector("p")).toHaveClass("whitespace-pre-line");
+    expect(panel.closest("a")).toBeNull();
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: "Bericht sluiten" })).toHaveFocus();
+    fireEvent.keyDown(panel, { key: "Escape" });
+    expect(screen.queryByRole("region", { name: "Volledig bericht" })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+    fireEvent.click(trigger);
+    fireEvent.click(screen.getByRole("button", { name: "Bericht sluiten" }));
+    expect(trigger).toHaveAttribute("aria-expanded", "false");
+    expect(container.querySelector("details")).toBeNull();
+  });
+
+  it("shows short captions fully without a redundant disclosure", () => {
+    const { container } = render(<SocialWidget posts={[post("short", "Facebook", 6, "Tot zo!\nKom gezellig langs.")] } />);
+    expect(container.querySelector("details")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Meer lezen" })).not.toBeInTheDocument();
+    expect(screen.getByText(/Kom gezellig langs/)).not.toHaveClass("line-clamp-3");
   });
 });
