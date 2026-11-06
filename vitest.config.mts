@@ -32,6 +32,8 @@ export default defineConfig({
         "GlobalState/ApiCalls/fetchSongs.ts",
         "components/Notification.tsx",
         "components/TicketNudge.tsx",
+        "components/RecentSongs/RecentSongs.tsx",
+        "components/DateAndTime.tsx",
         "components/Sidebar/SidebarLinkItem.tsx",
         "components/Sidebar/SidebarLinks.tsx",
         "app/api/songs/route.ts",

@@ -4,7 +4,6 @@ import DateAndTime from "../DateAndTime";
 import RecentSongsLoading from "../LoadingSkeleten/RecentSongsLoading";
 import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 import SongCover from "../SongCover";
-import FormateTitle from "../FormatTitle";
 import { getFavoritesLocal, toggleFavoriteLocal, syncFavoriteToSupabase } from "@/helpers/favorites";
 import SongCommentsModal from "../Comments/SongCommentsModal";
 
@@ -46,32 +45,43 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
             <Fragment key={"frag" + i}>
               {i < maxTracks && (
                 <div key={"div" + i} className="flex flex-col">
-                  <div className="flex items-center justify-between p-2">
-                    <div className="flex space-x-3">
+                  <div className="flex items-center justify-between gap-2 p-2">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
                       <SongCover
                         url={recentSong.url}
                         artist={recentSong.artist}
                         type="hero"
                       />
-                      <div className="flex flex-col">
-                        <div className="flex items-center">
-                          <MdMusicNote
-                            size={24}
-                            className="mr-2 hidden sm:inline-block md:inline-block lg:hidden xl:inline-block"
-                          />{" "}
-                          <div>
-                            <FormateTitle text={recentSong.title} />
-                            <div className="text-[16px] hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary hover:to-secondary font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                              <FormateTitle text={recentSong.artist} />
-                            </div>
+                      <MdMusicNote
+                        size={24}
+                        className="hidden shrink-0 sm:inline-block md:inline-block lg:hidden xl:inline-block"
+                      />
+                      <div className="min-w-0">
+                        <p className="break-words text-base">
+                          {recentSong.title}
+                        </p>
+                        <p className="break-words text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+                          {recentSong.artist}
+                        </p>
+                        {recentSong.date && (
+                          <div className="mt-1 sm:hidden">
+                            <span
+                              className={`inline-block rounded-full px-2 py-1 text-sm tabular-nums ${
+                                i % 2 !== 0
+                                  ? "bg-tertiaryShade_1 text-tertiary"
+                                  : "bg-secondaryShade_1 text-secondary"
+                              }`}
+                            >
+                              <DateAndTime timestamp={recentSong.date} dense={denseDate} compact />
+                            </span>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex shrink-0 flex-col-reverse items-center gap-1 sm:flex-row sm:gap-2">
                       {recentSong.date && (
                         <div
-                          className={`py-2 px-4 rounded-full ${
+                          className={`hidden rounded-full px-4 py-2 sm:block ${
                             i % 2 !== 0
                               ? "bg-tertiaryShade_1"
                               : "bg-secondaryShade_1"
@@ -88,18 +98,19 @@ const RecentSongs: React.FC<RecentSongsProps> = ({
                       )}
                       <button
                         type="button"
-                        aria-label="Comments"
+                        aria-label={`Reacties: ${recentSong.title}`}
                         onClick={() => setCommentsModalOpen(recentSong.ID)}
-                        className="ml-2 text-xl text-gray-400 hover:text-blue-500 transition-colors"
+                        className="flex h-9 w-9 items-center justify-center text-lg text-gray-300 transition-colors hover:text-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary sm:ml-2 sm:h-auto sm:w-auto sm:text-xl sm:text-gray-400"
                       >
                         <MdComment />
                       </button>
                       {canAddToFavorites && (
                         <button
                           type="button"
-                          aria-label="Toggle favorite"
+                          aria-label={`Favoriet: ${recentSong.title}`}
+                          aria-pressed={!!favorites[recentSong.ID]}
                           onClick={() => handleToggleFavorite(recentSong.ID)}
-                          className={`ml-2 text-xl ${
+                          className={`flex h-9 w-9 items-center justify-center text-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-secondary sm:ml-2 sm:h-auto sm:w-auto ${
                             favorites[recentSong.ID]
                               ? "text-red-500"
                               : "text-gray-400"

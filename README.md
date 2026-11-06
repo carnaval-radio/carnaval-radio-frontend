@@ -57,6 +57,10 @@ Real-browser end-to-end coverage, audio playback/Chromecast on real devices, upl
 
 After committing and pushing this workflow, enable the **Lint, types, and tests** check as a required status check in the GitHub branch rules for `main`, and require reviewed pull requests. This repository configuration alone does not block direct pushes or make Vercel wait for CI.
 
+## Played songs
+
+The homepage widget and history page share [RecentSongs](components/RecentSongs/RecentSongs.tsx). On mobile, full-size titles and artists wrap rather than being cut off at 18 characters, the time pill sits below the artist, and the heart/comment controls share a narrow vertical column. Comments remain directly accessible through a subdued icon, without an extra menu. Desktop keeps the original inline time pill and controls. The compact mobile date format is local to this list; other date displays keep their existing behavior.
+
 ## Ticket promotion
 
 - Manage the shared desktop and mobile menu in Strapi's `main` navigation. Add a **Tickets** external link with the URL `https://entrii.shop/carnaval-radio#`, rather than linking to the local tickets page. HTTPS menu links automatically open in a new tab. Navigation is cached for one hour.

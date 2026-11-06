@@ -41,7 +41,7 @@ const RecentSongsPage = () => {
     return () => clearInterval(interval);
   }, [error]);
   return (
-    <div className="p-10">
+    <div className="min-w-0 px-4 py-8 sm:p-10">
       <div className="flex items-center gap-2 mb-4">
         <BsFileMusicFill className="text-2xl text-secondary" />
         <h1 className={`text-center text-2xl font-semibold ${Indie.className}`}>

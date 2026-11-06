@@ -2,10 +2,12 @@ const DateAndTime = ({
   timestamp,
   date,
   dense = false,
+  compact = false,
 }: {
   timestamp?: number;
   date?: Date;
   dense?: boolean;
+  compact?: boolean;
 }) => {
   const currentDate = new Date();
   let formattedTimestamp = new Date();
@@ -30,6 +32,24 @@ const DateAndTime = ({
 
   if (dense) {
     return formattedTimestamp.toLocaleTimeString("nl-NL", options);
+  }
+
+  if (compact) {
+    if (isToday) {
+      return formattedTimestamp.toLocaleTimeString("nl-NL", options);
+    }
+
+    const yesterday = new Date(currentDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (formattedTimestamp.toDateString() === yesterday.toDateString()) {
+      return <>Gisteren {formattedTimestamp.toLocaleTimeString("nl-NL", options)}</>;
+    }
+
+    return formattedTimestamp.toLocaleString("nl-NL", {
+      ...options,
+      day: "numeric",
+      month: "short",
+    });
   }
 
   if (isToday) {
