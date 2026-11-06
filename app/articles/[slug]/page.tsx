@@ -1,7 +1,7 @@
 import { client } from "@/GlobalState/ApiCalls/api.config";
 import { GET_SINGLE_POST } from "@/GlobalState/ApiCalls/graphql/article_queries";
 import Image from "next/image";
-import ReactHtmlParser from "html-react-parser";
+import ArticleContent from "@/components/Post/ArticleContent";
 import NotFoundPage from "@/components/NotFoundPage";
 import Video from "@/components/Video";
 import { optimizeCardImage, getOptimizedImageProps } from "@/src/types/cloudinaryOptimization";
@@ -136,7 +136,7 @@ const page = async ({ params }: { params: { slug?: string } }) => {
               </h2>
               {formatDate(post.publishedAt)}
             </div>
-            <div className="cms-content">{ReactHtmlParser(post.Content)}</div>
+            <ArticleContent html={post.Content} />
             <Image
               src={optimizeCardImage(post.CoverImage.data.attributes.url, 600)}
               width={600}

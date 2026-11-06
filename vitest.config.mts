@@ -34,6 +34,8 @@ export default defineConfig({
         "components/TicketNudge.tsx",
         "components/RecentSongs/RecentSongs.tsx",
         "components/DateAndTime.tsx",
+        "components/Post/ArticleContent.tsx",
+        "components/Post/ArticleGallery.tsx",
         "components/Sidebar/SidebarLinkItem.tsx",
         "components/Sidebar/SidebarLinks.tsx",
         "app/api/songs/route.ts",

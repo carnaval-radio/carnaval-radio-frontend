@@ -1,4 +1,4 @@
-import ReactHtmlParser from "html-react-parser";
+import ArticleContent from "@/components/Post/ArticleContent";
 import { oldArticles } from "@/data/allNewsArticles";
 import ShareButtons, {
   ShareButtonsFallback,
@@ -49,9 +49,7 @@ const page = ({ params }: { params: { title: string } }) => {
               {formatDate(foundPost[0].pubDate)}
             </div>
           </div>
-          <div className="cms-content">
-            {ReactHtmlParser(foundPost[0].description)}
-          </div>
+          <ArticleContent html={foundPost[0].description} />
           <Suspense fallback={<ShareButtonsFallback />}>
             <ShareButtons slug={`nieuwsberichten/o/${params.title}`} />
           </Suspense>

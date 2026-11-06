@@ -61,6 +61,12 @@ After committing and pushing this workflow, enable the **Lint, types, and tests*
 
 The homepage widget and history page share [RecentSongs](components/RecentSongs/RecentSongs.tsx). On mobile, full-size titles and artists wrap rather than being cut off at 18 characters, the time pill sits below the artist, and the heart/comment controls share a narrow vertical column. Comments remain directly accessible through a subdued icon, without an extra menu. Desktop keeps the original inline time pill and controls. The compact mobile date format is local to this list; other date displays keep their existing behavior.
 
+## Article images
+
+Current and archived article bodies use [ArticleContent](components/Post/ArticleContent.tsx). Consecutive image-only blocks (including Strapi figures or images inside a paragraph) become a responsive gallery, ignoring editor widths, floats, and alignment. Images separated by text remain in place. Images are uncropped, lazy-loaded, and constrained to the content width; captions and existing image links are preserved. A single image is centered.
+
+Click an image to enlarge it. The native modal supports Escape, previous/next buttons, arrow keys, and returning focus to the opening button. Article cover images and non-image content retain their existing rendering.
+
 ## Ticket promotion
 
 - Manage the shared desktop and mobile menu in Strapi's `main` navigation. Add a **Tickets** external link with the URL `https://entrii.shop/carnaval-radio#`, rather than linking to the local tickets page. HTTPS menu links automatically open in a new tab. Navigation is cached for one hour.
