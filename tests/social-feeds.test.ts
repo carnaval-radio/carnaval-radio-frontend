@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fetchFacebookPosts, fetchInstagramPosts } from "@/GlobalState/ApiCalls/fetchSocials";
+import { fetchFacebookPosts, fetchInstagramPosts, fetchSocialPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 
 describe("social feed integration", () => {
   it("fetches Facebook posts on a supported version with credentials outside the URL", async () => {
@@ -55,6 +55,51 @@ describe("social feed integration", () => {
     });
   });
 
+  it("loads one fixed cached batch per platform, filters and merges before consumers slice", async () => {
+    vi.stubEnv("NEXT_PUBLIC_FACEBOOK_PAGE_ID", "page-id");
+    vi.stubEnv("FACEBOOK_ACCESS_TOKEN", "test-facebook-token");
+    vi.stubEnv("NEXT_PUBLIC_INSTAGRAM_ID", "instagram-id");
+    vi.stubEnv("INSTAGRAM_ACCESS_TOKEN", "test-instagram-token");
+    vi.mocked(fetch).mockImplementation(async (url) => new Response(JSON.stringify({
+      data: String(url).includes("/posts?")
+        ? [
+          { id: "fb-update", created_time: "2026-11-06T21:00:00Z", permalink_url: "/update" },
+          { id: "fb", message: "Feest!", created_time: "2026-11-06T20:00:00Z", permalink_url: "/fb" },
+        ]
+        : [{ id: "ig", caption: "Feest!", timestamp: "2026-11-06T19:59:00Z", media_type: "IMAGE", permalink: "/ig" }],
+    })));
+    const posts = await fetchSocialPosts();
+    expect(fetch).toHaveBeenCalledTimes(2);
+    for (const [url, options] of vi.mocked(fetch).mock.calls) {
+      expect(url).toContain("&limit=25");
+      expect(options).toMatchObject({ next: { revalidate: 3600, tags: ["social"] } });
+    }
+    expect(posts).toHaveLength(1);
+    expect(posts[0].post).toMatchObject({ type: "Instagram", link: "/ig", date: new Date("2026-11-06T20:00:00Z") });
+    expect(posts[0].sources.map((source) => source.link)).toEqual(["/fb", "/ig"]);
+  });
+
+  it("logs incomplete configuration and still loads the available platform", async () => {
+    const log = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.stubEnv("NEXT_PUBLIC_FACEBOOK_PAGE_ID", "");
+    vi.stubEnv("FACEBOOK_ACCESS_TOKEN", "");
+    vi.stubEnv("NEXT_PUBLIC_INSTAGRAM_ID", "ig");
+    vi.stubEnv("INSTAGRAM_ACCESS_TOKEN", "test-token");
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: [] })));
+    expect(await fetchSocialPosts()).toEqual([]);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledWith("Facebook feed is not configured: missing page ID or access token.");
+  });
+
+  it("logs missing configuration without issuing requests", async () => {
+    const log = vi.spyOn(console, "warn").mockImplementation(() => {});
+    for (const key of ["NEXT_PUBLIC_FACEBOOK_PAGE_ID", "FACEBOOK_ACCESS_TOKEN", "NEXT_PUBLIC_INSTAGRAM_ID", "INSTAGRAM_ACCESS_TOKEN"]) {
+      vi.stubEnv(key, "");
+    }
+    expect(await fetchSocialPosts()).toEqual([]);
+    expect(fetch).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledTimes(2);
+  });
   for (const [platform, load] of [
     ["Facebook", fetchFacebookPosts], ["Instagram", fetchInstagramPosts],
   ] as const) {

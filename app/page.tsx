@@ -4,10 +4,7 @@ import PostCard from "@/components/Post/PostCard";
 import SocialWidget from "@/components/Socials/SocialWidget";
 import LatestComments from "@/components/LatestComments";
 import { fetchPosts } from "@/GlobalState/ApiCalls/fetchPosts";
-import {
-  fetchFacebookPosts,
-  fetchInstagramPosts,
-} from "@/GlobalState/ApiCalls/fetchSocials";
+import { fetchSocialPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 
 export async function generateMetadata() {
   return {
@@ -23,35 +20,23 @@ export async function generateMetadata() {
 }
 
 const page = async () => {
-  const facebookPageId = process.env.NEXT_PUBLIC_FACEBOOK_PAGE_ID;
-  const facebookAccessToken = process.env.FACEBOOK_ACCESS_TOKEN;
-  const instagramAccessToken = process.env.INSTAGRAM_ACCESS_TOKEN;
-  const instagramId = process.env.NEXT_PUBLIC_INSTAGRAM_ID;
-
   const enableSocialPosts = process.env.ENABLE_SOCIAL_POSTS === "true";
 
   const posts = await fetchPosts();
 
-  // Fetch social media posts once (not twice!)
-  const facebookPosts =
-    enableSocialPosts && facebookPageId && facebookAccessToken
-      ? await fetchFacebookPosts(facebookPageId, facebookAccessToken, 3)
-      : [];
-  const instagramPosts =
-    enableSocialPosts && instagramId && instagramAccessToken
-      ? await fetchInstagramPosts(instagramId, instagramAccessToken, 3)
-      : [];
+  const socialPosts = enableSocialPosts ? await fetchSocialPosts() : [];
 
   return (
     <section className="flex-grow">
       <Hero />
       <Sponsors />
       {posts && <PostCard posts={posts.slice(0, 3)} />}
+      <SocialWidget posts={socialPosts.slice(0, 3)} />
       <div className="px-4 sm:px-8 md:px-20 lg:px-24 xl:px-24 py-8">
         <LatestComments />
       </div>
+      <SocialWidget posts={socialPosts.slice(3, 6)} continuation />
       {posts && <PostCard posts={posts.slice(3, 6)} hideTitle={true} />}
-      <SocialWidget posts={[...facebookPosts, ...instagramPosts]} />
 
       {/* SEO Content Section */}
       <section className="bg-gray-50 py-12 px-4">
