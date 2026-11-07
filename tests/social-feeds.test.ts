@@ -2,6 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { fetchFacebookPosts, fetchInstagramPosts, fetchSocialPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 import { unstable_noStore } from "next/cache";
 import { DynamicServerError } from "next/dist/client/components/hooks-server-context";
+import { loadSocialSnapshot, saveSocialSnapshot } from "@/GlobalState/ApiCalls/socialSnapshots";
+
+vi.mock("@/GlobalState/ApiCalls/socialSnapshots", () => ({
+  saveSocialSnapshot: vi.fn(),
+  loadSocialSnapshot: vi.fn(async () => null),
+}));
 
 vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
@@ -108,6 +114,27 @@ describe("social feed integration", () => {
   for (const [platform, load] of [
     ["Facebook", fetchFacebookPosts], ["Instagram", fetchInstagramPosts],
   ] as const) {
+    it(`${platform} uses a saved snapshot on Meta failure without overwriting it`, async () => {
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ error: { code: 190 } }), { status: 401 }));
+      vi.mocked(loadSocialSnapshot).mockResolvedValueOnce([platform === "Facebook"
+        ? { id: "saved", message: "Saved post", created_time: "2026-11-06T20:00:00Z", permalink_url: "/saved" }
+        : { id: "saved", caption: "Saved post", timestamp: "2026-11-06T20:00:00Z", media_type: "IMAGE", permalink: "/saved" }]);
+      expect(await load("account", "replacement-token")).toEqual([
+        expect.objectContaining({ id: "saved", text: "Saved post", date: new Date("2026-11-06T20:00:00Z") }),
+      ]);
+      expect(saveSocialSnapshot).not.toHaveBeenCalled();
+    });
+
+    it(`${platform} rejects malformed snapshots`, async () => {
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+      vi.mocked(fetch).mockRejectedValue(new Error("Network unavailable"));
+      vi.mocked(loadSocialSnapshot).mockResolvedValueOnce([{ id: "broken" }]);
+      expect(await load("account", "test-token")).toEqual([]);
+      expect(log).toHaveBeenCalledWith(`${platform} snapshot contains invalid posts.`);
+    });
+
     it(`${platform} propagates Next static-generation control flow without API failure logs`, async () => {
       const log = vi.spyOn(console, "error").mockImplementation(() => {});
       const bailout = new DynamicServerError("static generation bailout");
@@ -120,6 +147,7 @@ describe("social feed integration", () => {
     it(`${platform} accepts empty successful feeds`, async () => {
       vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: [] })));
       expect(await load("account", "test-token")).toEqual([]);
+      expect(saveSocialSnapshot).toHaveBeenCalledWith(platform, "account", expect.any(String), []);
     });
 
     it.each([
@@ -127,6 +155,8 @@ describe("social feed integration", () => {
       [{ data: [] }, 500],
       [{ data: "invalid" }, 200],
       [null, 200],
+      [{ data: [{ id: "invalid" }] }, 200],
+      [{ data: [null] }, 200],
     ])(`${platform} reports invalid/error responses without exposing credentials`, async (payload, status) => {
       const log = vi.spyOn(console, "error").mockImplementation(() => {});
       vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(payload), { status }));
@@ -145,4 +175,18 @@ describe("social feed integration", () => {
       expect(unstable_noStore).toHaveBeenCalled();
     });
   }
+
+  it.each([
+    { id: 42 },
+    { id: "post", created_time: 42, permalink_url: "/post" },
+    { id: "post", created_time: "invalid", permalink_url: "/post" },
+    { id: "post", created_time: "2026-11-06T20:00:00Z", permalink_url: 42 },
+    { id: "post", created_time: "2026-11-06T20:00:00Z", permalink_url: "/post", message: 42 },
+    { id: "post", created_time: "2026-11-06T20:00:00Z", permalink_url: "/post", full_picture: null },
+  ])("never persists malformed Meta posts (%j)", async (post) => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: [post] })));
+    expect(await fetchFacebookPosts("page", "test-token")).toEqual([]);
+    expect(saveSocialSnapshot).not.toHaveBeenCalled();
+  });
 });

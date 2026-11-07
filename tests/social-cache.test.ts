@@ -5,6 +5,12 @@ import { CacheHandler, IncrementalCache, type CacheHandlerValue } from "next/dis
 import type { StaticGenerationStore } from "next/dist/client/components/static-generation-async-storage.external";
 import { fetchSocialPosts } from "@/GlobalState/ApiCalls/fetchSocials";
 import * as serverHooks from "next/dist/client/components/hooks-server-context";
+import { BlobNotFoundError, get, head, put } from "@vercel/blob";
+
+vi.mock("@vercel/blob", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@vercel/blob")>(),
+  get: vi.fn(), head: vi.fn(), put: vi.fn(),
+}));
 
 class MemoryCache extends CacheHandler {
   private entries = new Map<string, CacheHandlerValue>();
@@ -31,13 +37,15 @@ describe("Next social data cache", () => {
     vi.stubEnv("FACEBOOK_ACCESS_TOKEN", "fake-facebook-token");
     vi.stubEnv("NEXT_PUBLIC_INSTAGRAM_ID", "cache-test-instagram");
     vi.stubEnv("INSTAGRAM_ACCESS_TOKEN", "fake-instagram-token");
+    vi.stubEnv("BLOB_READ_WRITE_TOKEN", "");
+    vi.stubEnv("VERCEL_ENV", "production");
     const upstream = vi.mocked(fetch);
     upstream.mockImplementation(async (url) => new Response(JSON.stringify({
       data: String(url).includes("/posts?")
         ? [{ id: "fb", message: "Feest!", created_time: "2026-11-06T19:00:00Z", permalink_url: "/fb" }]
         : [{ id: "ig", caption: "Feest!", timestamp: "2026-11-06T19:00:00Z", media_type: "IMAGE", permalink: "/ig" }],
     })));
-    const incrementalCache = new IncrementalCache({
+    const createCache = () => new IncrementalCache({
       dev: false,
       requestHeaders: {},
       CurCacheHandler: MemoryCache,
@@ -50,6 +58,7 @@ describe("Next social data cache", () => {
       }),
       experimental: { ppr: false },
     });
+    const incrementalCache = createCache();
     const { staticGenerationAsyncStorage: storage }: typeof import("next/dist/client/components/static-generation-async-storage.external") =
         require("next/dist/client/components/static-generation-async-storage.external");
     // Ordinary React lacks the server-only cache API. Disable only render memoization.
@@ -154,5 +163,38 @@ describe("Next social data cache", () => {
     expect(buildStore.revalidate).toBe(3600);
     expect(buildStore.dynamicUsageErr).toBeUndefined();
     expect(buildStore.isUnstableNoStore).toBeUndefined();
+
+    // Blob survives a completely new Next cache and rotated Meta credentials.
+    const blobs = new Map<string, string>();
+    vi.stubEnv("BLOB_READ_WRITE_TOKEN", "fake-blob-token");
+    vi.mocked(head).mockRejectedValue(new BlobNotFoundError());
+    vi.mocked(put).mockImplementation(async (path, body) => {
+      blobs.set(path, String(body));
+      return { url: path, downloadUrl: path, pathname: path, contentType: "application/json", contentDisposition: "", etag: "etag" };
+    });
+    vi.mocked(get).mockImplementation(async (path) => {
+      const body = blobs.get(path);
+      if (!body) return null;
+      return {
+        statusCode: 200, stream: new Response(body).body!, headers: new Headers(),
+        blob: {
+          url: path, downloadUrl: path, pathname: path, contentType: "application/json",
+          contentDisposition: "", cacheControl: "", etag: "etag", size: body.length, uploadedAt: new Date(),
+        },
+      };
+    });
+    await incrementalCache.revalidateTag("social");
+    await storage.run(buildStore, fetchSocialPosts);
+    expect(put).toHaveBeenCalledTimes(1);
+    expect(blobs.size).toBe(1);
+    vi.stubEnv("FACEBOOK_ACCESS_TOKEN", "another-meta-token");
+    upstream.mockImplementation(async () => new Response(JSON.stringify({ error: { code: 190 } }), { status: 401 }));
+    const coldStore: StaticGenerationStore = {
+      ...buildStore, isStaticGeneration: false, incrementalCache: createCache(), revalidate: 0,
+    };
+    expect((await storage.run(coldStore, fetchSocialPosts))[0].post.id).toBe("build-post");
+    expect((await storage.run({ ...coldStore }, fetchSocialPosts))[0].post.id).toBe("build-post");
+    expect(get).toHaveBeenCalledTimes(1);
+    expect(put).toHaveBeenCalledTimes(1);
   });
 });

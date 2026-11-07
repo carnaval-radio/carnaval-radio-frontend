@@ -31,6 +31,7 @@ export default defineConfig({
         "GlobalState/features/PlayerSlice.ts",
         "GlobalState/ApiCalls/fetchSongs.ts",
         "GlobalState/ApiCalls/fetchSocials.ts",
+        "GlobalState/ApiCalls/socialSnapshots.ts",
         "components/Notification.tsx",
         "components/TicketNudge.tsx",
         "components/RecentSongs/RecentSongs.tsx",

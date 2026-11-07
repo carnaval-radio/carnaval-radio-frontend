@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { unstable_cache, unstable_noStore } from "next/cache";
 import { isDynamicServerError } from "next/dist/client/components/hooks-server-context";
+import { loadSocialSnapshot, saveSocialSnapshot } from "./socialSnapshots";
 
 export interface SocialPost {
   id: string;
@@ -41,14 +42,38 @@ interface InstagramPost {
 
 const GRAPH_API_URL = "https://graph.facebook.com/v27.0";
 
+const validPost = (value: unknown, connection: "posts" | "media") => {
+  if (!value || typeof value !== "object" ||
+    !("id" in value) || typeof value.id !== "string") return false;
+  const date = connection === "posts" ? "created_time" : "timestamp";
+  const link = connection === "posts" ? "permalink_url" : "permalink";
+  if (!(date in value) || !(link in value)) return false;
+  const fields: Record<string, unknown> = value;
+  const dateValue = fields[date];
+  if (typeof dateValue !== "string" || !Number.isFinite(Date.parse(dateValue)) ||
+    typeof fields[link] !== "string") return false;
+  const optional = connection === "posts"
+    ? ["message", "full_picture"]
+    : ["caption", "media_url", "thumbnail_url"];
+  return optional.every((key) => fields[key] === undefined || typeof fields[key] === "string") &&
+    (connection === "posts" || typeof fields.media_type === "string");
+};
+
+const validFacebookPosts = (value: unknown): value is FacebookPost[] =>
+  Array.isArray(value) && value.every((post) => validPost(post, "posts"));
+const validInstagramPosts = (value: unknown): value is InstagramPost[] =>
+  Array.isArray(value) && value.every((post) => validPost(post, "media"));
+
 const fetchGraphPosts = async <T>(
   platform: SocialPost["type"],
   accountId: string,
   token: string,
   connection: "posts" | "media",
   fields: string,
+  validate: (value: unknown) => value is T[],
   limit?: number
 ): Promise<T[]> => {
+  const query = `${GRAPH_API_URL}:${connection}:${fields}:${limit ?? ""}`;
   // Cache validated payloads, never raw error responses or failure fallbacks.
   // Hash credentials so Next's background revalidation logs cannot expose them.
   const load = unstable_cache(async (): Promise<T[]> => {
@@ -71,7 +96,7 @@ const fetchGraphPosts = async <T>(
       throw new Error(`${platform} feed request failed.`);
     }
 
-    if (!response.ok || payload?.error || !Array.isArray(payload?.data)) {
+    if (!response.ok || payload?.error || !validate(payload?.data)) {
       console.error(`${platform} API error:`, {
         status: response.status,
         code: payload?.error?.code,
@@ -79,6 +104,7 @@ const fetchGraphPosts = async <T>(
       });
       throw new Error(`${platform} API returned an invalid feed.`);
     }
+    await saveSocialSnapshot(platform, accountId, query, payload.data);
     return payload.data;
   }, [
     "social-validated-v1", GRAPH_API_URL, platform, accountId, connection, fields,
@@ -92,6 +118,14 @@ const fetchGraphPosts = async <T>(
     console.error(`${platform} feed unavailable:`, error instanceof Error ? error.name : "Unknown error");
     // Keep the empty-feed UI, but do not persist a failed render in the route cache.
     unstable_noStore();
+    const snapshot = await loadSocialSnapshot(platform, accountId, query);
+    if (snapshot !== null) {
+      if (validate(snapshot)) {
+        console.warn(`${platform} feed using saved snapshot.`);
+        return snapshot;
+      }
+      console.error(`${platform} snapshot contains invalid posts.`);
+    }
     return [];
   }
 };
@@ -103,7 +137,7 @@ export const fetchFacebookPosts = async (
 ): Promise<SocialPost[]> => {
   const posts = await fetchGraphPosts<FacebookPost>(
     "Facebook", facebookPageId, facebookAccessToken, "posts",
-    "id,message,created_time,full_picture,permalink_url", limit
+    "id,message,created_time,full_picture,permalink_url", validFacebookPosts, limit
   );
   return posts.map((post) => ({
     id: post.id,
@@ -122,7 +156,7 @@ export const fetchInstagramPosts = async (
 ): Promise<SocialPost[]> => {
   const posts = await fetchGraphPosts<InstagramPost>(
     "Instagram", instagramId, instagramAccessToken, "media",
-    "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp", limit
+    "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp", validInstagramPosts, limit
   );
   return posts.map((post) => ({
     id: post.id,
