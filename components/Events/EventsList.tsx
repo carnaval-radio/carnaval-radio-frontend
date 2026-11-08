@@ -1,96 +1,170 @@
-import React, { Fragment } from "react";
-import { MdEvent } from "react-icons/md";
-import { Event } from "@/GlobalState/ApiCalls/fetchEvents";
-import DateAndTime from "../DateAndTime";
+import React from "react";
+import { MdEvent, MdLocationOn, MdOpenInNew } from "react-icons/md";
 import Image from "next/image";
+import type { Event } from "@/GlobalState/ApiCalls/fetchEvents";
 
 type EventsProps = {
   events: Event[];
   loading?: boolean;
 };
 
-const EventsList: React.FC<EventsProps> = ({ events, loading = null }) => {
+const getEventLink = (link: string | null | undefined) => {
+  if (!link) {
+    return null;
+  }
+
+  const value = link.trim();
+
+  if (value.startsWith("/") && !value.startsWith("//")) {
+    return { href: value, external: false };
+  }
+
+  try {
+    const url = new URL(value);
+    if (url.protocol === "http:" || url.protocol === "https:") {
+      return { href: value, external: true };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
+const EventsList: React.FC<EventsProps> = ({ events, loading = false }) => {
+  if (loading) {
+    return <EventsLoading />;
+  }
+
+  if (events.length === 0) {
+    return (
+      <p className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-8 text-center text-gray-600">
+        Geen evenementen gevonden.
+      </p>
+    );
+  }
+
   return (
-    <div>
-      {!loading ? (
-        <>
-          {events?.map((event: Event, i: any) => (
-            <Fragment key={"frag" + i}>
-              <div className="w-full grid grid-cols-12 gap-4 py-2">
-                <div className="col-span-10 md:col-span-3 flex items-center">
-                  <MdEvent
-                    size={24}
-                    className="mr-2"
-                  />
-                  <div
-                    className={`py-2 px-4 rounded-full ${
-                      i % 2 !== 0 ? "bg-tertiaryShade_1" : "bg-secondaryShade_1"
-                    }`}
-                  >
-                    <p
-                      className={`text-sm ${
-                        i % 2 !== 0 ? "text-tertiary" : "text-secondary"
-                      }`}
-                    >
-                      <DateAndTime date={new Date(event.Date)} />
-                    </p>
-                  </div>
-                </div>
-                <div className="col-span-2 md:col-span-1">
-                  {event.IsHighlighted && (
-                    <div className="mr-4 w-10">
-                      <Image
-                        width={32}
-                        height={32}
-                        src="https://res.cloudinary.com/dwzn0q9wj/image/upload/w_32,h_32/logo_square_512_1_78657ec246"
-                        alt={event.Title}
-                      />
-                    </div>
-                  )}
-                </div>
-                <div
-                  className={`col-span-12 md:col-span-6 ${
-                    event.IsHighlighted ? "font-bold" : ""
-                  }`}
-                >
-                  <p>{event.Title}</p>
-                </div>
-                <div className="col-span-12 md:col-span-2 text-[16px] hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r hover:from-primary hover:to-secondary font-semibold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                  {event.Address}
-                </div>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+      {events.map((event) => {
+        const eventDate = new Date(event.Date);
+        const dateIsValid = !Number.isNaN(eventDate.getTime());
+        const eventLink = getEventLink(event.Link);
+        const month = dateIsValid
+          ? new Intl.DateTimeFormat("nl-NL", { month: "short" })
+              .format(eventDate)
+              .replace(".", "")
+          : null;
+        const dateLabel = dateIsValid
+          ? new Intl.DateTimeFormat("nl-NL", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }).format(eventDate)
+          : "Datum onbekend";
+        const timeLabel = dateIsValid
+          ? new Intl.DateTimeFormat("nl-NL", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }).format(eventDate)
+          : null;
+
+        return (
+          <article
+            key={event.id}
+            className={`group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+              event.IsHighlighted
+                ? "border-primary/50 border-l-4 border-l-secondary bg-gradient-to-br from-primary/10 via-white to-secondary/5"
+                : "border-gray-200 hover:border-primary/40"
+            }`}
+          >
+            <div className="flex items-start gap-4">
+              <div
+                aria-hidden="true"
+                className={`flex h-[4.5rem] w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-xl ${
+                  event.IsHighlighted
+                    ? "bg-primary text-white"
+                    : "bg-secondaryShade_1 text-secondary"
+                }`}
+              >
+                {dateIsValid ? (
+                  <>
+                    <span className="text-2xl font-bold leading-none">
+                      {eventDate.getDate()}
+                    </span>
+                    <span className="mt-1 text-xs font-semibold uppercase tracking-wide">
+                      {month}
+                    </span>
+                  </>
+                ) : (
+                  <MdEvent aria-hidden="true" size={26} />
+                )}
               </div>
-              <div className="w-full h-[1px]  bg-gray-100"></div>
-            </Fragment>
-          ))}
-        </>
-      ) : (
-        <EventsLoading />
-      )}
+
+              <div className="min-w-0 flex-1">
+                {event.IsHighlighted && (
+                  <span className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/90 py-1 pl-1.5 pr-3 text-xs font-bold text-secondary shadow-sm">
+                    <Image
+                      src="/carnaval-radio-logo.png"
+                      alt=""
+                      width={44}
+                      height={26}
+                      className="h-[1.4rem] w-11 object-contain"
+                    />
+                    Carnaval Radio
+                  </span>
+                )}
+                <h3 className="break-words text-lg font-bold leading-snug text-gray-900">
+                  {event.Title}
+                </h3>
+                <p className="mt-1 text-sm font-medium text-gray-600">
+                  <time dateTime={event.Date}>
+                    {dateLabel}
+                    {timeLabel && ` · ${timeLabel} uur`}
+                  </time>
+                </p>
+              </div>
+            </div>
+
+            {event.Address && (
+              <p className="mt-5 flex items-start gap-2 text-sm text-gray-700">
+                <MdLocationOn
+                  aria-hidden="true"
+                  className="mt-0.5 shrink-0 text-lg text-secondary"
+                />
+                <span className="break-words">{event.Address}</span>
+              </p>
+            )}
+
+            {eventLink && (
+              <a
+                href={eventLink.href}
+                target={eventLink.external ? "_blank" : undefined}
+                rel={eventLink.external ? "noopener noreferrer" : undefined}
+                className="mt-auto inline-flex w-fit items-center gap-1 pt-5 text-sm font-semibold text-secondary transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              >
+                Meer informatie
+                {eventLink.external && (
+                  <MdOpenInNew aria-hidden="true" className="text-base" />
+                )}
+              </a>
+            )}
+          </article>
+        );
+      })}
     </div>
   );
 };
 
-const EventsLoading = () => {
-  const arr = [1, 2, 3, 4];
-  return (
-    <>
-      {arr.map((_, i) => (
-        <div key={"recentSongLoading" + i} className="flex flex-col">
-          <div className="flex items-center justify-between p-2 bg-gray-200 animate-pulse">
-            <div className="flex space-x-3">
-              <div className="h-9 w-9 rounded-full bg-gray-100"></div>
-              <div className="flex flex-col gap-1">
-                <div className="h-7 w-[200px] bg-gray-100 rounded-md"></div>
-                <div className="h-4 w-24 bg-gray-100 rounded-md"></div>
-              </div>
-            </div>
-            <div className={`py-4 px-8 rounded-full bg-greenShade_1`}></div>
-          </div>
-          <div className="w-full h-[1px] bg-gray-200"></div>
-        </div>
-      ))}
-    </>
-  );
-};
+const EventsLoading = () => (
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+    {[1, 2, 3].map((item) => (
+      <div
+        key={item}
+        className="h-48 animate-pulse rounded-2xl border border-gray-200 bg-gray-100"
+      />
+    ))}
+  </div>
+);
 
 export default EventsList;

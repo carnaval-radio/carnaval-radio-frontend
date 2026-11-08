@@ -1,4 +1,3 @@
-import React from "react";
 import { BsFileMusicFill } from "react-icons/bs";
 import { Indie } from "../fonts/font";
 import EventsList from "@/components/Events/EventsList";
@@ -14,7 +13,7 @@ export function generateMetadata() {
   );
 }
 
-const page = async () => {
+const Page = async () => {
   const events = await fetchEvents();
   const currentDate = new Date();
 
@@ -31,33 +30,83 @@ const page = async () => {
     .reverse();
 
   return (
-    <div className="p-10">
-      <div className="flex items-center gap-2 mb-4">
-        <BsFileMusicFill className="text-2xl text-secondary" />
-        <h1 className={`text-center text-2xl font-semibold ${Indie.className}`}>
+    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 lg:px-10">
+      <header className="mb-10 rounded-3xl bg-gradient-to-br from-primary/10 via-white to-secondary/10 px-6 py-8 sm:px-10 sm:py-10">
+        <div className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
+            <BsFileMusicFill
+              aria-hidden="true"
+              className="text-2xl text-secondary"
+            />
+          </span>
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-secondary">
+            Carnaval Radio agenda
+          </p>
+        </div>
+        <h1 className={`mt-5 text-4xl font-bold text-gray-900 sm:text-5xl ${Indie.className}`}>
           Evenementen
         </h1>
-      </div>
+        <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600 sm:text-lg">
+          Van feestavonden tot live optredens: ontdek waar je samen Vastelaovend
+          kunt vieren.
+        </p>
+      </header>
 
-      <h3 className={`text-xl font-semibold mt-4 mb-1 ${Indie.className}`}>
-        Aankomende evenementen
-      </h3>
-      <EventsList events={upcomingEvents} />
+      <section className="mb-12" aria-labelledby="upcoming-events-heading">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2
+              id="upcoming-events-heading"
+              className={`text-2xl font-bold text-gray-900 sm:text-3xl ${Indie.className}`}
+            >
+              Aankomende evenementen
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Zet de leukste momenten alvast in je agenda.
+            </p>
+          </div>
+          <span className="rounded-full bg-secondaryShade_1 px-3 py-1.5 text-sm font-semibold text-secondary">
+            {upcomingEvents.length}{" "}
+            {upcomingEvents.length === 1 ? "evenement" : "evenementen"}
+          </span>
+        </div>
+        <EventsList events={upcomingEvents} />
+      </section>
 
-      <h3 className={`text-xl font-semibold mt-8 mb-1 ${Indie.className}`}>
-        Eerdere evenementen
-      </h3>
-      <EventsList events={pastEvents} />
+      <section className="mb-10" aria-labelledby="past-events-heading">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2
+              id="past-events-heading"
+              className={`text-2xl font-bold text-gray-900 sm:text-3xl ${Indie.className}`}
+            >
+              Eerdere evenementen
+            </h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Nog even nagenieten van wat er is geweest.
+            </p>
+          </div>
+          <span className="rounded-full bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-600">
+            {pastEvents.length}{" "}
+            {pastEvents.length === 1 ? "evenement" : "evenementen"}
+          </span>
+        </div>
+        <EventsList events={pastEvents} />
+      </section>
 
-      <p className="p-10">
-        Wil je jouw evenement hier ook tussen hebben staan? Neem dan{" "}
-        <Link className="text-secondary" href="contact">
-          contact
-        </Link>{" "}
-        op
-      </p>
-    </div>
+      <aside className="rounded-2xl border border-primary/20 bg-primary/5 px-6 py-5 sm:flex sm:items-center sm:justify-between sm:gap-6">
+        <p className="text-gray-700">
+          Wil je jouw evenement hier ook tussen hebben staan?
+        </p>
+        <Link
+          className="mt-3 inline-flex font-semibold text-secondary underline decoration-secondary/40 underline-offset-4 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:mt-0"
+          href="/contact"
+        >
+          Neem contact op
+        </Link>
+      </aside>
+    </main>
   );
 };
 
-export default page;
+export default Page;

@@ -6,7 +6,7 @@ export interface Event  {
     Title: string;
     Date: string;
     Address: string;
-    Link: string;
+    Link: string | null;
     IsHighlighted: boolean;    
 }
 
