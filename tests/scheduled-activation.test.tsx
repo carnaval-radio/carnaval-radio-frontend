@@ -4,7 +4,7 @@ import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useScheduledActivation } from "@/helpers/useScheduledActivation";
 
-const START = "2026-11-08T11:00:00+01:00";
+const START = "2026-11-08T10:45:00+01:00";
 const startTime = Date.parse(START);
 
 beforeEach(() => {
@@ -14,7 +14,7 @@ beforeEach(() => {
 
 describe("scheduled activation", () => {
   it("uses the Netherlands offset independently of the visitor's timezone", () => {
-    expect(new Date(startTime).toISOString()).toBe("2026-11-08T10:00:00.000Z");
+    expect(new Date(startTime).toISOString()).toBe("2026-11-08T09:45:00.000Z");
   });
 
   it("activates at the exact boundary without a reload", () => {
@@ -54,7 +54,7 @@ describe("scheduled activation", () => {
       ({ date }) => useScheduledActivation(date),
       { initialProps: { date: START } },
     );
-    rerender({ date: "2026-11-08T11:00:01+01:00" });
+    rerender({ date: "2026-11-08T10:45:01+01:00" });
     act(() => vi.advanceTimersByTime(1000));
     expect(result.current).toBe(false);
     act(() => vi.advanceTimersByTime(1000));

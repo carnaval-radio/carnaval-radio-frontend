@@ -2,6 +2,7 @@ export interface NotificationData {
   enabled: boolean;
   nudgeEnabled: boolean;
   startsAt: string | null;
+  campaignId?: string;
   delay: number; // in milliseconds
   title: string;
   message: string;
@@ -15,7 +16,8 @@ export interface NotificationData {
 export const notificationData: NotificationData = {
   enabled: true,
   nudgeEnabled: true,
-  startsAt: "2026-11-08T11:00:00+01:00",
+  startsAt: "2026-11-08T10:45:00+01:00",
+  campaignId: "jubileum-2027-2026-11-08-1045",
   delay: 15000, // 15 seconds
   title: "Carnaval Radio 2x11 joar jubileumfeest 2027",
   message: "Vier op zaterdag 23 januari 2027 ons 2x11 joar jubileumfeest in de Brikke Oave in Brunssum! Samen met hoofdsponsor PLUS Quaedvlieg maken we er een onvergetelijke Limburgse Aovendj van, met John Tana, Pruuf Mar!, Beppie Kraft, Erwin, Big Benny, Spik en Span en meer.",

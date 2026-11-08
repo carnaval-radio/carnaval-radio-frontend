@@ -7,6 +7,9 @@ import { notificationData } from "@/data/notificationData";
 import { useScheduledActivation } from "@/helpers/useScheduledActivation";
 
 export default function Notification() {
+  const storageKey = notificationData.campaignId
+    ? `notification_last_shown_${notificationData.campaignId}`
+    : "notification_last_shown";
   const promotionActive = useScheduledActivation(notificationData.startsAt);
   const [showNotification, setShowNotification] = useState(false);
   const [hasShown, setHasShown] = useState(true); // Start with true to prevent flash
@@ -18,7 +21,7 @@ export default function Notification() {
     }
 
     // Check if notification has been shown before
-    const lastShownTimestamp = getLocalStorage("notification_last_shown", null);
+    const lastShownTimestamp = getLocalStorage(storageKey, null);
     
     if (lastShownTimestamp) {
       // If showAgainAfterDays is null, never show again
@@ -40,11 +43,11 @@ export default function Notification() {
     // Show notification after configured delay
     const timer = setTimeout(() => {
       setShowNotification(true);
-      setLocalStorage("notification_last_shown", Date.now());
+      setLocalStorage(storageKey, Date.now());
     }, notificationData.delay);
 
     return () => clearTimeout(timer);
-  }, [promotionActive]);
+  }, [promotionActive, storageKey]);
 
   const handleClose = () => {
     setShowNotification(false);

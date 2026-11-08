@@ -13,7 +13,7 @@ vi.mock("@/data/notificationData", () => ({
   notificationData: {
     enabled: true,
     nudgeEnabled: true,
-    startsAt: "2026-11-08T11:00:00+01:00",
+    startsAt: "2026-11-08T10:45:00+01:00",
     delay: 15000,
     title: "Test ticket promotion",
     message: "Test event details",
@@ -24,7 +24,7 @@ vi.mock("@/data/notificationData", () => ({
   } satisfies NotificationData,
 }));
 
-const startTime = Date.parse("2026-11-08T11:00:00+01:00");
+const startTime = Date.parse("2026-11-08T10:45:00+01:00");
 const themeData = {
   attributes: {
     Logo: { data: { attributes: { url: "https://res.cloudinary.com/test/image/upload/logo.png" } } },

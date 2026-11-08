@@ -9,7 +9,7 @@ vi.mock("@/data/notificationData", () => ({
   notificationData: {
     enabled: true,
     nudgeEnabled: true,
-    startsAt: "2026-11-08T11:00:00+01:00",
+    startsAt: "2026-11-08T10:45:00+01:00",
     delay: 15000,
     title: "Test ticket promotion",
     message: "Test event details",
@@ -21,14 +21,15 @@ vi.mock("@/data/notificationData", () => ({
   } satisfies NotificationData,
 }));
 
-const startTime = Date.parse("2026-11-08T11:00:00+01:00");
+const startTime = Date.parse("2026-11-08T10:45:00+01:00");
 
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(startTime);
   Object.assign(notificationData, {
     enabled: true,
-    startsAt: "2026-11-08T11:00:00+01:00",
+    startsAt: "2026-11-08T10:45:00+01:00",
+    campaignId: undefined,
     openInNewTab: true,
     iconType: "success",
     showAgainAfterDays: 5,
@@ -40,6 +41,21 @@ function advance(milliseconds = 15000) {
 }
 
 describe("ticket notification", () => {
+  it("shows a new campaign to previous viewers but retains its repeat limit", () => {
+    notificationData.campaignId = "new-campaign";
+    localStorage.setItem("notification_last_shown", JSON.stringify(startTime));
+    localStorage.setItem("notification_last_shown_old-campaign", JSON.stringify(startTime));
+    const view = render(<Notification />);
+    advance();
+    expect(screen.getByRole("heading")).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem("notification_last_shown_new-campaign")!))
+      .toBe(startTime + 15000);
+    view.unmount();
+    render(<Notification />);
+    advance();
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+  });
+
   it("waits until activation, then observes the full popup delay", () => {
     vi.setSystemTime(startTime - 1000);
     render(<Notification />);
