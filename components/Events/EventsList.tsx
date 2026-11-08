@@ -57,6 +57,7 @@ const EventsList: React.FC<EventsProps> = ({ events, loading = false }) => {
           : null;
         const dateLabel = dateIsValid
           ? new Intl.DateTimeFormat("nl-NL", {
+              weekday: "long",
               day: "numeric",
               month: "long",
               year: "numeric",
