@@ -46,6 +46,7 @@ export default defineConfig({
         "helpers/eventSubmission.ts",
         "app/api/events/submit/route.ts",
         "components/Events/SubmitEventForm.tsx",
+        "components/Events/EventsStructuredData.tsx",
         "app/refresh/actions.ts",
         "app/refresh/page.tsx",
       ],

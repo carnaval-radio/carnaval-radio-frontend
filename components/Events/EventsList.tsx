@@ -73,6 +73,7 @@ const EventsList: React.FC<EventsProps> = ({ events, loading = false }) => {
         return (
           <article
             key={event.id}
+            id={`event-${encodeURIComponent(event.id)}`}
             className={`group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
               event.IsHighlighted
                 ? "border-primary/50 border-l-4 border-l-secondary bg-gradient-to-br from-primary/10 via-white to-secondary/5"

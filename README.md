@@ -59,6 +59,8 @@ After committing and pushing this workflow, enable the **Lint, types, and tests*
 
 ## Event submissions
 
+The published agenda includes server-rendered `ItemList`/`Event` JSON-LD, with stable links to the visible event cards. It follows the displayed order (upcoming, then past) and uses the existing CMS names, start dates and location text. Missing details such as prices, end times and structured postal addresses are not invented. This helps search engines and AI systems interpret the agenda but does not guarantee event rich results; there are no individual event pages.
+
 The events page includes a Dutch submission form. Incomplete configuration shows a contact link instead. Configure these environment variables in `.env.local` and your deployment, then restart/redeploy:
 
 ```dotenv
@@ -142,7 +144,7 @@ Captions longer than 160 characters have a **Meer lezen** button showing the ful
 ## Ticket promotion
 
 - Manage the shared desktop and mobile menu in Strapi's `main` navigation. Add a **Tickets** external link with the URL `https://entrii.shop/carnaval-radio#`, rather than linking to the local tickets page. HTTPS menu links automatically open in a new tab. Navigation is cached for one hour.
-- Configure ticket promotions in [notificationData.ts](data/notificationData.ts) and redeploy. Both the modal (`enabled`) and mobile ticket icon (`nudgeEnabled`) are scheduled for **8 November 2026 at 10:11 Europe/Amsterdam**, using `startsAt: "2026-11-08T10:11:00+01:00"`. Deploy before that time; no redeploy or cache refresh is needed at activation, including for visitors who already have the site open. Set `startsAt: null` for immediate activation, or set either feature flag to `false` to disable it.
+- Configure ticket promotions in [notificationData.ts](data/notificationData.ts) and redeploy. Both the modal (`enabled`) and mobile ticket icon (`nudgeEnabled`) are scheduled for **8 November 2026 at 11:00 Europe/Amsterdam**, using `startsAt: "2026-11-08T11:00:00+01:00"`. Deploy before that time; no redeploy or cache refresh is needed at activation, including for visitors who already have the site open. Set `startsAt: null` for immediate activation, or set either feature flag to `false` to disable it.
 - The modal appears 15 seconds after activation or arrival (whichever is later) and repeats on a subsequent visit after 5 days, controlled by `delay` and `showAgainAfterDays`. Both promotions use the configured ticket-shop link.
 - To test the modal again before the repeat interval, run `localStorage.removeItem("notification_last_shown")` in the browser console and reload.
 - Set `nudgeEnabled: true` in the same configuration to show the animated ticket icon in the mobile header.

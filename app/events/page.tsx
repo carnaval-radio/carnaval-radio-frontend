@@ -2,6 +2,7 @@ import { BsFileMusicFill } from "react-icons/bs";
 import { Indie } from "../fonts/font";
 import EventsList from "@/components/Events/EventsList";
 import SubmitEventForm from "@/components/Events/SubmitEventForm";
+import EventsStructuredData from "@/components/Events/EventsStructuredData";
 import { fetchEvents } from "@/GlobalState/ApiCalls/fetchEvents";
 import Link from "next/link";
 import { pageMetadata } from "@/helpers/seo";
@@ -32,6 +33,7 @@ const Page = async () => {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-8 lg:px-10">
+      <EventsStructuredData events={[...upcomingEvents, ...pastEvents]} />
       <header className="mb-10 rounded-3xl bg-gradient-to-br from-primary/10 via-white to-secondary/10 px-6 py-8 sm:px-10 sm:py-10">
         <div className="flex items-center gap-3">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
