@@ -57,6 +57,8 @@ Real-browser end-to-end coverage, audio playback/Chromecast on real devices, upl
 
 After committing and pushing this workflow, enable the **Lint, types, and tests** check as a required status check in the GitHub branch rules for `main`, and require reviewed pull requests. This repository configuration alone does not block direct pushes or make Vercel wait for CI.
 
+Article HTML iframes use responsive aspect-ratio wrappers while retaining their source and playback permissions. Fixed-width content is constrained to the article width; wide tables and preformatted blocks scroll within the article instead of widening the page.
+
 ## Event submissions
 
 The published agenda includes server-rendered `ItemList`/`Event` JSON-LD, with stable links to the visible event cards. It follows the displayed order (upcoming, then past) and uses the existing CMS names, start dates and location text. Missing details such as prices, end times and structured postal addresses are not invented. This helps search engines and AI systems interpret the agenda but does not guarantee event rich results; there are no individual event pages.

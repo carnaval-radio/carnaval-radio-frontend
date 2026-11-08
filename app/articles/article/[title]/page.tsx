@@ -40,9 +40,9 @@ const page = ({ params }: { params: { title: string } }) => {
   return (
     <div className="py-8 px-4 sm:px-4 md:px-8 lg:px-8 xl:px-8 bg-heroBackground">
       {foundPost[0] && (
-        <div className="flex flex-col gap-4 max-w-3xl p-4 rounded-3xl bg-white">
-          <div className="flex items-center justify-between">
-            <h2 className="text-3xl font-semibold text-primary">
+        <div className="flex min-w-0 w-full flex-col gap-4 max-w-3xl p-4 rounded-3xl bg-white">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="min-w-0 break-words text-3xl font-semibold text-primary">
               {foundPost[0].title}
             </h2>
             <div className="w-1/4 text-right">

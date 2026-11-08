@@ -52,7 +52,39 @@ h1 {
 
 .article-content {
   min-width: 0;
+  max-width: 100%;
   overflow-wrap: anywhere;
+}
+
+.article-content :where(div, p, span, section, a, pre, table, video, iframe, embed, object) {
+  min-width: 0;
+  max-width: 100% !important;
+}
+
+.article-content pre,
+.article-content table {
+  overflow-x: auto;
+}
+
+.article-content table {
+  display: block;
+}
+
+.article-content video {
+  height: auto !important;
+}
+
+.article-embed {
+  position: relative;
+  width: 100%;
+}
+
+.article-content .article-embed-frame {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0;
 }
 
 .article-content img {

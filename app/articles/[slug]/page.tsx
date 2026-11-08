@@ -121,15 +121,15 @@ const page = async ({ params }: { params: { slug?: string } }) => {
               })
             }}
           />
-          <div className="flex flex-col gap-4 max-w-3xl p-4 rounded-3xl bg-white">
+          <div className="flex min-w-0 w-full flex-col gap-4 max-w-3xl p-4 rounded-3xl bg-white">
             {post.CoverVideo?.data?.attributes?.url && (
               <Video
                 src={post.CoverVideo.data.attributes.url}
                 className="rounded-xl"
               />
             )}
-            <div className="flex items-center justify-between">
-              <h2 className="text-3xl font-semibold text-primary">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="min-w-0 break-words text-3xl font-semibold text-primary">
                 {post.Title}
               </h2>
               {formatDate(post.publishedAt)}

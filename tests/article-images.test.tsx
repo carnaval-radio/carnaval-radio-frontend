@@ -28,6 +28,26 @@ afterAll(() => {
 });
 
 describe("article image layout", () => {
+  it("makes fixed-width iframe embeds responsive while preserving playback attributes", () => {
+    const { container } = render(<ArticleContent html='<div style="width:900px"><iframe width="560" height="315" style="width:560px;height:315px" src="https://www.youtube.com/embed/example" title="Aftermovie" allow="autoplay; fullscreen" allowfullscreen></iframe></div>' />);
+    const frame = container.querySelector("iframe")!;
+    expect(frame).toHaveAttribute("src", "https://www.youtube.com/embed/example");
+    expect(frame).toHaveAttribute("title", "Aftermovie");
+    expect(frame).toHaveAttribute("allow", "autoplay; fullscreen");
+    expect(frame).toHaveAttribute("allowfullscreen");
+    expect(frame).not.toHaveAttribute("width");
+    expect(frame).not.toHaveAttribute("height");
+    expect(frame).not.toHaveAttribute("style");
+    expect(frame.parentElement).toHaveClass("article-embed");
+    expect(frame.parentElement?.style.aspectRatio).toBe("560 / 315");
+  });
+
+  it("uses a responsive default for embeds without usable dimensions", () => {
+    const { container } = render(<ArticleContent html='<iframe src="https://www.youtube.com/embed/example" width="100%" height="0"></iframe>' />);
+    expect(container.querySelector(".article-embed")).toHaveStyle({ aspectRatio: "16 / 9" });
+    expect(container.querySelector("iframe")).toHaveAttribute("title", "Ingesloten media");
+  });
+
   it("includes the cover in the first gallery and lets visitors navigate to body images", () => {
     const { container } = render(<ArticleContent
       html='<p>Introduction</p><img src="/body.jpg" alt="Body poster">'

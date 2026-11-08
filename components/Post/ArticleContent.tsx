@@ -47,6 +47,24 @@ function imageBlock(node: DOMNode): ArticleImage[] | null {
 function renderNodes(nodes: DOMNode[], cover: { image?: ArticleImage }): ReactNode[] {
   const options: HTMLReactParserOptions = {
     replace(node) {
+      if (node instanceof Element && node.name === "iframe") {
+        const props = attributesToProps(node.attribs);
+        const width = Number(node.attribs.width);
+        const height = Number(node.attribs.height);
+        const ratio = width > 0 && height > 0 ? `${width} / ${height}` : "16 / 9";
+        return (
+          <div className="article-embed" style={{ aspectRatio: ratio }}>
+            {createElement("iframe", {
+              ...props,
+              title: node.attribs.title || "Ingesloten media",
+              className: "article-embed-frame",
+              style: undefined,
+              width: undefined,
+              height: undefined,
+            })}
+          </div>
+        );
+      }
       if (node instanceof Element && node.children.some(child => imageBlock(child as DOMNode))) {
         const name = ["p", "span", "a"].includes(node.name) ? "div" : node.name;
         return createElement(name, attributesToProps(node.attribs), renderNodes(node.children as DOMNode[], cover));
