@@ -104,7 +104,7 @@ News excerpts and **Lees verder** buttons use normal body-size text. Read-more b
 
 ## Article images
 
-Current and archived article bodies use [ArticleContent](components/Post/ArticleContent.tsx). Consecutive image-only blocks (including Strapi figures or images inside a paragraph) become a responsive gallery, ignoring editor widths, floats, and alignment. Images separated by text remain in place. Images are uncropped, lazy-loaded, and constrained to the content width; captions and existing image links are preserved. A single image is centered.
+Current and archived article bodies use [ArticleContent](components/Post/ArticleContent.tsx). Consecutive image-only blocks (including Strapi figures or images inside a paragraph) become a responsive gallery, ignoring editor widths, floats, and alignment. Images separated by text remain in place. Current articles include their cover image in the first gallery instead of displaying it separately; articles without body images get a cover-only gallery. A cover already present in the first group is not duplicated. Images are uncropped, lazy-loaded, and constrained to the content width; captions and existing image links are preserved. A single image is centered.
 
 Click an image to enlarge it. The native modal supports Escape, previous/next buttons, arrow keys, and returning focus to the opening button. Article cover images and non-image content retain their existing rendering.
 

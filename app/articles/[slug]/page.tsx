@@ -1,10 +1,8 @@
 import { client } from "@/GlobalState/ApiCalls/api.config";
 import { GET_SINGLE_POST } from "@/GlobalState/ApiCalls/graphql/article_queries";
-import Image from "next/image";
 import ArticleContent from "@/components/Post/ArticleContent";
 import NotFoundPage from "@/components/NotFoundPage";
 import Video from "@/components/Video";
-import { optimizeCardImage, getOptimizedImageProps } from "@/src/types/cloudinaryOptimization";
 
 export async function generateMetadata({ params }: any) {
   // Fetch the article data for metadata
@@ -136,17 +134,11 @@ const page = async ({ params }: { params: { slug?: string } }) => {
               </h2>
               {formatDate(post.publishedAt)}
             </div>
-            <ArticleContent html={post.Content} />
-            <Image
-              src={optimizeCardImage(post.CoverImage.data.attributes.url, 600)}
-              width={600}
-              height={400}
-              sizes="100vw"
-              className="rounded-xl"
-              style={{ width: '100%', height: 'auto' }}
-              alt={post.Title}
-              placeholder="blur"
-              blurDataURL={getOptimizedImageProps(post.CoverImage.data.attributes.url, 'card').blurDataURL}
+            <ArticleContent
+              html={post.Content}
+              coverImage={post.CoverImage?.data?.attributes?.url
+                ? { src: post.CoverImage.data.attributes.url, alt: post.Title }
+                : undefined}
             />
             <Suspense fallback={<ShareButtonsFallback />}>
               <ShareButtons slug={`nieuwsberichten/${params.slug}`} />

@@ -44,16 +44,15 @@ function imageBlock(node: DOMNode): ArticleImage[] | null {
   }));
 }
 
-const options: HTMLReactParserOptions = {
-  replace(node) {
-    if (node instanceof Element && node.children.some(child => imageBlock(child as DOMNode))) {
-      const name = ["p", "span", "a"].includes(node.name) ? "div" : node.name;
-      return createElement(name, attributesToProps(node.attribs), renderNodes(node.children as DOMNode[]));
-    }
-  },
-};
-
-function renderNodes(nodes: DOMNode[]): ReactNode[] {
+function renderNodes(nodes: DOMNode[], cover: { image?: ArticleImage }): ReactNode[] {
+  const options: HTMLReactParserOptions = {
+    replace(node) {
+      if (node instanceof Element && node.children.some(child => imageBlock(child as DOMNode))) {
+        const name = ["p", "span", "a"].includes(node.name) ? "div" : node.name;
+        return createElement(name, attributesToProps(node.attribs), renderNodes(node.children as DOMNode[], cover));
+      }
+    },
+  };
   const result: ReactNode[] = [];
   for (let index = 0; index < nodes.length; index++) {
     const images = imageBlock(nodes[index]);
@@ -69,12 +68,25 @@ function renderNodes(nodes: DOMNode[]): ReactNode[] {
       images.push(...following);
       lastImageIndex = next;
     }
+    if (cover.image) {
+      if (!images.some(image => image.src === cover.image?.src)) {
+        images.unshift(cover.image);
+      }
+      cover.image = undefined;
+    }
     result.push(<ArticleGallery key={index} images={images} />);
     index = lastImageIndex;
   }
   return result;
 }
 
-export default function ArticleContent({ html }: { html: string }) {
-  return <div className="cms-content article-content">{renderNodes(htmlToDOM(html))}</div>;
+export default function ArticleContent({ html, coverImage }: { html: string; coverImage?: ArticleImage }) {
+  const cover = { image: coverImage };
+  const content = renderNodes(htmlToDOM(html), cover);
+  return (
+    <div className="cms-content article-content">
+      {content}
+      {cover.image && <ArticleGallery images={[cover.image]} />}
+    </div>
+  );
 }

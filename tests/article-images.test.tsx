@@ -28,6 +28,42 @@ afterAll(() => {
 });
 
 describe("article image layout", () => {
+  it("includes the cover in the first gallery and lets visitors navigate to body images", () => {
+    const { container } = render(<ArticleContent
+      html='<p>Introduction</p><img src="/body.jpg" alt="Body poster">'
+      coverImage={{ src: "/cover.jpg", alt: "Article cover" }}
+    />);
+    expect(container.querySelectorAll(".article-gallery")).toHaveLength(1);
+    expect(container.querySelectorAll(".article-gallery-item")).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: "Vergroot afbeelding: Article cover" }));
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.querySelector("img")).toHaveAttribute("src", "/cover.jpg");
+    fireEvent.click(screen.getByRole("button", { name: "Volgende afbeelding" }));
+    expect(dialog.querySelector("img")).toHaveAttribute("src", "/body.jpg");
+  });
+
+  it("renders a cover-only gallery when the article has no body images", () => {
+    const { container } = render(<ArticleContent html="<p>Text only</p>" coverImage={{ src: "/cover.jpg", alt: "Cover" }} />);
+    expect(container).toHaveTextContent("Text only");
+    expect(container.querySelectorAll(".article-gallery-item")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "Vergroot afbeelding: Cover" }));
+    expect(screen.getByRole("dialog")).toHaveTextContent("1 / 1");
+  });
+
+  it("adds the cover only once with nested and multiple image groups", () => {
+    const { container } = render(<ArticleContent
+      html='<div><p>Intro</p><img src="/first.jpg"></div><p>More text</p><img src="/second.jpg">'
+      coverImage={{ src: "/cover.jpg", alt: "Cover" }}
+    />);
+    expect(container.querySelectorAll('img[src="/cover.jpg"]')).toHaveLength(1);
+    expect(container.querySelectorAll(".article-gallery-item")).toHaveLength(3);
+  });
+
+  it("does not duplicate the cover when it is already in the first image group", () => {
+    const { container } = render(<ArticleContent html='<img src="/cover.jpg" alt="Cover">' coverImage={{ src: "/cover.jpg", alt: "Cover" }} />);
+    expect(container.querySelectorAll(".article-gallery-item")).toHaveLength(1);
+  });
+
   it("groups consecutive Strapi figures and discards image alignment and widths", () => {
     const { container } = render(<ArticleContent html={`
       <p>Article introduction</p>
