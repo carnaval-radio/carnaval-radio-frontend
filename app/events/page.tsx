@@ -1,6 +1,7 @@
 import { BsFileMusicFill } from "react-icons/bs";
 import { Indie } from "../fonts/font";
 import EventsList from "@/components/Events/EventsList";
+import SubmitEventForm from "@/components/Events/SubmitEventForm";
 import { fetchEvents } from "@/GlobalState/ApiCalls/fetchEvents";
 import Link from "next/link";
 import { pageMetadata } from "@/helpers/seo";
@@ -43,9 +44,17 @@ const Page = async () => {
             Carnaval Radio agenda
           </p>
         </div>
-        <h1 className={`mt-5 text-4xl font-bold text-gray-900 sm:text-5xl ${Indie.className}`}>
-          Evenementen
-        </h1>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+          <h1 className={`text-4xl font-bold text-gray-900 sm:text-5xl ${Indie.className}`}>
+            Evenementen
+          </h1>
+          <Link
+            className="inline-flex min-h-11 items-center text-sm font-semibold text-secondary underline decoration-secondary/40 underline-offset-4 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+            href="#evenement-aanmelden"
+          >
+            Jouw evenement erbij? Meld het aan
+          </Link>
+        </div>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600 sm:text-lg">
           Van feestavonden tot live optredens: ontdek waar je samen Vastelaovend
           kunt vieren.
@@ -94,17 +103,13 @@ const Page = async () => {
         <EventsList events={pastEvents} />
       </section>
 
-      <aside className="rounded-2xl border border-primary/20 bg-primary/5 px-6 py-5 sm:flex sm:items-center sm:justify-between sm:gap-6">
-        <p className="text-gray-700">
-          Wil je jouw evenement hier ook tussen hebben staan?
-        </p>
-        <Link
-          className="mt-3 inline-flex font-semibold text-secondary underline decoration-secondary/40 underline-offset-4 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:mt-0"
-          href="/contact"
-        >
-          Neem contact op
-        </Link>
-      </aside>
+      <SubmitEventForm siteKey={
+        process.env.STRAPI_EVENT_SUBMISSION_TOKEN &&
+        process.env.TURNSTILE_SECRET_KEY &&
+        process.env.TURNSTILE_HOSTNAMES
+          ? process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+          : undefined
+      } />
     </main>
   );
 };

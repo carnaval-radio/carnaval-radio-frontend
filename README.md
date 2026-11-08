@@ -57,6 +57,25 @@ Real-browser end-to-end coverage, audio playback/Chromecast on real devices, upl
 
 After committing and pushing this workflow, enable the **Lint, types, and tests** check as a required status check in the GitHub branch rules for `main`, and require reviewed pull requests. This repository configuration alone does not block direct pushes or make Vercel wait for CI.
 
+## Event submissions
+
+The events page includes a Dutch submission form. Incomplete configuration shows a contact link instead. Configure these environment variables in `.env.local` and your deployment, then restart/redeploy:
+
+```dotenv
+STRAPI_EVENT_SUBMISSION_TOKEN=your-create-only-api-token
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your-turnstile-site-key
+TURNSTILE_SECRET_KEY=your-turnstile-secret-key
+TURNSTILE_HOSTNAMES=localhost,127.0.0.1
+```
+
+Submissions use the fixed endpoint `https://api.carnaval-radio.nl/api/events`. Keep both secrets server-side; never prefix them with `NEXT_PUBLIC_` or commit them. Create a **Custom** Strapi v4 API token granting only **Event > create** (no update, delete or read permissions). Do not reuse an administrative/full-access token. Draft & Publish must be enabled on Event. The server allowlists Title, Date, Address and optional Link, forces `publishedAt: null` and `IsHighlighted: false`, and verifies the returned draft. Editors review and publish drafts in Strapi; submissions do not refresh the public agenda.
+
+**Create permission is not draft-only:** Strapi v4's standard create endpoint can accept a publication date. The frontend endpoint enforces drafts, but a stolen create-only token could still create published events directly. For a strict draft-only capability, enforce draft creation in a Strapi controller/policy or expose a dedicated submission endpoint and grant the token only that action. This requires changes in the backend, not this repository.
+
+Reuse the existing Cloudflare Turnstile widget. Its allowed domains must cover production and local development. Set `TURNSTILE_HOSTNAMES=carnaval-radio.nl,www.carnaval-radio.nl` in Production and `localhost,127.0.0.1` in Development. Production rejects configurations containing loopback hosts. Leave Preview disabled until a widget-approved preview hostname is configured. Server-side verification requires an explicitly allowed, matching request hostname and the `event-submit` action. Ensure reverse proxies preserve the public request URL and Origin. Turnstile tokens are single-use; failures reset the widget. Do not automatically retry an unconfirmed CMS write, which might already have created a draft. Check Strapi before resubmitting.
+
+Dates are interpreted in `Europe/Amsterdam` regardless of the visitor's timezone. Invalid/past dates and nonexistent/ambiguous clock-change times are rejected. The form uses only the existing event schema; it does not collect contact details, descriptions or end dates. Requests require same-origin JSON, size/field validation and a verified Turnstile challenge. Add deployment-level rate limiting if submission volume becomes an issue.
+
 ## Search and AI discovery
 
 The homepage, news archive, events and team pages have distinct titles, descriptions, canonical URLs and matching social metadata. All team sort orders canonicalize to `/team/standaard`. Strapi content pages use their `Title` and a plain-text excerpt of `Content`; `/luisteren` and `/live-uitzendingen` have dedicated descriptions in [helpers/seo.ts](helpers/seo.ts). The root layout does not assign the homepage canonical to unrelated pages.
