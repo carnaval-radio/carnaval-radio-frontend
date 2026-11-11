@@ -83,8 +83,37 @@ export async function fetchNowPlaying(): Promise<RecentSong> {
     return song;
   }
 
+  const [current, history] = await Promise.allSettled([
+    fetchCentovaNowPlaying(source.nowPlayingUrl),
+    fetchRadioSongs(source.songsUrl),
+  ]);
+  if (current.status === "rejected" && history.status === "rejected") {
+    console.error("Centova recent feed also failed:", history.reason);
+    throw current.reason;
+  }
+  if (current.status === "rejected") {
+    console.warn("Centova now-playing failed; using recent feed:", current.reason);
+  }
+  if (history.status === "rejected") {
+    console.warn("Centova recent feed failed; using now-playing:", history.reason);
+  }
+
+  let newest = current.status === "fulfilled" ? current.value : undefined;
+  if (history.status === "fulfilled") {
+    for (const song of history.value) {
+      if (!newest || (song.date !== null &&
+          (newest.date === null || song.date > newest.date))) {
+        newest = { ...song, url: enrichCover(song.url, song) };
+      }
+    }
+  }
+  if (!newest) throw new Error("Radio provider returned no current track");
+  return newest;
+}
+
+async function fetchCentovaNowPlaying(nowPlayingUrl: string): Promise<RecentSong> {
   const { data } = await axios.get<CentovaStreamInfoResponse>(
-    source.nowPlayingUrl,
+    nowPlayingUrl,
     centovaRequestOptions(),
   );
   const info = data.type === "result" && Array.isArray(data.data) ? data.data[0] : undefined;
@@ -136,7 +165,7 @@ export async function fetchRadioSongs(songsUrl = getRadioSource().songsUrl): Pro
           ...song,
           ID: generateCustomSongId(song.artist, song.title),
           date: item.date * 1000,
-          url: enrichCover(item.enclosure?.url || CRLogo, song),
+          url: enrichCover(item.enclosure?.url || "", song, ""),
         };
       });
     }
@@ -178,7 +207,7 @@ export async function fetchRadioSongs(songsUrl = getRadioSource().songsUrl): Pro
           ...enriched,
           ID: generateCustomSongId(enriched.artist, enriched.title),
           date: playTimes[index], // Use pre-calculated timestamp
-          url: enrichCover(mergedCovers?.[index] || "", enriched),
+          url: enrichCover(mergedCovers?.[index] || "", enriched, ""),
         };
       }
     );
@@ -256,9 +285,27 @@ function specialCasesContains(text?: string) {
   return SpecialCases.includes(text.toLocaleLowerCase());
 }
 
-export function enrichCover(coverUrl: string, song: Song) {
-  if (coverUrl.toLowerCase().includes("5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6")) {
-    return CRLogo;
+const UNKNOWN_ARTWORK_IDS = [
+  "5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6",
+  "8e96f0c5-404a-896b-d64d-9d5b3eb2de51",
+  "86cb38fe-ad25-6b2f-79b0-c986ae0e4f81",
+  "3e567223-256d-b7ae-73bf-5a187117d180",
+  "bcc84e1f-94f8-b2d2-7681-bfdf4a89bf8d",
+  "014b20d1-949e-445a-d93f-a74e37a743e9",
+];
+
+export function isUnknownCover(coverUrl: string): boolean {
+  const normalizedCoverUrl = coverUrl.toLowerCase();
+  return (
+    !coverUrl ||
+    UNKNOWN_ARTWORK_IDS.some((id) => normalizedCoverUrl.includes(id)) ||
+    normalizedCoverUrl.includes("nocover.png")
+  );
+}
+
+export function enrichCover(coverUrl: string, song: Song, unknownCover = CRLogo) {
+  if (isUnknownCover(coverUrl)) {
+    return unknownCover;
   }
 
   if(song.title.toLowerCase().includes("live")) {
@@ -270,13 +317,6 @@ export function enrichCover(coverUrl: string, song: Song) {
   }
   
   if (specialCasesContains(song.artist)) {
-    return CRLogo;
-  }
-
-  if (
-    song.artist === DefaultCarnavalRadio &&
-    coverUrl.includes("nocover.png")
-  ) {
     return CRLogo;
   }
 

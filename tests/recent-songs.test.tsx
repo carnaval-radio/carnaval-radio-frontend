@@ -50,13 +50,18 @@ beforeEach(() => {
 });
 
 describe("played songs list", () => {
-  it("replaces known unknown artwork even for saved tracks", () => {
+  it.each([
+    "https://is1-ssl.mzstatic.com/image/thumb/5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6/artwork.jpg/300x300bb.jpg",
+    "https://is1-ssl.mzstatic.com/image/thumb/8e96f0c5-404a-896b-d64d-9d5b3eb2de51/artwork.jpg/100x100bb.jpg",
+    "https://server1.coophosting.nl/static/novanani/covers/nocover.png",
+    "https://ams1.reliastream.com/static/scarna00/covers/nocover.png",
+  ])("replaces known unknown artwork even for saved tracks: %s", (url) => {
     render(<RecentSongs loading={false} recentTracks={[{
       ...tracks[0],
-      url: "https://is1-ssl.mzstatic.com/image/thumb/5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6/artwork.jpg/300x300bb.jpg",
+      url,
     }]} />);
-    expect(screen.getByRole("img", { name: tracks[0].artist }).getAttribute("src"))
-      .toContain("cloudinary.com");
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3 })).not.toBeEmptyDOMElement();
   });
 
   it("renders full titles and artist names even on a narrow viewport", () => {

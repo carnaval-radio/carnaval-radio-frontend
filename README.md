@@ -47,9 +47,13 @@ also bypasses the CMS. Public environment settings require a rebuild/redeploy.
 Switching is manual/configurable, not automatic: metadata availability alone
 does not prove an audio stream is healthy.
 
-Coophosting uses `streaminfo.get` for the player's current track, separately from
-the recent feed used for history. `NEXT_PUBLIC_RADIO_NOW_PLAYING_URL` optionally
-overrides that endpoint. History uses each feed item's actual Unix timestamp,
+The Coophosting player checks `streaminfo.get` and the recent feed in parallel,
+using the track with the newest actual start timestamp. Ties prefer
+`streaminfo.get`; if one endpoint fails, the other is used and the failure is
+logged. If both fail, the player shows its existing provider-error message.
+This makes two direct provider requests per player refresh, without adding site
+API calls. `NEXT_PUBLIC_RADIO_NOW_PLAYING_URL` optionally overrides the dedicated
+now-playing endpoint. History uses each feed item's actual Unix timestamp,
 including when merging nearby database entries; ReliaStream retains estimated
 history times. Player and history refresh every 30 seconds. History requests use
 normal browser caching: responses allow 30 seconds in the browser and 60 seconds
@@ -63,9 +67,10 @@ confirm platform behavior. Player metadata calls go directly to the streaming
 service, not through this route. Centova requests use a changing query parameter
 to avoid reusing its two-minute browser cache; Centova's own server-side caching
 can still delay updates.
-The known unknown-track Apple artwork is replaced by the station logo, matching
-its artwork ID rather than its CDN hostname or thumbnail dimensions. This also
-applies to saved history and favorites.
+Known unknown-track Apple artwork and `nocover.png` placeholders are detected
+by artwork ID rather than CDN hostname or thumbnail dimensions. Song lists
+show artist initials on a colored background for these covers, including saved
+history and favorites. The player uses the station logo for unknown artwork.
 
 ```bash
 pnpm check          # lint, TypeScript, tests, and coverage

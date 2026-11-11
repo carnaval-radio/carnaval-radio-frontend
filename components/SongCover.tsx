@@ -1,44 +1,33 @@
 import React from "react";
 import Image from "next/image";
+import { enrichCover, isUnknownCover } from "@/GlobalState/ApiCalls/fetchSongs";
 import { getInitials, getRandomColor } from "@/helpers/randomColor";
-import { enrichCover } from "@/GlobalState/ApiCalls/fetchSongs";
 
 interface Props {
   url: string;
   artist: string;
   type?: string;
 }
-
-
-
 const SongCover = ({ url, artist, type = "hero" }: Props) => {
-  const nocover =
-    "https://ams1.reliastream.com/static/scarna00/covers/nocover.png";
-
-  const isNocover = url === nocover;
-  const initials = getInitials(artist);
-  const backgroundColor = isNocover ? getRandomColor(artist) : "transparent";
-
+  const unknown = isUnknownCover(url);
   const commonClasses = `rounded-md ${
     type === "hero" ? "h-14 w-14" : "h-16 w-16"
   }`;
 
   return (
     <div
-      style={{ backgroundColor }}
+      style={{ backgroundColor: unknown ? getRandomColor(artist) : "transparent" }}
       className={`${commonClasses} flex items-center justify-center flex-shrink-0`}
     >
-      {isNocover ? (
-        <h3 className="text-xl font-semibold text-white">{initials}</h3>
-      ) : (
-        <Image
-          src={enrichCover(url, { artist, title: "" })}
-          alt={artist}
-          height={100}
-          width={100}
-          className={`${commonClasses} object-cover`}
-        />
-      )}
+      {unknown ? (
+        <h3 className="text-xl font-semibold text-white">{getInitials(artist)}</h3>
+      ) : <Image
+        src={enrichCover(url, { artist, title: "" })}
+        alt={artist}
+        height={100}
+        width={100}
+        className={`${commonClasses} object-cover`}
+      />}
     </div>
   );
 };
