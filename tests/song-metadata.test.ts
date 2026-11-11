@@ -4,15 +4,19 @@ import {
   enrichCover,
   estimatePlayTimes,
   fetchSongs,
+  fetchRadioSongs,
   generateCustomSongId,
   getSongDuration,
   normalizeString,
   splitTitle,
 } from "@/GlobalState/ApiCalls/fetchSongs";
+import { getRadioSource } from "@/data/radioConfig";
 
 vi.mock("axios", () => ({ default: { get: vi.fn() } }));
 
 beforeEach(() => {
+  vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "reliastream");
+  vi.stubEnv("NEXT_PUBLIC_RADIO_SONGS_URL", "");
   vi.useFakeTimers();
   vi.setSystemTime("2026-11-08T09:11:00Z");
 });
@@ -60,6 +64,56 @@ describe("song metadata", () => {
 });
 
 describe("radio history fetching", () => {
+  it("defaults to the paired temporary stream and feed without a CMS override", async () => {
+    vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "");
+    vi.stubEnv("NEXT_PUBLIC_RADIO_STREAM_URL", "");
+    expect(getRadioSource()).toEqual({
+      provider: "coophosting",
+      streamUrl: "https://server1.coophosting.nl/proxy/novanani/stream",
+      songsUrl: "https://server1.coophosting.nl:2199/recentfeed/novanani/json/",
+      useCmsStream: false,
+    });
+    vi.mocked(axios.get).mockResolvedValue({
+      data: { items: [
+        { title: "Bjorn Mieke - Nog Efkes", date: 1794380825, enclosure: { url: "https://example.test/cover.jpg" } },
+        { title: "Artist - Song - Part Two", date: 1794380591 },
+      ] },
+    });
+    const songs = await fetchRadioSongs();
+    expect(axios.get).toHaveBeenCalledWith(getRadioSource().songsUrl, { timeout: 10000 });
+    expect(songs[0]).toEqual({
+      artist: "Bjorn Mieke", title: "Nog Efkes", ID: "bjorn-mieke-nog-efkes",
+      date: 1794380825000, url: "https://example.test/cover.jpg",
+    });
+    expect(songs[1]).toMatchObject({ artist: "Artist", title: "Song - Part Two" });
+    expect(songs[1].url).toContain("cloudinary.com");
+  });
+
+  it("supports provider switching and explicit endpoint overrides", () => {
+    vi.stubEnv("NEXT_PUBLIC_RADIO_STREAM_URL", "");
+    expect(getRadioSource().useCmsStream).toBe(true);
+    vi.stubEnv("NEXT_PUBLIC_RADIO_STREAM_URL", "https://example.test/stream");
+    vi.stubEnv("NEXT_PUBLIC_RADIO_SONGS_URL", "https://example.test/songs");
+    expect(getRadioSource()).toMatchObject({
+      streamUrl: "https://example.test/stream",
+      songsUrl: "https://example.test/songs",
+      useCmsStream: false,
+    });
+    vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "invalid");
+    expect(() => getRadioSource()).toThrow("Unsupported radio provider");
+  });
+
+  it.each([
+    {},
+    { items: [] },
+    { items: [{ title: "Song", date: "invalid" }] },
+    { items: [{ title: "", date: 1794380825 }] },
+  ])("surfaces invalid Centova metadata to the player: %j", async (data) => {
+    vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "coophosting");
+    vi.mocked(axios.get).mockResolvedValue({ data });
+    await expect(fetchRadioSongs()).rejects.toThrow("Centova Cast returned");
+  });
+
   it("normalizes now-playing order, attaches covers, and filters the live placeholder", async () => {
     vi.mocked(axios.get).mockResolvedValue({
       data: {

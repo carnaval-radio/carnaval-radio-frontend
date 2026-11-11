@@ -12,6 +12,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.reliastream.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'server1.coophosting.nl',
+      },
             {
         protocol: 'https',
         hostname: '**.mzstatic.com',

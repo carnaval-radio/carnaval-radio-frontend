@@ -31,6 +31,22 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 ## Automated checks and maintenance
 
+### Radio provider switching
+
+Playback, now-playing metadata and recent history share the provider selected by
+`NEXT_PUBLIC_RADIO_PROVIDER`. It defaults to `coophosting` for the temporary
+Coophosting stream and Centova Cast recent feed. This bypasses the CMS stream URL
+so an old CMS setting cannot send listeners back to the unavailable stream.
+
+To switch back, set `NEXT_PUBLIC_RADIO_PROVIDER=reliastream` and rebuild/redeploy.
+ReliaStream uses the CMS stream URL, falling back to `NEXT_PUBLIC_STREAM_FALLBACK`
+if the CMS is unavailable. Optional `NEXT_PUBLIC_RADIO_STREAM_URL` and
+`NEXT_PUBLIC_RADIO_SONGS_URL` overrides replace the selected provider's URLs;
+the metadata format must still match that provider. An explicit stream override
+also bypasses the CMS. Public environment settings require a rebuild/redeploy.
+Switching is manual/configurable, not automatic: metadata availability alone
+does not prove an audio stream is healthy.
+
 ```bash
 pnpm check          # lint, TypeScript, tests, and coverage
 pnpm test           # all regression tests, once

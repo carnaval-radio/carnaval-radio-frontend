@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getRadioSource } from "@/data/radioConfig";
 
 export interface Song {
   artist: string;
@@ -37,7 +38,13 @@ EXAMPLE FORMAT FROM RELIASTREAM API:
   format: { '0': 'audio/aac' }
 }
 */
-const SONGS_URL = "https://s20.reliastream.com:2020/json/stream/8010";
+type CentovaResponse = {
+  items: {
+    title: string;
+    date: number;
+    enclosure?: { url?: string };
+  }[];
+};
 
 type ReliaStreamResponse = {
   data: {
@@ -52,10 +59,45 @@ export const EXTERNAL_MAXIMUM_SONG_HISTORY_AMOUNT = 6;
 
 export async function fetchSongs(): Promise<RecentSong[]> {
   try {
+    return await fetchRadioSongs();
+  } catch (error) {
+    console.error("Failed to fetch songs:", error);
+    return [];
+  }
+}
+
+// Unlike the history wrapper, let the player surface metadata failures.
+export async function fetchRadioSongs(): Promise<RecentSong[]> {
+    const source = getRadioSource();
+    if (source.provider === "coophosting") {
+      const { data } = await axios.get<CentovaResponse>(source.songsUrl, { timeout: 10000 });
+      if (!Array.isArray(data.items) || data.items.length === 0) {
+        throw new Error("Centova Cast returned no recent tracks");
+      }
+      return data.items.map((item) => {
+        if (typeof item.title !== "string" || !item.title.trim() || !Number.isFinite(item.date)) {
+          throw new Error("Centova Cast returned invalid track metadata");
+        }
+        // Centova uses artist - title, unlike ReliaStream history.
+        const separator = item.title.indexOf(" - ");
+        const song = enrichTitle(separator < 0
+          ? { artist: "Unknown", title: item.title }
+          : {
+              artist: item.title.slice(0, separator).trim(),
+              title: item.title.slice(separator + 3).trim(),
+            });
+        return {
+          ...song,
+          ID: generateCustomSongId(song.artist, song.title),
+          date: item.date * 1000,
+          url: enrichCover(item.enclosure?.url || CRLogo, song),
+        };
+      });
+    }
     const {
       data: { nowplaying, coverart, trackhistory, covers },
     }: ReliaStreamResponse =
-      await axios.get(SONGS_URL);
+      await axios.get(source.songsUrl, { timeout: 10000 });
     let previousSongNameContainsLive = false;
 
     // Swap title and artist for nowplaying so it matches the trackhistory format
@@ -96,10 +138,6 @@ export async function fetchSongs(): Promise<RecentSong[]> {
     );
 
     return modifiedTracks.filter((song): song is RecentSong => song !== null);
-  } catch (error) {
-    console.error("Failed to fetch songs:", error);
-    return [];
-  }
 }
 
 export function splitTitle(title: string) {

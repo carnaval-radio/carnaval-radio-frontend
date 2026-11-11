@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import PlayerControls from "./PlayerControls";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
 import { client } from "@/GlobalState/ApiCalls/api.config";
 import { GET_STREAM_DATA } from "@/GlobalState/ApiCalls/graphql/stream_queries";
 import { setsSongTitle, setPlay } from "@/GlobalState/features/PlayerSlice";
@@ -10,14 +9,15 @@ import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
 import { useRemotePlayback } from "./useRemotePlayback";
 import { setCastClickHandler } from "../MobileChromecast";
-import { enrichCover, generateCustomSongId } from "@/GlobalState/ApiCalls/fetchSongs";
+import { fetchRadioSongs, generateCustomSongId } from "@/GlobalState/ApiCalls/fetchSongs";
+import { getRadioSource } from "@/data/radioConfig";
 
 const Player = () => {
   const dispatch = useDispatch();
   const { isPlaying, muted } = useSelector(
     (state: GlobalState) => state.Player
   );
-  const [trackUrl, setTrackUrl] = useState("");
+  const [trackUrl, setTrackUrl] = useState(() => getRadioSource().streamUrl);
   const unknownSong = "Carnaval-Radio.nl";
   const unknownArtist = "Carnaval-Radio.nl";
 
@@ -90,6 +90,8 @@ const Player = () => {
   }, [isRemoteCasting, startRemotePlayback, stopRemotePlayback]);
 
   const fetchStream = async () => {
+    const source = getRadioSource();
+    if (!source.useCmsStream) return;
     try {
       const { data } = await client.query({
         query: GET_STREAM_DATA,
@@ -97,7 +99,7 @@ const Player = () => {
 
       const streamLink = data?.streams?.data?.[0]?.attributes?.Link;
 
-  setTrackUrl(streamLink || process.env.NEXT_PUBLIC_STREAM_FALLBACK);
+      setTrackUrl(streamLink || source.streamUrl);
     } catch (error) {
       console.error("Failed to fetch stream:", error);
     }
@@ -114,22 +116,9 @@ const Player = () => {
 
   const fetchTrackData = async () => {
     try {
-      const response = await axios.get(
-        "https://s20.reliastream.com:2020/json/stream/8010"
-      );
-      const data = response.data;
-
-      // Split artist/title if needed
-      let artist = unknownArtist;
-      let title = data.nowplaying || unknownSong;
-
-      if (data.nowplaying.includes(" - ")) {
-        [artist, title] = data.nowplaying
-          .split(" - ")
-          .map((s: string) => s.trim());
-      }
-
-      const coverArt = enrichCover(data.coverart || "", { title, artist });
+      const [song] = await fetchRadioSongs();
+      if (!song) throw new Error("Radio provider returned no current track");
+      const { artist, title, url: coverArt } = song;
 
       setCurrentTrack({
         title,
@@ -178,7 +167,7 @@ const Player = () => {
     } else {
       audioElem.current?.pause();
     }
-  }, [isPlaying, isRemoteCasting]);
+  }, [isPlaying, isRemoteCasting, trackUrl]);
 
   if (audioElem.current) {
     audioElem.current.onplay = () => {
