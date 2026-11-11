@@ -16,6 +16,11 @@ export function getRadioSource() {
         ? "https://server1.coophosting.nl:2199/recentfeed/novanani/json/"
         : "https://s20.reliastream.com:2020/json/stream/8010"
     ),
+    nowPlayingUrl: process.env.NEXT_PUBLIC_RADIO_NOW_PLAYING_URL || (
+      provider === "coophosting"
+        ? "https://server1.coophosting.nl:2199/rpc/novanani/streaminfo.get"
+        : process.env.NEXT_PUBLIC_RADIO_SONGS_URL || "https://s20.reliastream.com:2020/json/stream/8010"
+    ),
     useCmsStream: provider === "reliastream" && !process.env.NEXT_PUBLIC_RADIO_STREAM_URL,
   };
 }

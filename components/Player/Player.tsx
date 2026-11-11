@@ -9,7 +9,7 @@ import { GlobalState } from "@/GlobalState/GlobalState";
 import { Track } from "@/types/trackTypes";
 import { useRemotePlayback } from "./useRemotePlayback";
 import { setCastClickHandler } from "../MobileChromecast";
-import { fetchRadioSongs, generateCustomSongId } from "@/GlobalState/ApiCalls/fetchSongs";
+import { fetchNowPlaying, generateCustomSongId } from "@/GlobalState/ApiCalls/fetchSongs";
 import { getRadioSource } from "@/data/radioConfig";
 
 const Player = () => {
@@ -116,8 +116,7 @@ const Player = () => {
 
   const fetchTrackData = async () => {
     try {
-      const [song] = await fetchRadioSongs();
-      if (!song) throw new Error("Radio provider returned no current track");
+      const song = await fetchNowPlaying();
       const { artist, title, url: coverArt } = song;
 
       setCurrentTrack({

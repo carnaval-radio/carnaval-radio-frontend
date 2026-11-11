@@ -50,6 +50,15 @@ beforeEach(() => {
 });
 
 describe("played songs list", () => {
+  it("replaces known unknown artwork even for saved tracks", () => {
+    render(<RecentSongs loading={false} recentTracks={[{
+      ...tracks[0],
+      url: "https://is1-ssl.mzstatic.com/image/thumb/5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6/artwork.jpg/300x300bb.jpg",
+    }]} />);
+    expect(screen.getByRole("img", { name: tracks[0].artist }).getAttribute("src"))
+      .toContain("cloudinary.com");
+  });
+
   it("renders full titles and artist names even on a narrow viewport", () => {
     vi.stubGlobal("innerWidth", 320);
     render(<RecentSongs loading={false} recentTracks={tracks} />);
@@ -121,7 +130,7 @@ describe("widget and full-page integration", () => {
   it("renders the same full song text in the homepage widget", async () => {
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ songs: tracks, canAddToFavorites: true })));
     await act(async () => render(<HeroSongs />));
-    expect(fetch).toHaveBeenCalledWith("/api/songs?limit=4", { cache: "default" });
+    expect(fetch).toHaveBeenCalledWith("/api/songs?limit=4", { cache: "no-store" });
     expect(screen.getByText(tracks[0].title)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Meer gedraaide nummers" })).toHaveAttribute("href", "/gedraaide-nummers");
     expect(screen.getByRole("button", { name: `Reacties: ${tracks[0].title}` })).toBeInTheDocument();
@@ -133,9 +142,27 @@ describe("widget and full-page integration", () => {
     await act(async () => {
       container = render(<RecentSongsPage />).container;
     });
-    expect(fetch).toHaveBeenCalledWith("/api/songs?limit=50", { cache: "default" });
+    expect(fetch).toHaveBeenCalledWith("/api/songs?limit=50", { cache: "no-store" });
     expect(screen.getByText(tracks[0].title)).toBeInTheDocument();
     expect(container!.firstElementChild).toHaveClass("px-4");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gedraaide nummers");
+  });
+
+  it.each([
+    ["homepage", HeroSongs],
+    ["history", RecentSongsPage],
+  ])("refreshes %s history after 30 seconds and stops on unmount", async (_, Component) => {
+    vi.mocked(fetch).mockImplementation(async () =>
+      new Response(JSON.stringify({ songs: tracks, canAddToFavorites: true })));
+    let view: ReturnType<typeof render>;
+    await act(async () => { view = render(<Component />); });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    await act(async () => { vi.advanceTimersByTime(29999); });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    await act(async () => { vi.advanceTimersByTime(1); });
+    expect(fetch).toHaveBeenCalledTimes(2);
+    view!.unmount();
+    await act(async () => { vi.advanceTimersByTime(30000); });
+    expect(fetch).toHaveBeenCalledTimes(2);
   });
 });

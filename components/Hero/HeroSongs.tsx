@@ -4,7 +4,7 @@ import { BsFileMusicFill } from "react-icons/bs";
 import Link from "next/link";
 import { Indie } from "@/app/fonts/font";
 import RecentSongs from "../RecentSongs/RecentSongs";
-import { RecentSong, fetchSongs } from "@/GlobalState/ApiCalls/fetchSongs";
+import { RecentSong } from "@/GlobalState/ApiCalls/fetchSongs";
 
 const HeroSongs = () => {
 	const [recentTracks, setRecentTracks] = useState<RecentSong[]>([]);
@@ -15,9 +15,7 @@ const HeroSongs = () => {
 	const fetchTracks = async () => {
 		try {
 			// Fetch only the 4 most recent songs for the hero section
-			setLoading(true);
-			// Fetch from API route with caching enabled
-			const res = await fetch('/api/songs?limit=4', { cache: 'default' });
+			const res = await fetch('/api/songs?limit=4', { cache: 'no-store' });
 			if (!res.ok) {
 				// dont render component on error
 				throw new Error(`HTTP error! status: ${res.status}`);
@@ -25,9 +23,6 @@ const HeroSongs = () => {
 			const data = await res.json();
 			setRecentTracks(data.songs || []);
 			setCanAddToFavorites(!!data.canAddToFavorites);
-			// Direct fetch (bypass API route)
-			// const data = await fetchSongs();
-			// setRecentTracks(data.slice(0, 4));
 			setLoading(false);
 		} catch (error) {
 			setError(true);
@@ -36,8 +31,7 @@ const HeroSongs = () => {
 
 	useEffect(() => {
 		fetchTracks();
-		// Reduced from 30s to 5 minutes (300,000ms) - homepage songs don't need constant updates
-		const interval = setInterval(fetchTracks, 300000);
+		const interval = setInterval(fetchTracks, 30000);
 		return () => clearInterval(interval);
 	}, [error]);
 

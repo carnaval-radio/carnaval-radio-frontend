@@ -47,6 +47,18 @@ also bypasses the CMS. Public environment settings require a rebuild/redeploy.
 Switching is manual/configurable, not automatic: metadata availability alone
 does not prove an audio stream is healthy.
 
+Coophosting uses `streaminfo.get` for the player's current track, separately from
+the recent feed used for history. `NEXT_PUBLIC_RADIO_NOW_PLAYING_URL` optionally
+overrides that endpoint. History uses each feed item's actual Unix timestamp,
+including when merging nearby database entries; ReliaStream retains estimated
+history times. Player and history refresh every 30 seconds. History responses
+are not cached by the app, and Centova requests use a changing query parameter
+to avoid the browser reusing a two-minute cached response. Centova's own
+server-side caching can still delay updates.
+The known unknown-track Apple artwork is replaced by the station logo, matching
+its artwork ID rather than its CDN hostname or thumbnail dimensions. This also
+applies to saved history and favorites.
+
 ```bash
 pnpm check          # lint, TypeScript, tests, and coverage
 pnpm test           # all regression tests, once

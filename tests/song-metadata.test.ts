@@ -5,6 +5,7 @@ import {
   estimatePlayTimes,
   fetchSongs,
   fetchRadioSongs,
+  fetchNowPlaying,
   generateCustomSongId,
   getSongDuration,
   normalizeString,
@@ -17,11 +18,27 @@ vi.mock("axios", () => ({ default: { get: vi.fn() } }));
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "reliastream");
   vi.stubEnv("NEXT_PUBLIC_RADIO_SONGS_URL", "");
+  vi.stubEnv("NEXT_PUBLIC_RADIO_NOW_PLAYING_URL", "");
   vi.useFakeTimers();
   vi.setSystemTime("2026-11-08T09:11:00Z");
 });
 
 describe("song metadata", () => {
+  it.each([
+    "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/5d/2b/c0/5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6/artwork.jpg/100x100bb.jpg",
+    "https://is5-ssl.mzstatic.com/image/thumb/Music221/v4/5d/2b/c0/5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6/artwork.jpg/600x600bb.webp?quality=80",
+    String.raw`https:\/\/is1-ssl.mzstatic.com\/image\/thumb\/Music221\/v4\/5d\/2b\/c0\/5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6\/artwork.jpg\/100x100bb.jpg`,
+    "https://is1-ssl.mzstatic.com/image/thumb/5D2BC0D7-53CC-CF7B-B400-E7C8742FA5D6/artwork.jpg",
+  ])("replaces known unknown artwork regardless of URL variants: %s", (url) => {
+    const song = { artist: "Artist", title: "Song" };
+    expect(enrichCover(url, song)).toBe(enrichCover("", { ...song, title: "Live uitzending" }));
+  });
+
+  it("does not replace unrelated Apple artwork", () => {
+    const url = "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/5d/2b/c0/5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d7/artwork.jpg/100x100bb.jpg";
+    expect(enrichCover(url, { artist: "Artist", title: "Song" })).toBe(url);
+  });
+
   it("splits the radio API title-before-artist format", () => {
     expect(splitTitle("Song - Artist")).toEqual({ title: "Song", artist: "Artist" });
   });
@@ -64,6 +81,67 @@ describe("song metadata", () => {
 });
 
 describe("radio history fetching", () => {
+  it("uses the dedicated Centova current track, structured names and actual start time", async () => {
+    vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "coophosting");
+    vi.mocked(axios.get).mockResolvedValue({
+      data: { type: "result", data: [{
+        offline: false,
+        song: "Do not split this fallback",
+        track: {
+          artist: "Artist - Duo", title: "Current - Part Two",
+          started: 1794384996, imageurl: "https://example.test/current.jpg",
+        },
+      }] },
+    });
+    expect(await fetchNowPlaying()).toEqual({
+      artist: "Artist - Duo", title: "Current - Part Two",
+      ID: "artist-duo-current-part-two", date: 1794384996000,
+      url: "https://example.test/current.jpg",
+    });
+    expect(axios.get).toHaveBeenCalledExactlyOnceWith(
+      "https://server1.coophosting.nl:2199/rpc/novanani/streaminfo.get",
+      { timeout: 10000, params: { _: Math.floor(Date.now() / 30000) } },
+    );
+    vi.setSystemTime(Date.now() + 30000);
+    await fetchNowPlaying();
+    expect(axios.get).toHaveBeenLastCalledWith(
+      getRadioSource().nowPlayingUrl,
+      { timeout: 10000, params: { _: Math.floor(Date.now() / 30000) } },
+    );
+  });
+
+  it("allows missing current-track art and start time without estimating a timestamp", async () => {
+    vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "coophosting");
+    vi.mocked(axios.get).mockResolvedValue({
+      data: { type: "result", data: [{ track: { artist: "", title: "Song" } }] },
+    });
+    const song = await fetchNowPlaying();
+    expect(song).toMatchObject({ title: "Song", artist: "Carnaval-Radio.nl", date: null });
+    expect(song.url).toContain("cloudinary.com");
+  });
+
+  it.each([
+    { type: "error", data: [] },
+    { type: "result" },
+    { type: "result", data: [] },
+    { type: "result", data: [{ offline: true }] },
+    { type: "result", data: [{ track: { artist: "Artist", title: "" } }] },
+    { type: "result", data: [{ track: { title: "Song" } }] },
+  ])("rejects unavailable Centova current-track responses: %j", async (data) => {
+    vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "coophosting");
+    vi.mocked(axios.get).mockResolvedValue({ data });
+    await expect(fetchNowPlaying()).rejects.toThrow("Centova Cast returned no current track");
+  });
+
+  it("keeps ReliaStream now-playing behavior and supports a separate endpoint override", async () => {
+    vi.stubEnv("NEXT_PUBLIC_RADIO_NOW_PLAYING_URL", "https://example.test/current");
+    vi.mocked(axios.get).mockResolvedValue({
+      data: { nowplaying: "Artist - Current song", coverart: "", trackhistory: [] },
+    });
+    expect(await fetchNowPlaying()).toMatchObject({ artist: "Artist", title: "Current song" });
+    expect(axios.get).toHaveBeenCalledWith("https://example.test/current", { timeout: 10000 });
+  });
+
   it("defaults to the paired temporary stream and feed without a CMS override", async () => {
     vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "");
     vi.stubEnv("NEXT_PUBLIC_RADIO_STREAM_URL", "");
@@ -71,6 +149,7 @@ describe("radio history fetching", () => {
       provider: "coophosting",
       streamUrl: "https://server1.coophosting.nl/proxy/novanani/stream",
       songsUrl: "https://server1.coophosting.nl:2199/recentfeed/novanani/json/",
+      nowPlayingUrl: "https://server1.coophosting.nl:2199/rpc/novanani/streaminfo.get",
       useCmsStream: false,
     });
     vi.mocked(axios.get).mockResolvedValue({
@@ -80,7 +159,9 @@ describe("radio history fetching", () => {
       ] },
     });
     const songs = await fetchRadioSongs();
-    expect(axios.get).toHaveBeenCalledWith(getRadioSource().songsUrl, { timeout: 10000 });
+    expect(axios.get).toHaveBeenCalledWith(getRadioSource().songsUrl, {
+      timeout: 10000, params: { _: Math.floor(Date.now() / 30000) },
+    });
     expect(songs[0]).toEqual({
       artist: "Bjorn Mieke", title: "Nog Efkes", ID: "bjorn-mieke-nog-efkes",
       date: 1794380825000, url: "https://example.test/cover.jpg",

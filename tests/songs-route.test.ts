@@ -37,6 +37,7 @@ function request(query = "") {
 }
 
 beforeEach(async () => {
+  vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "reliastream");
   vi.resetModules();
   vi.useFakeTimers();
   vi.setSystemTime(now);
@@ -104,6 +105,19 @@ describe("songs API", () => {
     const response = await GET(request("?limit=6"));
     expect((await response.json()).songs.map((item: RecentSong) => item.ID))
       .toEqual(["recent", "no-time"]);
+  });
+
+  it("preserves actual Centova timestamps instead of nearby database estimates", async () => {
+    vi.stubEnv("NEXT_PUBLIC_RADIO_PROVIDER", "coophosting");
+    services.isConfigured.mockReturnValue(true);
+    services.loadSongs.mockResolvedValue([song("same-track", now)]);
+    services.fetchSongs.mockResolvedValue([
+      song("same-track", now - 120000),
+      song("same-track", now - 180000),
+    ]);
+    const response = await GET(request());
+    expect((await response.json()).songs).toEqual([song("same-track", now - 120000)]);
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
   });
 
   it("retains radio results and disables favorites if the database fails", async () => {

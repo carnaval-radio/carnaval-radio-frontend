@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { getInitials, getRandomColor } from "@/helpers/randomColor";
+import { enrichCover } from "@/GlobalState/ApiCalls/fetchSongs";
 
 interface Props {
   url: string;
@@ -31,7 +32,7 @@ const SongCover = ({ url, artist, type = "hero" }: Props) => {
         <h3 className="text-xl font-semibold text-white">{initials}</h3>
       ) : (
         <Image
-          src={url}
+          src={enrichCover(url, { artist, title: "" })}
           alt={artist}
           height={100}
           width={100}

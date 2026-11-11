@@ -4,8 +4,9 @@ import { updateSongs } from "@/GlobalState/ApiCalls/updateSongs";
 import { DataStorage } from "@/GlobalState/Songs/SupabaseStorage";
 import { isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
 import { NextRequest, NextResponse } from "next/server";
+import { getRadioSource } from "@/data/radioConfig";
 
-export const revalidate = 60; // Cache for 60 seconds
+export const revalidate = 0;
 
 // Rate-limit updateSongs to once every 10 minutes per container instance
 let lastUpdateTime: number = 0;
@@ -53,22 +54,27 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Merge and dedupe by song ID, prefer Supabase if times are close
+  // Centova provides real play times; ReliaStream history times are estimated.
+  const preferRadioTime = getRadioSource().provider === "coophosting";
   const TEN_MINUTES_MS = 10 * 60 * 1000;
   const mergedMap = new Map<string, RecentSong>();
+  const radioIds = new Set<string>();
 
   // Add Supabase songs first
   for (const song of supabaseSongs) {
     if (song.ID) mergedMap.set(song.ID, song);
   }
 
-  // Add Radio songs, dedupe and prefer Supabase if times are close
+  // Add radio songs, deduping nearby database records of the same play.
   for (const song of radioSongs) {
     if (!song.ID) continue;
     const supa = mergedMap.get(song.ID);
+    if (preferRadioTime && radioIds.has(song.ID) &&
+        (supa?.date ?? 0) >= (song.date ?? 0)) continue;
+    radioIds.add(song.ID);
     if (supa) {
-      // If times are close, keep Supabase
       if (Math.abs((supa.date ?? 0) - (song.date ?? 0)) <= TEN_MINUTES_MS) {
+        if (preferRadioTime) mergedMap.set(song.ID, song);
         continue;
       }
       // Otherwise, keep the more recent
@@ -92,5 +98,5 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     songs: mergedSongs,
     canAddToFavorites,
-  });
+  }, { headers: { "Cache-Control": "no-store" } });
 }

@@ -46,6 +46,19 @@ type CentovaResponse = {
   }[];
 };
 
+type CentovaStreamInfoResponse = {
+  type: string;
+  data?: {
+    offline?: boolean;
+    track?: {
+      artist: string;
+      title: string;
+      started?: number;
+      imageurl?: string;
+    };
+  }[];
+};
+
 type ReliaStreamResponse = {
   data: {
     nowplaying: string;
@@ -57,6 +70,39 @@ type ReliaStreamResponse = {
 
 export const EXTERNAL_MAXIMUM_SONG_HISTORY_AMOUNT = 6;
 
+function centovaRequestOptions() {
+  // Avoid reusing the browser's two-minute cached response on each poll.
+  return { timeout: 10000, params: { _: Math.floor(Date.now() / 30000) } };
+}
+
+export async function fetchNowPlaying(): Promise<RecentSong> {
+  const source = getRadioSource();
+  if (source.provider === "reliastream") {
+    const [song] = await fetchRadioSongs(source.nowPlayingUrl);
+    if (!song) throw new Error("Radio provider returned no current track");
+    return song;
+  }
+
+  const { data } = await axios.get<CentovaStreamInfoResponse>(
+    source.nowPlayingUrl,
+    centovaRequestOptions(),
+  );
+  const info = data.type === "result" && Array.isArray(data.data) ? data.data[0] : undefined;
+  const track = info?.track;
+  if (info?.offline || !track || typeof track.artist !== "string" ||
+      typeof track.title !== "string" || !track.title.trim()) {
+    throw new Error("Centova Cast returned no current track");
+  }
+  const song = enrichTitle({ artist: track.artist.trim(), title: track.title.trim() });
+  return {
+    ...song,
+    ID: generateCustomSongId(song.artist, song.title),
+    date: typeof track.started === "number" && Number.isFinite(track.started)
+      ? track.started * 1000 : null,
+    url: enrichCover(track.imageurl || CRLogo, song),
+  };
+}
+
 export async function fetchSongs(): Promise<RecentSong[]> {
   try {
     return await fetchRadioSongs();
@@ -67,10 +113,10 @@ export async function fetchSongs(): Promise<RecentSong[]> {
 }
 
 // Unlike the history wrapper, let the player surface metadata failures.
-export async function fetchRadioSongs(): Promise<RecentSong[]> {
+export async function fetchRadioSongs(songsUrl = getRadioSource().songsUrl): Promise<RecentSong[]> {
     const source = getRadioSource();
     if (source.provider === "coophosting") {
-      const { data } = await axios.get<CentovaResponse>(source.songsUrl, { timeout: 10000 });
+      const { data } = await axios.get<CentovaResponse>(songsUrl, centovaRequestOptions());
       if (!Array.isArray(data.items) || data.items.length === 0) {
         throw new Error("Centova Cast returned no recent tracks");
       }
@@ -97,7 +143,7 @@ export async function fetchRadioSongs(): Promise<RecentSong[]> {
     const {
       data: { nowplaying, coverart, trackhistory, covers },
     }: ReliaStreamResponse =
-      await axios.get(source.songsUrl, { timeout: 10000 });
+      await axios.get(songsUrl, { timeout: 10000 });
     let previousSongNameContainsLive = false;
 
     // Swap title and artist for nowplaying so it matches the trackhistory format
@@ -211,6 +257,10 @@ function specialCasesContains(text?: string) {
 }
 
 export function enrichCover(coverUrl: string, song: Song) {
+  if (coverUrl.toLowerCase().includes("5d2bc0d7-53cc-cf7b-b400-e7c8742fa5d6")) {
+    return CRLogo;
+  }
+
   if(song.title.toLowerCase().includes("live")) {
     return CRLogo;
   }
