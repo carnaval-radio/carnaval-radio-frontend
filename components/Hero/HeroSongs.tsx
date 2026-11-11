@@ -15,7 +15,7 @@ const HeroSongs = () => {
 	const fetchTracks = async () => {
 		try {
 			// Fetch only the 4 most recent songs for the hero section
-			const res = await fetch('/api/songs?limit=4', { cache: 'no-store' });
+			const res = await fetch('/api/songs?limit=4', { cache: 'default' });
 			if (!res.ok) {
 				// dont render component on error
 				throw new Error(`HTTP error! status: ${res.status}`);

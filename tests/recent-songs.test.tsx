@@ -130,7 +130,7 @@ describe("widget and full-page integration", () => {
   it("renders the same full song text in the homepage widget", async () => {
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ songs: tracks, canAddToFavorites: true })));
     await act(async () => render(<HeroSongs />));
-    expect(fetch).toHaveBeenCalledWith("/api/songs?limit=4", { cache: "no-store" });
+    expect(fetch).toHaveBeenCalledWith("/api/songs?limit=4", { cache: "default" });
     expect(screen.getByText(tracks[0].title)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Meer gedraaide nummers" })).toHaveAttribute("href", "/gedraaide-nummers");
     expect(screen.getByRole("button", { name: `Reacties: ${tracks[0].title}` })).toBeInTheDocument();
@@ -142,7 +142,7 @@ describe("widget and full-page integration", () => {
     await act(async () => {
       container = render(<RecentSongsPage />).container;
     });
-    expect(fetch).toHaveBeenCalledWith("/api/songs?limit=50", { cache: "no-store" });
+    expect(fetch).toHaveBeenCalledWith("/api/songs?limit=50", { cache: "default" });
     expect(screen.getByText(tracks[0].title)).toBeInTheDocument();
     expect(container!.firstElementChild).toHaveClass("px-4");
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Gedraaide nummers");

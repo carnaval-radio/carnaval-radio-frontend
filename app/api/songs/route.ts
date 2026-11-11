@@ -6,7 +6,7 @@ import { isSupabaseConfigured } from "@/GlobalState/Songs/supabase_client";
 import { NextRequest, NextResponse } from "next/server";
 import { getRadioSource } from "@/data/radioConfig";
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 // Rate-limit updateSongs to once every 10 minutes per container instance
 let lastUpdateTime: number = 0;
@@ -98,5 +98,9 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     songs: mergedSongs,
     canAddToFavorites,
-  }, { headers: { "Cache-Control": "no-store" } });
+  }, {
+    headers: {
+      "Cache-Control": "public, max-age=30, s-maxage=60, stale-while-revalidate=30",
+    },
+  });
 }

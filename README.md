@@ -51,10 +51,18 @@ Coophosting uses `streaminfo.get` for the player's current track, separately fro
 the recent feed used for history. `NEXT_PUBLIC_RADIO_NOW_PLAYING_URL` optionally
 overrides that endpoint. History uses each feed item's actual Unix timestamp,
 including when merging nearby database entries; ReliaStream retains estimated
-history times. Player and history refresh every 30 seconds. History responses
-are not cached by the app, and Centova requests use a changing query parameter
-to avoid the browser reusing a two-minute cached response. Centova's own
-server-side caching can still delay updates.
+history times. Player and history refresh every 30 seconds. History requests use
+normal browser caching: responses allow 30 seconds in the browser and 60 seconds
+in a shared CDN cache, with another 30 seconds of stale-while-revalidate.
+The history route retains `revalidate = 60`; explicit response cache headers
+allow CDN reuse even though the handler reads query parameters. The CDN caches
+each history URL separately (for example, `limit=4` and `limit=50`). This reduces
+backend work across visitors, but cache misses and different CDN regions can
+still invoke the handler. Check deployed cache-hit headers and hosting usage to
+confirm platform behavior. Player metadata calls go directly to the streaming
+service, not through this route. Centova requests use a changing query parameter
+to avoid reusing its two-minute browser cache; Centova's own server-side caching
+can still delay updates.
 The known unknown-track Apple artwork is replaced by the station logo, matching
 its artwork ID rather than its CDN hostname or thumbnail dimensions. This also
 applies to saved history and favorites.

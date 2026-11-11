@@ -17,7 +17,7 @@ const RecentSongsPage = () => {
   const fetchTracks = async () => {
     try {
       const res = await fetch(`/api/songs?limit=${limit}`, {
-        cache: "no-store",
+        cache: "default",
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);

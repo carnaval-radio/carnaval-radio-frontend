@@ -50,6 +50,17 @@ beforeEach(async () => {
 });
 
 describe("songs API", () => {
+  it("allows browser and shared CDN caching for both history views", async () => {
+    expect((await import("@/app/api/songs/route")).revalidate).toBe(60);
+    for (const limit of [4, 50]) {
+      const response = await GET(request(`?limit=${limit}`));
+      expect(response.headers.get("Cache-Control")).toBe(
+        "public, max-age=30, s-maxage=60, stale-while-revalidate=30",
+      );
+      expect(response.headers.has("Set-Cookie")).toBe(false);
+    }
+  });
+
   it.each([
     ["", 10],
     ["?limit=3", 3],
@@ -117,7 +128,6 @@ describe("songs API", () => {
     ]);
     const response = await GET(request());
     expect((await response.json()).songs).toEqual([song("same-track", now - 120000)]);
-    expect(response.headers.get("Cache-Control")).toBe("no-store");
   });
 
   it("retains radio results and disables favorites if the database fails", async () => {
