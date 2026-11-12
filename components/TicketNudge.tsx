@@ -28,12 +28,19 @@ const TicketNudge = () => {
   }, []);
 
   return (
-    <a href={notificationData.buttonLink} target='_blank' rel="noopener noreferrer" aria-label={`${notificationData.buttonText}: ${notificationData.title}`} title={notificationData.title}>
+    <a
+      href={notificationData.buttonLink}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${notificationData.buttonText}: ${notificationData.title}`}
+      title={notificationData.title}
+      className="flex h-10 w-16 shrink-0 items-center justify-center"
+    >
       <span
-        className={`text-primary inline-block ${bouncing ? 'animate-bounce' : ''}`}
-        style={{ marginTop: '5px', width: '80px', height: '32px', maxWidth: '100%', maxHeight: '100%' }}
+        className={`text-primary inline-flex items-center justify-center ${bouncing ? 'animate-bounce' : ''}`}
+        style={{ width: '64px', height: '32px', flexShrink: 0 }}
       >
-        <img src="/assets/icons/ticket.svg" alt="Ticket Icon" className="w-full h-full text-primary" />
+        <img src="/assets/icons/ticket.svg" alt="Ticket Icon" className="w-full h-full object-contain" />
       </span>
     </a>
   );

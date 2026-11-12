@@ -17,6 +17,10 @@ describe("mobile ticket nudge", () => {
     expect(link).toHaveAttribute("target", "_blank");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
     expect(link).toHaveAttribute("title", notificationData.title);
+    expect(screen.getByRole("img").parentElement).toHaveStyle({
+      width: "64px",
+      height: "32px",
+    });
   });
 
   it("bounces after seven seconds for two seconds, then every five minutes", () => {

@@ -46,6 +46,8 @@ describe("mobile promotion integration", () => {
     act(() => vi.advanceTimersByTime(1));
     expect(screen.getByRole("link", { name: /Koop nu je tickets/ }))
       .toHaveAttribute("href", notificationData.buttonLink);
+    expect(screen.getByAltText("Logo").parentElement).toHaveClass("shrink-0");
+    expect(screen.getByAltText("Logo")).toHaveStyle({ width: "120px" });
   });
 
   it("leaves the disabled nudge hidden after the schedule activates", () => {

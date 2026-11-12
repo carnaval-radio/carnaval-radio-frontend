@@ -37,23 +37,19 @@ const MobileHeader = ({ themeData, menu }: props) => {
   return (
     <div className="relative">
       <div className="bg-gradient-to-r from-gradientStart to-gradientEnd md:hidden lg:hidden xl:hidden flex sm:flex justify-between p-2 pb-4 items-center sticky top-0 z-30">
-        <Link href="/" onClick={closeSidebar}>
+        <Link href="/" onClick={closeSidebar} className="shrink-0">
           <BrandLogo
             src={themeData.attributes.Logo.data.attributes.url}
             width={120}
             priority
           />
         </Link>
-        <div className="flex gap-4 items-center">
+        <div className="flex shrink-0 gap-2 items-center">
           {notificationData.nudgeEnabled && promotionActive && (
-            <>
-              <div style={{ width: 8 }} />
-              <TicketNudge />
-              <div style={{ width: 8 }} />
-            </>
+            <TicketNudge />
           )}
           <MobileChromecast />
-          <Link className="rounded m-auto" href="verzoekjes">
+          <Link className="rounded shrink-0" href="verzoekjes">
             <FaWhatsapp className="text-emerald-500" size={40} />
           </Link>
           <button className="rounded" onClick={toggleSidebar}>
