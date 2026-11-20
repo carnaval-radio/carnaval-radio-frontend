@@ -1,26 +1,31 @@
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 import { GET_SINGLE_POST } from "@/GlobalState/ApiCalls/graphql/article_queries";
 import ArticleContent from "@/components/Post/ArticleContent";
 import NotFoundPage from "@/components/NotFoundPage";
 import Video from "@/components/Video";
 
-export async function generateMetadata({ params }: any) {
-  // Fetch the article data for metadata
-  const { client } = await import("@/GlobalState/ApiCalls/api.config");
-  const { GET_SINGLE_POST } = await import("@/GlobalState/ApiCalls/graphql/article_queries");
-  const { data } = await client.query({
+type SinglePostQueryData = {
+  articles?: { data?: Array<{ attributes?: Post }> };
+};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const data = await queryData<SinglePostQueryData>({
     query: GET_SINGLE_POST,
-    variables: { slugUrl: params.slug },
+    variables: { slugUrl: slug },
   });
   const post = data.articles?.data?.[0]?.attributes;
-  const title = post?.Title || params.slug;
-  // Use first 160 chars of content for description
+  const title = post?.Title || slug;
   const description = post?.Content ? post.Content.replace(/<[^>]+>/g, '').slice(0, 160) : "Nieuwsbericht op Carnaval Radio";
   return {
     title: `${title} | Carnaval Radio | 24/7 Vasteloavend Muzieek`,
     description,
     alternates: {
-      canonical: `/nieuwsberichten/${params.slug}`,
+      canonical: `/nieuwsberichten/${slug}`,
     },
     openGraph: {
       title,
@@ -59,15 +64,11 @@ interface Post {
   publishedAt: string;
 }
 
-const page = async ({ params }: { params: { slug?: string } }) => {
-  
-  if(!params.slug) {
-    return null;
-  }
-  
-  const { data } = await client.query({
+const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await params;
+  const data = await queryData<SinglePostQueryData>({
     query: GET_SINGLE_POST,
-    variables: { slugUrl: params.slug },
+    variables: { slugUrl: slug },
     context: {
       fetchOptions: {
         next: { revalidate: 60, tags: ["articles"] },
@@ -79,7 +80,7 @@ const page = async ({ params }: { params: { slug?: string } }) => {
     return null;
   }
 
-  let post: Post = data.articles?.data?.[0]?.attributes;
+  const post = data.articles?.data?.[0]?.attributes;
 
   if(!post) 
     return <NotFoundPage />;
@@ -116,7 +117,7 @@ const page = async ({ params }: { params: { slug?: string } }) => {
                 },
                 "mainEntityOfPage": {
                   "@type": "WebPage",
-                  "@id": `https://www.carnaval-radio.nl/nieuwsberichten/${params.slug}`
+                  "@id": `https://www.carnaval-radio.nl/nieuwsberichten/${slug}`
                 }
               })
             }}
@@ -141,7 +142,7 @@ const page = async ({ params }: { params: { slug?: string } }) => {
                 : undefined}
             />
             <Suspense fallback={<ShareButtonsFallback />}>
-              <ShareButtons slug={`nieuwsberichten/${params.slug}`} />
+              <ShareButtons slug={`nieuwsberichten/${slug}`} />
             </Suspense>
           </div>
           {/* Sponsor slider at the bottom */}

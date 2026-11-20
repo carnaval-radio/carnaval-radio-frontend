@@ -1,8 +1,8 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { gql } from "@apollo/client";
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 
 const SITE_TAGS = [
   "pages",
@@ -48,26 +48,28 @@ export default async function action(refreshTags: string[] = []) {
         ? refreshSocial()
         : item.startsWith("/")
           ? revalidatePath(item)
-          : revalidateTag(item),
+          : updateTag(item),
     ),
   );
 }
 
 async function refreshSocial() {
-  revalidateTag("social");
+  updateTag("social");
   revalidatePath("/");
   revalidatePath("/social");
 }
 
 async function revalidateMainSite() {
   await Promise.all([
-    ...SITE_TAGS.map((tag) => revalidateTag(tag)),
+    ...SITE_TAGS.map((tag) => updateTag(tag)),
     ...SITE_PATHS.map((path) => revalidatePath(path)),
   ]);
 }
 
 async function revalidateRecentNews(count: number) {
-  const { data } = await client.query({
+  const data = await queryData<{
+    articles?: { data?: Array<{ attributes?: { Slug?: string } }> };
+  }>({
     query: GET_LAST_NEWS_SLUGS,
     variables: { limit: count },
   });
@@ -75,7 +77,7 @@ async function revalidateRecentNews(count: number) {
   const slugs: string[] =
     data?.articles?.data
       ?.map((a: { attributes?: { Slug?: string } }) => a.attributes?.Slug)
-      .filter(Boolean) ?? [];
+      .filter((slug): slug is string => Boolean(slug)) ?? [];
 
   await Promise.all(
     slugs.map((slug) =>

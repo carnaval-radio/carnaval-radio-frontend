@@ -1,9 +1,9 @@
 import { GET_THEME_DATA } from "./graphql/theme_queries";
-import { client } from "./api.config";
+import { queryData } from "./api.config";
 
 export const fetchThemeData = async () => {
   try {
-    const { data } = await client.query({
+    const data = await queryData<{ theme: { data: unknown } }>({
       query: GET_THEME_DATA,
       context: {
         fetchOptions: {

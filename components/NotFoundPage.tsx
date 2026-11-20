@@ -1,7 +1,4 @@
 import { Indie } from "@/app/fonts/font";
-import Section from "@/components/Section";
-import { BiSolidNews } from "react-icons/bi";
-import Limburg24 from "@/components/LimburgNews/Limburg24";
 import Link from "next/link";
 import Sponsors from "@/components/Sponsors/Sponsors";
 
@@ -17,7 +14,12 @@ const NotFoundPage = () => {
           </h2>
           <div className="mb-4">
             <p className="mb-8">Deze pagina bestaat niet meer.</p>
-            <a href="/" className="bg-gradient-to-r text-center from-primary to-secondary rounded-lg mt-8 py-3 px-4 text-white font-semibold">Ga naar de homepagina</a>
+            <Link
+              href="/"
+              className="bg-gradient-to-r text-center from-primary to-secondary rounded-lg mt-8 py-3 px-4 text-white font-semibold"
+            >
+              Ga naar de homepagina
+            </Link>
           </div>
         </div>
       </div>

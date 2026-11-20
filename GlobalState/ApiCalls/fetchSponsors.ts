@@ -1,9 +1,12 @@
 import { SponsorType, Sponsor, GraphQLSponsor, GraphQLSponsorType } from "@/types/sponsorTypes";
-import { client } from "./api.config";
+import { queryData } from "./api.config";
 import { GET_ALL_SPONSORS } from "./graphql/sponsor_queries";
 
 export const fetchSponsors = async () => {
-    const { data: sponsorData } = await client.query({
+    const sponsorData = await queryData<{
+        sponsorTypes: { data: GraphQLSponsorType[] };
+        sponsors: { data: GraphQLSponsor[] };
+    }>({
         query: GET_ALL_SPONSORS,
         context: {
             fetchOptions: {

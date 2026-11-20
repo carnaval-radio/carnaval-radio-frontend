@@ -49,7 +49,12 @@ const HeroSlider = ({ slides }: { slides: Slide[] }) => {
           </ArrowFix>
         }
       >
-        {slides.map(({ Link: slideLink, Image: { Url } }: Slide, i: number) => {
+        {slides
+          .filter(
+            (slide): slide is Slide & { Image: NonNullable<Slide["Image"]> } =>
+              slide.Image !== null,
+          )
+          .map(({ Link: slideLink, Image: { Url } }, i) => {
           const optimizedProps = getOptimizedImageProps(Url, 'hero');
           const imageElement = (
             <Image
@@ -89,7 +94,7 @@ const HeroSlider = ({ slides }: { slides: Slide[] }) => {
           ) : (
             <div key={i}>{imageElement}</div>
           );
-        })}
+          })}
       </Carousel>
     </div>
   );

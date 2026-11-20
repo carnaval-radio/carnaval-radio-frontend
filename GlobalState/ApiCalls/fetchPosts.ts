@@ -1,9 +1,9 @@
 import { Post } from "@/types/articleTypes";
 import { GET_ALL_ARTICLES } from "./graphql/article_queries";
-import { client } from "./api.config";
+import { queryData } from "./api.config";
 
 export const fetchPosts = async () => {
-const { data } = await client.query({
+const data = await queryData<{ articles?: { data?: Post[] | null } | null }>({
     query: GET_ALL_ARTICLES,
     context: {
         fetchOptions: {

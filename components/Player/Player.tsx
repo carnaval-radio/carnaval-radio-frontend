@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import PlayerControls from "./PlayerControls";
 import { useDispatch, useSelector } from "react-redux";
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 import { GET_STREAM_DATA } from "@/GlobalState/ApiCalls/graphql/stream_queries";
 import { setsSongTitle, setPlay } from "@/GlobalState/features/PlayerSlice";
 import { GlobalState } from "@/GlobalState/GlobalState";
@@ -93,7 +93,9 @@ const Player = () => {
     const source = getRadioSource();
     if (!source.useCmsStream) return;
     try {
-      const { data } = await client.query({
+      const data = await queryData<{
+        streams?: { data?: Array<{ attributes?: { Link?: string | null } }> };
+      }>({
         query: GET_STREAM_DATA,
       });
 

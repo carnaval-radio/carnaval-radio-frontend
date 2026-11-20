@@ -1,7 +1,8 @@
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 import { GET_ALL_ARTICLES } from "@/GlobalState/ApiCalls/graphql/article_queries";
 import { GET_ALL_SLUGS_FOR_CONTENT_PAGES } from "@/GlobalState/ApiCalls/graphql/page_queries";
 import { Post } from "@/types/articleTypes";
+import { ContentPage } from "@/types/pageTypes";
 import { oldArticles } from "@/data/allNewsArticles";
 
 const URL = process.env.NEXT_PUBLIC_SITE_URL;
@@ -150,7 +151,7 @@ async function getSitemapUrls() {
 }
 
 async function getPosts() {
-  const { data } = await client.query({
+  const data = await queryData<{ articles?: { data?: Post[] } }>({
     query: GET_ALL_ARTICLES,
     context: {
       fetchOptions: {
@@ -158,13 +159,11 @@ async function getPosts() {
       },
     },
   });
-  let sortedPosts: Post[];
-  sortedPosts = data?.articles?.data;
-  return sortedPosts;
+  return data.articles?.data ?? [];
 }
 
 async function getPages() {
-  const { data } = await client.query({
+  const data = await queryData<{ pages?: { data?: ContentPage[] } }>({
     query: GET_ALL_SLUGS_FOR_CONTENT_PAGES,
     context: {
       fetchOptions: {
@@ -172,7 +171,5 @@ async function getPages() {
       },
     },
   });
-  let sortedPages: { attributes: { Slug: string; publishedAt: string } }[];
-  sortedPages = data?.pages?.data;
-  return sortedPages;
+  return data.pages?.data ?? [];
 }

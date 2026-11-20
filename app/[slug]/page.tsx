@@ -1,4 +1,4 @@
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 import { GET_ALL_SLUGS_FOR_CONTENT_PAGES, GET_SINGLE_PAGE } from "@/GlobalState/ApiCalls/graphql/page_queries";
 import { SingleContentPage } from "@/types/pageTypes";
 import ReactHtmlParser from "html-react-parser";
@@ -13,7 +13,9 @@ const descriptions: Record<string, string> = {
 };
 
 async function fetchPage(slug: string): Promise<SingleContentPage | undefined> {
-  const { data } = await client.query({
+  const data = await queryData<{
+    pages: { data: Array<{ attributes: SingleContentPage }> };
+  }>({
     query: GET_SINGLE_PAGE,
     variables: { slugUrl: slug },
     context: {
@@ -24,7 +26,7 @@ async function fetchPage(slug: string): Promise<SingleContentPage | undefined> {
 }
 
 export async function generateStaticParams() {
-  const { data } = await client.query({
+  const data = await queryData<{ pages: { data: ContentPage[] } }>({
     query: GET_ALL_SLUGS_FOR_CONTENT_PAGES,     
     context: {
       fetchOptions: {
@@ -36,8 +38,8 @@ export async function generateStaticParams() {
   return data.pages.data.map((page: ContentPage) => ({ slug: page.attributes.Slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const slug = params.slug;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const page = await fetchPage(slug);
   if (!page) return { title: "Pagina niet gevonden | Carnaval Radio", robots: { index: false } };
   return pageMetadata(
@@ -47,8 +49,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   );
 }
 
-const page = async ({ params }: { params: { slug: string } }) => {
-  const slug = params.slug;
+const page = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const { slug } = await params;
   const page = await fetchPage(slug);
 
   if (!page)

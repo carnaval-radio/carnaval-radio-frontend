@@ -10,7 +10,7 @@ interface UseRemotePlaybackProps {
   trackUrl: string;
   currentTrack: Track;
   isPlaying: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   onRemoteStateChange?: (isRemote: boolean) => void;
 }
 

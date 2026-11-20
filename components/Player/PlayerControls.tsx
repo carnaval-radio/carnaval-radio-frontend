@@ -16,7 +16,7 @@ import MobilePlayer from "./MobilePlayer";
 
 interface Props {
   currentTrack: Track;
-  audioElem: React.RefObject<HTMLAudioElement>;
+  audioElem: React.RefObject<HTMLAudioElement | null>;
   loading: boolean;
   trackUrl: string;
   playbackType: RemotePlaybackType;

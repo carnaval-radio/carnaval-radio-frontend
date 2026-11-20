@@ -10,7 +10,7 @@ export type GraphQLSlide = {
           height: number;
         };
       };
-    };
+    } | null;
     Link?: string;
   };
 };
@@ -18,7 +18,7 @@ export type GraphQLSlide = {
 export interface Slide {
   Id: string;
   Title?: string;
-  Image: SlideImage;
+  Image: SlideImage | null;
   Link?: string;
 }
 

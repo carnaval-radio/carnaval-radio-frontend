@@ -1,14 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { client } from "@/GlobalState/ApiCalls/api.config";
 import refresh from "@/app/refresh/actions";
 
+const apiMocks = vi.hoisted(() => ({ query: vi.fn() }));
+
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
+  updateTag: vi.fn(),
 }));
 vi.mock("@/GlobalState/ApiCalls/api.config", () => ({
-  client: { query: vi.fn() },
+  client: { query: apiMocks.query },
+  queryData: async (options: unknown) => {
+    const result = await apiMocks.query(options);
+    if (result.data === undefined) throw new Error("GraphQL query response did not contain data.");
+    return result.data;
+  },
 }));
 
 beforeEach(() => {
@@ -31,13 +38,13 @@ describe("cache refresh actions", () => {
   it("refreshes only the homepage and navigation when explicitly selected", async () => {
     await refresh(["/", "navigation"]);
     expect(revalidatePath).toHaveBeenCalledExactlyOnceWith("/");
-    expect(revalidateTag).toHaveBeenCalledExactlyOnceWith("navigation");
+    expect(updateTag).toHaveBeenCalledExactlyOnceWith("navigation");
     expect(client.query).not.toHaveBeenCalled();
   });
 
   it("refreshes all configured site tags, paths, and three recent articles by default", async () => {
     await refresh();
-    expect(vi.mocked(revalidateTag).mock.calls.map(([tag]) => tag).sort())
+    expect(vi.mocked(updateTag).mock.calls.map(([tag]) => tag).sort())
       .toEqual(["pages", "sponsors", "team", "events", "twitch", "slides", "navigation", "social"].sort());
     expect(vi.mocked(revalidatePath).mock.calls.map(([path]) => path).sort()).toEqual([
       "/sponsoren", "/sitemap.xml", "/articles", "/team", "/events", "/social", "/",
@@ -48,7 +55,7 @@ describe("cache refresh actions", () => {
 
   it("invalidates both social consumers when refreshing the social tag", async () => {
     await refresh(["social"]);
-    expect(revalidateTag).toHaveBeenCalledExactlyOnceWith("social");
+    expect(updateTag).toHaveBeenCalledExactlyOnceWith("social");
     expect(vi.mocked(revalidatePath).mock.calls).toEqual([["/"], ["/social"]]);
     expect(client.query).not.toHaveBeenCalled();
   });
@@ -56,8 +63,8 @@ describe("cache refresh actions", () => {
   it("supports a custom recent article count alongside explicit tags", async () => {
     await refresh(["recent-news=5", "slides"]);
     expect(client.query).toHaveBeenCalledWith(expect.objectContaining({ variables: { limit: 5 } }));
-    expect(revalidateTag).toHaveBeenCalledExactlyOnceWith("slides");
-    expect(revalidateTag).not.toHaveBeenCalledWith("recent-news=5");
+    expect(updateTag).toHaveBeenCalledExactlyOnceWith("slides");
+    expect(updateTag).not.toHaveBeenCalledWith("recent-news=5");
   });
 
   it("uses the existing default for an invalid recent article count", async () => {

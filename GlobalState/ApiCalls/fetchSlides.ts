@@ -1,11 +1,13 @@
 import { GraphQLSlide, Slide } from "@/types/slideTypes";
-import { client } from "./api.config";
+import { queryData } from "./api.config";
 import { GET_ALL_SLIDES } from "./graphql/slide_queries";
 import { slides as FallbackSlides } from "../../public/ProjectData/slides";
 
 export const fetchSlides = async () => {
   try {
-    const { data: slideData } = await client.query({
+    const slideData = await queryData<{
+      slides: { data: GraphQLSlide[] };
+    }>({
       query: GET_ALL_SLIDES,
       context: {
         fetchOptions: {
@@ -16,6 +18,7 @@ export const fetchSlides = async () => {
 
     const slides: Slide[] = slideData.slides.data.map((x: GraphQLSlide) => {
       return {
+        Id: x.id,
         Image: x.attributes.Image?.data
           ? {
               Width: x.attributes.Image.data.attributes.width,

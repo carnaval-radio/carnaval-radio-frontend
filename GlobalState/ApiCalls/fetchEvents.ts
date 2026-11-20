@@ -1,4 +1,4 @@
-import { client } from "./api.config";
+import { queryData } from "./api.config";
 import { GET_ALL_EVENTS } from "./graphql/events_queries";
 
 export interface Event  {
@@ -11,7 +11,9 @@ export interface Event  {
 }
 
 export const fetchEvents = async () => {
-    const { data } = await client.query({ 
+    const data = await queryData<{
+        events: { data: Array<{ id: string; attributes: Omit<Event, "id"> }> };
+    }>({
         query: GET_ALL_EVENTS, 
         context: { 
             fetchOptions: { 

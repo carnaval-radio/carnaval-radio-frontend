@@ -10,7 +10,14 @@ import { generateMetadata as newsMetadata } from "@/app/articles/page";
 import { generateMetadata as homeMetadata } from "@/app/page";
 
 const mocks = vi.hoisted(() => ({ query: vi.fn() }));
-vi.mock("@/GlobalState/ApiCalls/api.config", () => ({ client: { query: mocks.query } }));
+vi.mock("@/GlobalState/ApiCalls/api.config", () => ({
+  client: { query: mocks.query },
+  queryData: async (options: unknown) => {
+    const result = await mocks.query(options);
+    if (result.data === undefined) throw new Error("GraphQL query response did not contain data.");
+    return result.data;
+  },
+}));
 vi.mock("@/app/fonts/font", () => ({ Indie: { className: "indie" } }));
 vi.mock("@/components/Sponsors/Sponsors", () => ({ default: () => null }));
 vi.mock("@/components/Hero/Hero", () => ({ default: () => null }));
@@ -57,7 +64,7 @@ describe("search metadata", () => {
   });
 
   it("uses Strapi titles and content rather than inheriting the homepage description", async () => {
-    expect(await contentMetadata({ params: { slug: "over-ons" } })).toMatchObject({
+    expect(await contentMetadata({ params: Promise.resolve({ slug: "over-ons" }) })).toMatchObject({
       title: "Over ons | Carnaval Radio",
       description: "Een team uit Brunssum & Parkstad.",
       alternates: { canonical: "/over-ons" },
@@ -69,8 +76,8 @@ describe("search metadata", () => {
   });
 
   it("uses distinct listening and live broadcast descriptions", async () => {
-    const listen = await contentMetadata({ params: { slug: "luisteren" } });
-    const live = await contentMetadata({ params: { slug: "live-uitzendingen" } });
+    const listen = await contentMetadata({ params: Promise.resolve({ slug: "luisteren" }) });
+    const live = await contentMetadata({ params: Promise.resolve({ slug: "live-uitzendingen" }) });
     expect(listen.description).toContain("Luister gratis online");
     expect(live.description).toContain("waar en wanneer");
     expect(listen.description).not.toBe(live.description);
@@ -78,10 +85,10 @@ describe("search metadata", () => {
 
   it("does not index missing CMS pages or swallow CMS failures", async () => {
     mocks.query.mockResolvedValueOnce({ data: { pages: { data: [] } } });
-    expect(await contentMetadata({ params: { slug: "missing" } }))
+    expect(await contentMetadata({ params: Promise.resolve({ slug: "missing" }) }))
       .toMatchObject({ robots: { index: false } });
     mocks.query.mockRejectedValueOnce(new Error("CMS unavailable"));
-    await expect(contentMetadata({ params: { slug: "over-ons" } })).rejects.toThrow("CMS unavailable");
+    await expect(contentMetadata({ params: Promise.resolve({ slug: "over-ons" }) })).rejects.toThrow("CMS unavailable");
   });
 
   it("generates the Next.js parameter objects from Strapi's Slug field", async () => {

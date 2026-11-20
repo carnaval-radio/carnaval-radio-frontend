@@ -2,22 +2,30 @@ import { createElement, Fragment, type ReactNode } from "react";
 import {
   attributesToProps,
   domToReact,
-  Element,
   htmlToDOM,
-  Text,
   type DOMNode,
+  type Element,
   type HTMLReactParserOptions,
+  type Text,
 } from "html-react-parser";
 import ArticleGallery, { type ArticleImage } from "./ArticleGallery";
 
+function isTextNode(node: DOMNode): node is Text {
+  return node.type === "text";
+}
+
+function isElementNode(node: DOMNode): node is Element {
+  return node.type === "tag" || node.type === "script" || node.type === "style";
+}
+
 function isSpacing(node: DOMNode): boolean {
-  if (node instanceof Text) return !node.data.replace(/\u00a0/g, " ").trim();
-  return node instanceof Element &&
+  if (isTextNode(node)) return !node.data.replace(/\u00a0/g, " ").trim();
+  return isElementNode(node) &&
     (node.name === "br" || (["p", "div"].includes(node.name) && node.children.every(child => isSpacing(child as DOMNode))));
 }
 
 function imageBlock(node: DOMNode): ArticleImage[] | null {
-  if (!(node instanceof Element)) return null;
+  if (!isElementNode(node)) return null;
   if (node.name === "img") {
     return node.attribs.src ? [{ src: node.attribs.src, alt: node.attribs.alt || "" }] : null;
   }
@@ -28,7 +36,7 @@ function imageBlock(node: DOMNode): ArticleImage[] | null {
   for (const child of node.children) {
     const domChild = child as DOMNode;
     if (isSpacing(domChild)) continue;
-    if (node.name === "figure" && domChild instanceof Element && domChild.name === "figcaption") {
+    if (node.name === "figure" && isElementNode(domChild) && domChild.name === "figcaption") {
       caption = domToReact(domChild.children as DOMNode[]);
       continue;
     }
@@ -47,7 +55,7 @@ function imageBlock(node: DOMNode): ArticleImage[] | null {
 function renderNodes(nodes: DOMNode[], cover: { image?: ArticleImage }): ReactNode[] {
   const options: HTMLReactParserOptions = {
     replace(node) {
-      if (node instanceof Element && node.name === "iframe") {
+      if (isElementNode(node) && node.name === "iframe") {
         const props = attributesToProps(node.attribs);
         const width = Number(node.attribs.width);
         const height = Number(node.attribs.height);
@@ -65,7 +73,7 @@ function renderNodes(nodes: DOMNode[], cover: { image?: ArticleImage }): ReactNo
           </div>
         );
       }
-      if (node instanceof Element && node.children.some(child => imageBlock(child as DOMNode))) {
+      if (isElementNode(node) && node.children.some(child => imageBlock(child as DOMNode))) {
         const name = ["p", "span", "a"].includes(node.name) ? "div" : node.name;
         return createElement(name, attributesToProps(node.attribs), renderNodes(node.children as DOMNode[], cover));
       }

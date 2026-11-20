@@ -6,7 +6,7 @@ import MobileHeader from "@/components/MobileHeader";
 import Player from "@/components/Player/Player";
 import Footer from "@/components/Footer";
 import { dosis } from "./fonts/font";
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 import { GET_UI_NAVIGATION } from "@/GlobalState/ApiCalls/graphql/navigation_queries";
 import { fetchThemeData } from "@/GlobalState/ApiCalls/fetchTheme";
 import GoogleAnalytics from "@/components/Analytics/GoogleAnalytics";
@@ -51,12 +51,23 @@ export const metadata: Metadata = {
 
 const GoogleAnalyticsFallback = () => null;
 
+interface NavigationItem {
+  title: string;
+  path: string;
+  Icon?: string | null;
+  items?: NavigationItem[] | null;
+}
+
+type NavigationQueryData = {
+  renderNavigation: NavigationItem[];
+};
+
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { data: footer } = await client.query({
+  const footer = await queryData<NavigationQueryData>({
     query: GET_UI_NAVIGATION,
     variables: { menuName: "footer" },
     context: {
@@ -66,7 +77,7 @@ export default async function RootLayout({
     },
   });
 
-  const { data: menu } = await client.query({
+  const menu = await queryData<NavigationQueryData>({
     query: GET_UI_NAVIGATION,
     variables: { menuName: "main" },
     context: {

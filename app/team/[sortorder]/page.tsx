@@ -1,7 +1,7 @@
 import TeamMemberComponent from "@/components/Team/TeamMember";
 import { TeamMember } from "@/types/teamTypes";
 import { GET_TEAM_DATA } from "@/GlobalState/ApiCalls/graphql/team_queries";
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 import LinkSelect from "@/components/constants/LinkSelect";
 import { pageMetadata } from "@/helpers/seo";
 
@@ -20,8 +20,9 @@ export async function generateStaticParams() {
   }));
 }
 
-const page = async ({ params }: { params: { sortorder: string } }) => {
-  const { data } = await client.query({
+const page = async ({ params }: { params: Promise<{ sortorder: string }> }) => {
+  const { sortorder } = await params;
+  const data = await queryData<{ team?: { data?: TeamMember[] } }>({
     query: GET_TEAM_DATA,
     context: {
       fetchOptions: {
@@ -36,10 +37,10 @@ const page = async ({ params }: { params: { sortorder: string } }) => {
     return null;
   }
 
-  if (params.sortorder === "standaard") {
+  if (sortorder === "standaard") {
     teamMembers = teamMembers.slice().sort(() => Math.random() - 0.5);
   }
-  if (params.sortorder === "naam") {
+  if (sortorder === "naam") {
     teamMembers = teamMembers
       .slice()
       .sort((a, b) => a.attributes.Name.localeCompare(b.attributes.Name));

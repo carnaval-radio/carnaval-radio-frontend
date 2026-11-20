@@ -1,4 +1,4 @@
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 import Image from "next/image";
 import { GET_ALL_SPONSORS } from "@/GlobalState/ApiCalls/graphql/sponsor_queries";
 import {
@@ -32,7 +32,10 @@ export async function generateMetadata() {
 }
 
 const page = async () => {
-  const { data } = await client.query({
+  const data = await queryData<{
+    sponsors: { data: GraphQLSponsor[] };
+    sponsorTypes: { data: GraphQLSponsorType[] };
+  }>({
     query: GET_ALL_SPONSORS,
     context: {
       fetchOptions: {

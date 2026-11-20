@@ -1,10 +1,10 @@
-import { client } from "@/GlobalState/ApiCalls/api.config";
+import { queryData } from "@/GlobalState/ApiCalls/api.config";
 import { GET_ALL_ARTICLES } from "@/GlobalState/ApiCalls/graphql/article_queries";
 import { Post } from "@/types/articleTypes";
 import { Feed } from "feed";
 
 export async function GET() {
-  const { data } = await client.query({
+  const data = await queryData<{ articles: { data: Post[] } }>({
     query: GET_ALL_ARTICLES,
     context: {
       fetchOptions: {

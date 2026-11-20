@@ -25,7 +25,7 @@ declare global {
 
 export default function SubmitEventForm({ siteKey }: { siteKey: string | undefined }) {
   const container = useRef<HTMLDivElement>(null);
-  const widget = useRef<string>();
+  const widget = useRef<string | undefined>(undefined);
   const [ready, setReady] = useState(false);
   const [token, setToken] = useState("");
   const [pending, setPending] = useState(false);

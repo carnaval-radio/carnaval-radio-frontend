@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { unstable_cache, unstable_noStore } from "next/cache";
-import { isDynamicServerError } from "next/dist/client/components/hooks-server-context";
+import { unstable_rethrow } from "next/navigation";
 import { loadSocialSnapshot, saveSocialSnapshot } from "./socialSnapshots";
 
 export interface SocialPost {
@@ -91,7 +91,7 @@ const fetchGraphPosts = async <T>(
       );
       payload = await response.json();
     } catch (error) {
-      if (isDynamicServerError(error)) throw error;
+      unstable_rethrow(error);
       console.error(`${platform} feed request failed:`, error instanceof Error ? error.name : "Unknown error");
       throw new Error(`${platform} feed request failed.`);
     }
@@ -114,7 +114,7 @@ const fetchGraphPosts = async <T>(
   try {
     return await load();
   } catch (error) {
-    if (isDynamicServerError(error)) throw error;
+    unstable_rethrow(error);
     console.error(`${platform} feed unavailable:`, error instanceof Error ? error.name : "Unknown error");
     // Keep the empty-feed UI, but do not persist a failed render in the route cache.
     unstable_noStore();

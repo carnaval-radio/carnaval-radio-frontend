@@ -9,7 +9,7 @@ interface UseAirPlayProps {
   trackUrl: string;
   currentTrack: Track;
   isPlaying: boolean;
-  audioRef: React.RefObject<HTMLAudioElement>;
+  audioRef: React.RefObject<HTMLAudioElement | null>;
   onAirPlayStateChange?: (isAirPlaying: boolean) => void;
 }
 
