@@ -1,13 +1,7 @@
-
-import UploadMusicClient from "../../components/upload/UploadMusicClient";
-
 export default function UploadMusicPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-heroBackground">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-primary mb-4">Carnaval Radio Muziek Upload</h1>
-        <UploadMusicClient />
-      </div>
-    </div>
+    <main className="flex min-h-screen items-center justify-center p-6 text-center">
+      <p>This doesn&apos;t work anymore, because no-one has ever used it, please contact Nick to upload music</p>
+    </main>
   );
 }
