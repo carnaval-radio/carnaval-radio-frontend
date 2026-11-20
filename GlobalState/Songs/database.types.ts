@@ -79,6 +79,8 @@ export interface Database {
           type: "like" | "vote" | "comment" | "lyrics"
           user_id: string
           content: string | null
+          ip_hash: string | null
+          user_agent: string | null
           created_at: string
         }
         Insert: {
@@ -88,6 +90,8 @@ export interface Database {
           type: "like" | "vote" | "comment" | "lyrics"
           user_id: string
           content?: string | null
+          ip_hash?: string | null
+          user_agent?: string | null
           created_at?: string
         }
         Update: {
@@ -97,6 +101,8 @@ export interface Database {
           type?: "like" | "vote" | "comment" | "lyrics"
           user_id?: string
           content?: string | null
+          ip_hash?: string | null
+          user_agent?: string | null
           created_at?: string
         }
         Relationships: []
