@@ -12,7 +12,7 @@ This is the frontend of Carnaval-Radio.nl, built with Next.JS
 - Create `.env.local` in the root
 - Copy the `.env.example` file into the `.env.local` file.
 
-Use Node.js 22.12 or newer within the Node 22 release line (see [.nvmrc](.nvmrc)) and the pinned pnpm version in [package.json](package.json). The engine range deliberately keeps deployments on Node 22 rather than automatically selecting a newer major.
+Use Node.js 24.15 or newer within the Node 24 release line (see [.nvmrc](.nvmrc)) and the pinned pnpm version in [package.json](package.json). CI and Vercel use the same Node major.
 
 ```bash
 nvm use
@@ -186,7 +186,7 @@ Captions longer than 160 characters have a **Meer lezen** button showing the ful
 
 ## Ticket promotion
 
-- Manage the shared desktop and mobile menu in Strapi's `main` navigation. Add a **Tickets** external link with the URL `https://entrii.shop/carnaval-radio#`, rather than linking to the local tickets page. HTTPS menu links automatically open in a new tab. Navigation is cached for one hour.
+- Manage the desktop, mobile, and footer menus in Strapi. Use `https://entrii.shop/carnaval-radio#` for **Tickets**; existing local ticket aliases in these menus also open the shop directly in a new tab without prefetching. Navigation is cached for one hour.
 - Configure ticket promotions in [notificationData.ts](data/notificationData.ts) and redeploy. Both the modal (`enabled`) and mobile ticket icon (`nudgeEnabled`) are scheduled for **8 November 2026 at 10:45 Europe/Amsterdam**, using `startsAt: "2026-11-08T10:45:00+01:00"`. Once the updated deployment is loaded, activation happens without a reload, including for visitors who already have that version open. Set `startsAt: null` for immediate activation, or set either feature flag to `false` to disable it. Change `campaignId` to show a new campaign to previous viewers; the five-day repeat limit still applies within that campaign. Without a campaign ID, the legacy dismissal key remains in use.
 - The modal appears 15 seconds after activation or arrival (whichever is later) and repeats on a subsequent visit after 5 days, controlled by `delay` and `showAgainAfterDays`. Both promotions use the configured ticket-shop link.
 - To test the modal again before the repeat interval, run `localStorage.removeItem("notification_last_shown")` in the browser console and reload.

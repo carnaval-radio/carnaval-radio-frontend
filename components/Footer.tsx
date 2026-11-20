@@ -2,6 +2,7 @@ import Link from "next/link";
 import Socials from "./Socials";
 import { TbMinusVertical } from "react-icons/tb";
 import BrandLogo from "./BrandLogo";
+import NavigationLink from "./NavigationLink";
 interface props {
   data: any;
   themeData: any;
@@ -29,7 +30,7 @@ const Footer = ({ data, themeData }: props) => {
                 <ul className="text-sm flex flex-col gap-1">
                   {item.items.map((item: any, index: any) => (
                     <li key={"footerItem" + index}>
-                      <Link href={item.path}>{item.title}</Link>
+                      <NavigationLink href={item.path}>{item.title}</NavigationLink>
                     </li>
                   ))}
                 </ul>

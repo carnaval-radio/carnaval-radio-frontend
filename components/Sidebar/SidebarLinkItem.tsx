@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import {
   MdHome,
   MdError,
@@ -17,7 +17,11 @@ import {
 } from "react-icons/md";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import NavigationLink from "../NavigationLink";
+
+const subscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 const IconMapping: any = {
   "<MdHome />": <MdHome />,
@@ -41,7 +45,10 @@ interface props {
 }
 
 const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
-  const path = usePathname();
+  const pathname = usePathname();
+  // A rewrite can expose a different pathname in the browser than in the static HTML.
+  const hydrated = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
+  const path = hydrated ? pathname : null;
   const [open, setOpen] = useState(false);
 
   const formatPath = (p: string) => {
@@ -54,13 +61,14 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
 
   if (!item?.items || item?.items?.length === 0) {
     return (
-      <Link href={href} key={"sideBarLink" + index} legacyBehavior>
-        <a target={href?.includes('https://') ? "_blank" : undefined}
-          onClick={() => {
-            toggleSidebar && toggleSidebar();
-          }}
-          className="relative"
-        >
+      <NavigationLink
+        href={href}
+        key={"sideBarLink" + index}
+        onClick={() => {
+          toggleSidebar && toggleSidebar();
+        }}
+        className="relative"
+      >
           {path == href && (
             <Image
               className="h-10 w-2 absolute left-0 top-0 bottom-0 "
@@ -95,8 +103,7 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
               </div>
             </div>
           </div>
-        </a>
-      </Link>
+      </NavigationLink>
     );
   } else {
     return (
@@ -155,9 +162,11 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
           }`}
         >
           {item.items.map((subItem: any, subIndex: any) => {
-            const subHref = `/${formatPath(subItem.path)}`;
+            const subHref = /^(?:https?:)?\/\//i.test(subItem.path)
+              ? subItem.path
+              : `/${formatPath(subItem.path)}`;
             return (
-              <Link
+              <NavigationLink
                 href={subHref}
                 onClick={() => {
                   toggleSidebar && toggleSidebar();
@@ -167,7 +176,7 @@ const SidebarLinkItem = ({ item, index, toggleSidebar }: props) => {
                 replace
               >
                 {subItem.title}
-              </Link>
+              </NavigationLink>
             );
           })}
         </div>

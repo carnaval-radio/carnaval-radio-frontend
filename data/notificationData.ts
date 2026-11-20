@@ -1,3 +1,5 @@
+import { TICKET_SHOP_URL } from "./ticketShop";
+
 export interface NotificationData {
   enabled: boolean;
   nudgeEnabled: boolean;
@@ -22,7 +24,7 @@ export const notificationData: NotificationData = {
   title: "Carnaval Radio 2x11 joar jubileumfeest 2027",
   message: "Vier op zaterdag 23 januari 2027 ons 2x11 joar jubileumfeest in de Brikke Oave in Brunssum! Samen met hoofdsponsor PLUS Quaedvlieg maken we er een onvergetelijke Limburgse Aovendj van, met John Tana, Pruuf Mar!, Beppie Kraft, Erwin, Big Benny, Spik en Span en meer.",
   buttonText: "Koop nu je tickets",
-  buttonLink: "https://entrii.shop/carnaval-radio#",
+  buttonLink: TICKET_SHOP_URL,
   openInNewTab: true,
   iconType: "success",
   showAgainAfterDays: 5, // null = show once and never again, 1 = daily, 7 = weekly, etc.

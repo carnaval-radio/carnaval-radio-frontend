@@ -1,10 +1,14 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import SidebarLinks from "@/components/Sidebar/SidebarLinks";
+import Footer from "@/components/Footer";
+import { usePathname } from "next/navigation";
 
-vi.mock("next/navigation", () => ({ usePathname: () => "/current-page" }));
+vi.mock("next/navigation", () => ({ usePathname: vi.fn(() => "/current-page") }));
 
 describe("shared desktop and mobile navigation", () => {
   it("renders Strapi links without injecting a hardcoded ticket entry", () => {
@@ -23,8 +27,37 @@ describe("shared desktop and mobile navigation", () => {
     const link = screen.getByRole("link", { name: "Tickets" });
     expect(link).toHaveAttribute("href", "https://entrii.shop/carnaval-radio#");
     expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
     fireEvent.click(link);
     expect(toggleSidebar).toHaveBeenCalledOnce();
+  });
+
+  it("uses a direct external link for a legacy footer ticket path", () => {
+    render(<Footer
+      data={[{ title: "Links", items: [{ title: "Tickets", path: "/tickets" }] }]}
+      themeData={{ attributes: { Logo: { data: { attributes: { url: "/logo.png" } } } } }}
+    />);
+    const link = screen.getByRole("link", { name: "Tickets" });
+    expect(link).toHaveAttribute("href", "https://entrii.shop/carnaval-radio#");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
+  it("hydrates without a mismatch when a rewrite changes the sidebar pathname", async () => {
+    const menu = <SidebarLinks menu={[{ title: "Favorieten", path: "/favorieten" }]} />;
+    const container = document.createElement("div");
+    vi.mocked(usePathname).mockReturnValueOnce("/favorites");
+    container.innerHTML = renderToString(menu);
+    const onRecoverableError = vi.fn();
+    vi.mocked(usePathname).mockReturnValue("/favorieten");
+    const root = await act(async () => hydrateRoot(container, menu, { onRecoverableError }));
+    try {
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(container.querySelector("p")).toHaveClass("font-semibold");
+    } finally {
+      act(() => root.unmount());
+      vi.mocked(usePathname).mockReturnValue("/current-page");
+    }
   });
 
   it("renders an empty menu when none is provided", () => {
