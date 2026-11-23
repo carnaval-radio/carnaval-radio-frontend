@@ -33,7 +33,7 @@
     "bad-words": "^4.0.0",
     "client-only": "^0.0.1",
     "eslint-config-next": "^14.0.4",
-    "feed": "^4.2.2",
+    "feed": "^6.0.0",
     "formidable": "^3.5.4",
     "graphql": "^16.8.1",
     "html-react-parser": "^5.1.1",
